@@ -431,8 +431,8 @@ body:not(.sb-unlocked) #main{margin-left:0}
 .section-title{font-size:16px;font-weight:500;margin-bottom:16px;color:var(--text);line-height:1.4}
 .vid-grid{
   display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
-  gap:20px 16px;
+  grid-template-columns:repeat(4,1fr);
+  gap:16px 12px;
 }
 .vid-card{
   display:flex;flex-direction:column;
@@ -1014,12 +1014,12 @@ body.light-mode .mcp-item:hover{background:rgba(0,0,0,.04)}
   .pl-detail-wrap{flex-direction:column}
   .pl-detail-sidebar{width:100%;position:static}
   .pl-detail-cover{aspect-ratio:16/9}
-  .vid-grid{grid-template-columns:repeat(auto-fill,minmax(240px,1fr))!important;gap:16px 12px!important}
+  .vid-grid{grid-template-columns:repeat(3,1fr)!important;gap:12px 10px!important}
 }
 @media(max-width:600px){
   .search-card,.search-pl-card{flex-direction:column}
   .search-thumb,.search-pl-thumb{width:100%;min-width:unset}
-  .vid-grid{grid-template-columns:repeat(2,1fr)!important;gap:12px 8px!important}
+  .vid-grid{grid-template-columns:repeat(2,1fr)!important;gap:10px 6px!important}
   .pl-video-thumb{width:90px;min-width:90px}
   .pl-video-num{display:none}
 }
@@ -1580,7 +1580,7 @@ let searchQuery       = '';
 let searchNextTokenMap= {};
 let homeFeedItems     = [];
 let homeFeedPage      = 0;
-const HOME_PAGE_SIZE  = 24;
+const HOME_PAGE_SIZE  = 16;
 let vidNextToken      = null;
 let chUploadPlId      = null;
 let navStack          = [];
@@ -1613,7 +1613,8 @@ function fmtDur(iso){
   if(h)return`${h}:${String(mn).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
   return`${mn}:${String(s).padStart(2,'0')}`;
 }
-function ytLink(vid){return`https://www.yout-ube.com/watch?v=${vid}`}
+const INVIDIOUS_BASE='https://inv.nadeko.net';
+function ytLink(vid){return`${INVIDIOUS_BASE}/watch?v=${vid}`}
 // Returns the highest-quality thumbnail URL for a given video ID or existing URL
 function maxresThumbnail(vidOrUrl){
   // If it's already a YouTube thumbnail URL, extract the video ID and upgrade
@@ -2279,7 +2280,7 @@ async function renderHome(){
       i._stats=statsMap[i._vid]||{};
     });
     allItems.sort((a,b)=>b._score-a._score);
-    homeFeedItems=allItems;homeFeedPage=0;feed.innerHTML='';
+    homeFeedItems=allItems;homeFeedPage=0;feed.innerHTML='<div class="vid-grid"></div>';
     renderHomePage();
   }catch(e){feed.innerHTML=`<p style="color:var(--text3)">Error: ${esc(e.message)}</p>`}
   finally{ytLoadEnd();}
@@ -2290,6 +2291,8 @@ function renderHomePage(){
   const start=homeFeedPage*HOME_PAGE_SIZE;
   const slice=homeFeedItems.slice(start,start+HOME_PAGE_SIZE);
   if(!slice.length)return;
+  let grid=feed.querySelector('.vid-grid');
+  if(!grid){grid=document.createElement('div');grid.className='vid-grid';feed.appendChild(grid);}
   slice.forEach(item=>{
     const vid=item._vid;const s=item.snippet||{};const st=item._stats||{};
     const chName=findChName(item._chId||'');
@@ -2297,7 +2300,7 @@ function renderHomePage(){
     const thumb=bestThumb(s.thumbnails,vid);
     const title=s.title||'';
     const channel=s.videoOwnerChannelTitle||s.channelTitle||chName;
-    feed.innerHTML+=videoCard(vid,title,channel,thumb,s.publishedAt,st.views,st.dur,meta,item._chId);
+    grid.innerHTML+=videoCard(vid,title,channel,thumb,s.publishedAt,st.views,st.dur,meta,item._chId);
   });
   homeFeedPage++;
   document.getElementById('home-load-more').style.display=homeFeedItems.length>homeFeedPage*HOME_PAGE_SIZE?'block':'none';
@@ -2305,7 +2308,13 @@ function renderHomePage(){
   const pageChIds=slice.map(i=>i._chId).filter(id=>id&&!chAvatarCache[id]&&!channelMeta[findChName(id)]?.thumb);
   if(pageChIds.length)fetchAndCacheAvatars(pageChIds);
 }
-function loadMoreHome(){renderHomePage()}
+function loadMoreHome(){
+  if(homeFeedItems.length>homeFeedPage*HOME_PAGE_SIZE){
+    renderHomePage();
+  } else {
+    renderHome();
+  }
+}
 
 // ── VIDEO CARD CONTEXT MENU (three-dot ⋮) ──
 function openVideoCtx(e,vid,title,channel,thumb,dur){
