@@ -1613,8 +1613,7 @@ function fmtDur(iso){
   if(h)return`${h}:${String(mn).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
   return`${mn}:${String(s).padStart(2,'0')}`;
 }
-const INVIDIOUS_BASE='https://inv.nadeko.net';
-function ytLink(vid){return`${INVIDIOUS_BASE}/watch?v=${vid}`}
+function ytLink(vid){return`https://www.yout-ube.com/watch?v=${vid}`}
 // Returns the highest-quality thumbnail URL for a given video ID or existing URL
 function maxresThumbnail(vidOrUrl){
   // If it's already a YouTube thumbnail URL, extract the video ID and upgrade
