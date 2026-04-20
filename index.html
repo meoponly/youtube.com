@@ -1,0 +1,3635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YouTube</title>
+<link rel="icon" href="https://www.youtube.com/favicon.ico"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f0f0f;
+  --surface:#1f1f1f;
+  --surface2:#272727;
+  --surface3:#3f3f3f;
+  --border:#3f3f3f;
+  --accent:#ff0000;
+  --text:#f1f1f1;
+  --text2:#aaaaaa;
+  --text3:#717171;
+  --radius:12px;
+  --header-h:56px;
+  --sidebar-w:240px;
+}
+/* ── YT LOADING BAR ── */
+#yt-loading-bar{
+  position:fixed;top:0;left:0;height:2px;width:0%;
+  background:#ff0000;z-index:9999;pointer-events:none;
+  opacity:0;
+  box-shadow:0 0 6px 1px rgba(255,0,0,0.5);
+  will-change:width,opacity;
+}
+#yt-loading-bar::after{
+  content:'';position:absolute;right:0;top:0;
+  width:80px;height:100%;
+  background:linear-gradient(to right,transparent,rgba(255,120,120,0.6));
+}
+
+/* ── SEARCH SKELETON ── */
+.search-skel-card{display:flex;gap:16px;padding:8px 0;margin-bottom:8px}
+.search-skel-thumb{width:246px;min-width:246px;aspect-ratio:16/9;border-radius:10px;flex-shrink:0}
+.search-skel-info{flex:1;display:flex;flex-direction:column;gap:10px;padding-top:4px}
+.search-skel-title{height:18px;border-radius:4px;width:90%}
+.search-skel-title2{height:18px;border-radius:4px;width:70%}
+.search-skel-meta{height:13px;border-radius:4px;width:40%}
+.search-skel-ch{height:13px;border-radius:4px;width:30%}
+
+/* ── HISTORY SKELETON ── */
+.history-skel-item{display:flex;gap:16px;padding:10px 8px;margin-bottom:4px}
+.history-skel-thumb{width:min(360px,38vw);min-width:min(240px,38vw);aspect-ratio:16/9;border-radius:10px;flex-shrink:0}
+.history-skel-info{flex:1;display:flex;flex-direction:column;gap:10px;padding-top:6px}
+.history-skel-title{height:20px;border-radius:4px;width:85%}
+.history-skel-title2{height:20px;border-radius:4px;width:65%}
+.history-skel-meta{height:13px;border-radius:4px;width:35%}
+.history-skel-ch{height:13px;border-radius:4px;width:28%}
+
+/* ── SEARCH HISTORY ── */
+.search-history-section{margin-top:20px;border-top:1px solid var(--border);padding-top:14px}
+.search-history-label{font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--text3);text-transform:uppercase;margin-bottom:10px;padding:0 4px}
+.search-history-item{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 10px;border-radius:8px;cursor:pointer;
+  transition:background .1s;color:var(--text2);font-size:14px;
+}
+.search-history-item:hover{background:rgba(255,255,255,.07);color:var(--text)}
+body.light-mode .search-history-item:hover{background:rgba(0,0,0,.05)}
+.search-history-item .ms{font-size:18px;color:var(--text3);flex-shrink:0}
+.search-history-item span{flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.search-history-del{
+  width:26px;height:26px;border-radius:50%;
+  display:none;align-items:center;justify-content:center;
+  color:var(--text3);background:none;border:none;cursor:pointer;
+  transition:background .1s,color .1s;flex-shrink:0;
+}
+.search-history-item:hover .search-history-del{display:flex}
+.search-history-del:hover{background:rgba(255,255,255,.12);color:var(--text)}
+.search-history-del .ms{font-size:16px}
+.search-history-empty{font-size:13px;color:var(--text3);padding:6px 4px;font-style:italic}
+
+/* ── LIGHT THEME ── */
+body.light-mode{
+  --bg:#ffffff;
+  --surface:#f2f2f2;
+  --surface2:#e5e5e5;
+  --surface3:#d0d0d0;
+  --border:#e0e0e0;
+  --accent:#ff0000;
+  --text:#0f0f0f;
+  --text2:#606060;
+  --text3:#909090;
+}
+body.light-mode #top-header{background:#ffffff;border-bottom:none}
+body.light-mode .search-input-wrap{background:#ffffff;border-color:#ccc}
+body.light-mode .search-input-wrap:focus-within{border-color:#1c62b9;background:#fff}
+body.light-mode #header-search input{color:#0f0f0f}
+body.light-mode .search-btn{background:#f8f8f8;border-color:#ccc;color:#0f0f0f}
+body.light-mode .search-btn:hover{background:#e8e8e8}
+body.light-mode .hdr-btn:hover{background:rgba(0,0,0,.08)}
+body.light-mode #sidebar{background:#ffffff}
+body.light-mode .sb-item:hover,.light-mode .sb-ch-item:hover{background:rgba(0,0,0,.07)}
+body.light-mode .sb-item.active{background:rgba(0,0,0,.08)}
+body.light-mode .ctx-menu{background:#ffffff;box-shadow:0 8px 24px rgba(0,0,0,.2)}
+body.light-mode .ctx-item:hover{background:rgba(0,0,0,.06)}
+body.light-mode .ctx-divider{background:#e0e0e0}
+body.light-mode .settings-box{background:#ffffff;border-color:#e0e0e0}
+body.light-mode .settings-header{border-color:#e0e0e0}
+body.light-mode .settings-divider{border-color:#e0e0e0}
+body.light-mode .modal-box{background:#ffffff}
+body.light-mode .apikey-item{background:#f8f8f8;border-color:#e0e0e0}
+body.light-mode .skeleton{background:linear-gradient(90deg,#ebebeb 25%,#f8f8f8 50%,#ebebeb 75%);background-size:200% 100%}
+body.light-mode .vid-card:hover .vid-title{color:#0f0f0f}
+body.light-mode .ch-chip{border-color:#e0e0e0}
+body.light-mode .ch-chip:hover{background:var(--surface2)}
+body.light-mode .load-more-btn:hover{background:var(--surface3)}
+body.light-mode #sidebar.drag-active{background:rgba(240,255,245,.98)}
+/* ── PLAYLIST INNER DROP ZONE ── */
+.pl-inner-drop-hint{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:5px 12px;border-radius:20px;font-size:12px;font-weight:500;
+  border:1.5px dashed #7cacff;color:#7cacff;
+  transition:opacity .2s;pointer-events:none;
+}
+#mpl-grid-wrap.pl-inner-drop-active .pl-inner-drop-hint{display:inline-flex!important;opacity:1}
+#mpl-grid-wrap.pl-inner-drop-over #pl-inner-grid,
+#mpl-grid-wrap.pl-inner-drop-over .mpl-empty{
+  outline:2px dashed #7cacff;outline-offset:6px;border-radius:12px;
+}
+/* Playlist card drop targets in playlist grid */
+.mpl-card.pl-card-drop-target{
+  border:2px dashed #7cacff!important;background:rgba(100,150,255,.12)!important;
+  transform:scale(1.03);box-shadow:0 0 14px rgba(100,150,255,.25);
+  transition:all .15s;
+}
+.mpl-card.pl-card-drop-saved{animation:plCardSaved .5s ease-out}
+@keyframes plCardSaved{
+  0%{background:rgba(100,150,255,.4)!important;transform:scale(1.05)}
+  100%{background:var(--surface);transform:scale(1)}
+}
+#nav-myplaylists.pl-drop-target{
+  background:rgba(100,150,255,.15)!important;
+  border:2px dashed #7cacff;color:#7cacff;
+  margin:0 4px;transition:background .15s,border .15s,color .15s,transform .1s;
+}
+#nav-myplaylists.pl-drop-target .ms{color:#7cacff!important}
+#nav-myplaylists.pl-drop-over{
+  background:rgba(100,150,255,.28)!important;transform:scale(1.04);
+  box-shadow:0 0 18px rgba(100,150,255,.3);
+}
+#nav-myplaylists.pl-drop-saved{animation:plSaved .55s ease-out}
+@keyframes plSaved{
+  0%{background:rgba(100,150,255,.55)!important;transform:scale(1.06)}
+  100%{background:rgba(100,150,255,.15);transform:scale(1)}
+}
+/* Playlist picker popup */
+#pl-picker-popup{
+  position:fixed;z-index:800;background:#282828;border:1px solid #3a3a3a;border-radius:14px;
+  box-shadow:0 12px 40px rgba(0,0,0,.7);min-width:240px;max-width:300px;
+  padding:0;overflow:hidden;
+  opacity:0;pointer-events:none;transform:scale(.94) translateY(6px);
+  transition:opacity .15s,transform .15s;
+}
+body.light-mode #pl-picker-popup{background:#fff;border-color:#e0e0e0;box-shadow:0 12px 40px rgba(0,0,0,.18)}
+#pl-picker-popup.open{opacity:1;pointer-events:all;transform:scale(1) translateY(0)}
+.pl-picker-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 14px 10px;border-bottom:1px solid #3a3a3a;
+  font-size:13px;font-weight:600;color:var(--text2);letter-spacing:.03em;
+}
+body.light-mode .pl-picker-header{border-color:#e0e0e0}
+.pl-picker-close{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--text3);background:none;border:none;cursor:pointer;transition:background .1s}
+.pl-picker-close:hover{background:rgba(255,255,255,.1);color:var(--text)}
+body.light-mode .pl-picker-close:hover{background:rgba(0,0,0,.07)}
+.pl-picker-list{max-height:240px;overflow-y:auto;padding:6px 0}
+.pl-picker-item{
+  display:flex;align-items:center;gap:12px;padding:9px 14px;cursor:pointer;
+  font-size:14px;transition:background .1s;color:var(--text);
+}
+.pl-picker-item:hover{background:rgba(255,255,255,.08)}
+body.light-mode .pl-picker-item:hover{background:rgba(0,0,0,.06)}
+.pl-picker-item .ms{font-size:20px;color:var(--text3);flex-shrink:0}
+.pl-picker-item span{flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.pl-picker-divider{height:1px;background:#3a3a3a;margin:4px 0}
+body.light-mode .pl-picker-divider{background:#e0e0e0}
+.pl-picker-new{color:var(--accent)!important}
+.pl-picker-new .ms{color:var(--accent)!important}
+body.light-mode .yt-logo-svg g:last-child path{fill:#0f0f0f}
+body.sidebar-collapsed{--sidebar-w:0px}
+html{scroll-behavior:smooth}
+body{font-family:'Roboto',Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;font-size:14px;line-height:1.5}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+img{display:block}
+input{font-family:inherit}
+
+/* Material Symbols */
+.ms{
+  font-family:'Material Symbols Rounded';
+  font-weight:normal;font-style:normal;
+  font-size:24px;line-height:1;letter-spacing:normal;text-transform:none;
+  display:inline-block;white-space:nowrap;word-wrap:normal;direction:ltr;
+  -webkit-font-smoothing:antialiased;
+  font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;
+  user-select:none;vertical-align:middle;
+}
+.ms.filled{font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24}
+.ms.sz20{font-size:20px}
+.ms.sz18{font-size:18px}
+.ms.sz16{font-size:16px}
+
+/* ── HEADER ── */
+#top-header{
+  position:fixed;top:0;left:0;right:0;height:var(--header-h);
+  background:var(--bg);
+  display:flex;align-items:center;padding:0 16px;gap:8px;z-index:200;
+}
+.yt-logo{display:flex;align-items:center;cursor:pointer;flex-shrink:0;margin-right:16px;text-decoration:none}
+.yt-logo-svg{height:20px;width:auto}
+#header-search{flex:1;display:flex;align-items:center;justify-content:center}
+.search-input-wrap{
+  flex:1;display:flex;align-items:center;height:40px;
+  background:#121212;border:1px solid #303030;
+  border-radius:40px 0 0 40px;transition:border-color .15s;
+}
+.search-input-wrap:focus-within{border-color:#1c62b9;background:#000}
+#header-search input{
+  flex:1;height:100%;padding:0 16px;
+  background:transparent;border:none;color:var(--text);font-size:16px;outline:none;font-family:'Roboto',Arial,sans-serif;
+}
+#header-search input::placeholder{color:var(--text3)}
+.search-btn{
+  height:40px;padding:0 20px;
+  background:#222;border:1px solid #303030;border-left:none;
+  border-radius:0 40px 40px 0;color:var(--text);
+  display:flex;align-items:center;justify-content:center;
+  transition:background .15s;flex-shrink:0;
+}
+.search-btn:hover{background:#3d3d3d}
+.search-btn .ms{font-size:22px}
+.header-right{display:flex;align-items:center;gap:4px;margin-left:8px;flex-shrink:0}
+.hdr-btn{
+  width:40px;height:40px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .15s;cursor:pointer;flex-shrink:0;
+}
+.hdr-btn:hover{background:rgba(255,255,255,.1)}
+.hdr-btn .ms{font-size:24px}
+
+/* Profile avatar button */
+.profile-btn{
+  width:36px;height:36px;border-radius:50%;overflow:hidden;cursor:pointer;flex-shrink:0;
+  border:none;background:#000;display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;color:#fff;transition:opacity .15s;position:relative;
+}
+.profile-btn:hover{opacity:.85}
+.profile-btn img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:block}
+
+/* Profile dropdown */
+.profile-dropdown{
+  position:fixed;top:52px;right:12px;
+  background:#282828;border:1px solid #3a3a3a;border-radius:12px;
+  min-width:200px;z-index:500;overflow:hidden;
+  box-shadow:0 8px 24px rgba(0,0,0,.5);
+  opacity:0;pointer-events:none;transform:translateY(-6px);
+  transition:opacity .15s,transform .15s;
+}
+.profile-dropdown.open{opacity:1;pointer-events:all;transform:translateY(0)}
+body.light-mode .profile-dropdown{background:#fff;border-color:#e0e0e0;box-shadow:0 8px 24px rgba(0,0,0,.15)}
+.profile-dd-item{
+  display:flex;align-items:center;gap:14px;
+  padding:11px 16px;font-size:14px;cursor:pointer;
+  transition:background .1s;color:var(--text);
+}
+.profile-dd-item:hover{background:rgba(255,255,255,.08)}
+body.light-mode .profile-dd-item:hover{background:rgba(0,0,0,.06)}
+.profile-dd-item .ms{font-size:20px;color:var(--text2)}
+.profile-dd-divider{height:1px;background:#3a3a3a;margin:4px 0}
+body.light-mode .profile-dd-divider{background:#e0e0e0}
+
+/* ── SIDEBAR ── */
+#sidebar{
+  position:fixed;top:var(--header-h);left:0;bottom:0;width:var(--sidebar-w);
+  background:var(--bg);overflow-y:auto;overflow-x:hidden;padding:12px 0 24px;z-index:100;
+  transition:width .2s cubic-bezier(.4,0,.2,1),opacity .2s cubic-bezier(.4,0,.2,1);
+  will-change:width;
+}
+#sidebar.sb-hidden{display:none!important;}
+#hamburger-btn.hbr-hidden{display:none!important;}
+body.sidebar-collapsed #sidebar{width:0;opacity:0;pointer-events:none;}
+#sidebar::-webkit-scrollbar{width:0}
+.sb-section{padding-bottom:8px;border-bottom:none;margin-bottom:0}
+.sb-item{
+  display:flex;align-items:center;gap:24px;
+  padding:0 12px;height:40px;font-size:14px;font-weight:400;cursor:pointer;border-radius:10px;
+  margin:0 4px;transition:background .1s;white-space:nowrap;
+}
+.sb-item:hover{background:rgba(255,255,255,.1)}
+body.light-mode .sb-item:hover{background:rgba(0,0,0,.07)}
+.sb-item.active{background:rgba(255,255,255,.1);font-weight:500}
+body.light-mode .sb-item.active{background:rgba(0,0,0,.08)}
+.sb-item.active .ms{font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24}
+.sb-item .ms{font-size:24px;color:var(--text);flex-shrink:0}
+/* Section divider line — YouTube style: thin subtle line */
+.sb-section-divider{height:1px;background:#e5e5e5;margin:12px 0}
+body:not(.light-mode) .sb-section-divider{background:#272727}
+body.light-mode .sb-section-divider{background:#e5e5e5}
+/* Clickable section header (Subscriptions ›, You ›) */
+.sb-section-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 12px;height:40px;cursor:pointer;border-radius:10px;margin:0 4px;
+  font-size:14px;font-weight:500;color:var(--text);
+  transition:background .1s;
+  user-select:none;
+}
+.sb-section-header:hover{background:rgba(255,255,255,.1)}
+body.light-mode .sb-section-header:hover{background:rgba(0,0,0,.07)}
+.sb-section-header .ms{font-size:20px;color:var(--text2);transition:transform .2s}
+.sb-section-header.expanded .ms{transform:rotate(90deg)}
+.sb-ch-item{
+  display:flex;align-items:center;gap:16px;
+  padding:0 12px;height:40px;cursor:pointer;margin:0 4px;border-radius:10px;
+  transition:background .1s;
+}
+.sb-ch-item:hover{background:rgba(255,255,255,.1)}
+body.light-mode .sb-ch-item:hover{background:rgba(0,0,0,.07)}
+.sb-ch-item.hidden-ch{opacity:0.45}
+.sb-ch-avatar{
+  width:24px;height:24px;border-radius:50%;
+  background:var(--accent);display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden;
+}
+.sb-ch-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.sb-ch-name{font-size:14px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;flex:1}
+.sb-ch-unsub-btn{
+  width:28px;height:28px;border-radius:50%;
+  display:none;align-items:center;justify-content:center;
+  color:var(--text3);background:none;border:none;cursor:pointer;
+  transition:background .15s,color .15s;flex-shrink:0;
+}
+.sb-ch-item:hover .sb-ch-unsub-btn{display:flex}
+.sb-ch-unsub-btn:hover{background:rgba(255,0,0,.12);color:#f44}
+.sb-ch-unsub-btn .ms{font-size:16px}
+
+/* ── MAIN ── */
+#main{margin-left:var(--sidebar-w);margin-top:var(--header-h);padding:24px 24px 48px;min-height:calc(100vh - var(--header-h));transition:margin-left .2s cubic-bezier(.4,0,.2,1)}
+body:not(.sb-unlocked) #main{margin-left:0}
+
+/* ── CHANNEL CHIPS — horizontal scroll ── */
+.ch-chips-row-wrap{
+  position:relative;margin-bottom:20px;
+}
+.ch-chips-row-title{
+  display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;
+}
+.ch-chips-row-title span{font-size:16px;font-weight:500}
+.ch-chips-scroll{
+  display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;
+  scrollbar-width:thin;scrollbar-color:#444 transparent;
+}
+.ch-chips-scroll::-webkit-scrollbar{height:4px}
+.ch-chips-scroll::-webkit-scrollbar-track{background:transparent}
+.ch-chips-scroll::-webkit-scrollbar-thumb{background:#444;border-radius:2px}
+.ch-chip{
+  display:flex;align-items:center;gap:10px;
+  background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  padding:8px 14px;cursor:pointer;transition:background .15s;flex-shrink:0;
+  position:relative;
+}
+.ch-chip:hover{background:var(--surface2)}
+.ch-chip.is-hidden{opacity:0.45;border-style:dashed}
+.ch-chip-avatar{
+  width:36px;height:36px;border-radius:50%;
+  background:var(--accent);display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;color:#fff;overflow:hidden;flex-shrink:0;
+}
+.ch-chip-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.ch-chip-info{display:flex;flex-direction:column;gap:1px}
+.ch-chip-name{font-size:14px;font-weight:500;white-space:nowrap}
+.ch-chip-subs{font-size:12px;color:var(--text3)}
+.ch-chip-hidden-label{font-size:11px;color:var(--text3);font-style:italic}
+
+
+/* ── PINNED PLAYLISTS ── */
+.pinned-section{margin-bottom:28px}
+.pinned-section-title{display:flex;align-items:center;gap:6px;font-size:16px;font-weight:500;margin-bottom:14px}
+.pinned-pl-row{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+  gap:12px 10px;
+}
+.pinned-pl-card{
+  cursor:pointer;border-radius:10px;overflow:hidden;
+  background:var(--surface);border:1px solid var(--border);
+  transition:background .15s;position:relative;
+}
+.pinned-pl-card:hover{background:var(--surface2)}
+.pinned-pl-thumb{
+  position:relative;aspect-ratio:16/9;overflow:hidden;
+  background:#1a1a1a;border-radius:10px 10px 0 0;
+}
+.pinned-pl-thumb img{width:100%;height:100%;object-fit:cover}
+.pinned-pl-thumb-empty{
+  width:100%;height:100%;background:#222;
+  display:flex;align-items:center;justify-content:center;
+}
+.pinned-pl-thumb-empty .ms{font-size:32px;color:var(--text3)}
+.pinned-pl-count-badge{
+  position:absolute;right:0;top:0;bottom:0;width:34%;
+  background:rgba(0,0,0,.82);display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:2px;
+}
+.pinned-pl-count-badge span:first-child{font-size:14px;font-weight:700;color:#fff}
+.pinned-pl-count-badge span:last-child{font-size:9px;color:#ccc}
+.pinned-pl-info{padding:8px 10px 10px;display:flex;align-items:flex-start;justify-content:space-between;gap:6px}
+.pinned-pl-text{flex:1;min-width:0}
+.pinned-pl-title{font-size:13px;font-weight:500;line-height:1.4;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;color:var(--text)}
+.pinned-pl-ch{font-size:11px;color:var(--text3);margin-top:2px}
+.pinned-pl-unpin{
+  width:22px;height:22px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--text3);opacity:0;transition:opacity .15s;
+  background:none;border:none;cursor:pointer;
+}
+.pinned-pl-card:hover .pinned-pl-unpin{opacity:1}
+.pinned-pl-unpin:hover{color:var(--accent);background:rgba(255,0,0,.1)}
+.pinned-pl-unpin .ms{font-size:15px}
+
+/* ── VIDEO GRID ── */
+.section-title{font-size:16px;font-weight:500;margin-bottom:16px;color:var(--text);line-height:1.4}
+.vid-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:16px 12px;
+}
+.vid-card{
+  display:flex;flex-direction:column;
+  cursor:pointer;overflow:visible;position:relative;
+}
+.vid-thumb-wrap{
+  position:relative;border-radius:10px;overflow:hidden;
+  aspect-ratio:16/9;background:#1a1a1a;width:100%;
+}
+.vid-thumb-wrap img{width:100%;height:100%;object-fit:cover;transition:transform .25s}
+.vid-card:hover .vid-thumb-wrap img{transform:scale(1.03)}
+.vid-duration{
+  position:absolute;bottom:6px;right:6px;
+  background:rgba(0,0,0,.9);color:#fff;border-radius:4px;
+  font-size:12px;font-weight:500;padding:2px 5px;letter-spacing:.3px;pointer-events:none;
+}
+
+/* Info row below thumbnail */
+.vid-info{display:flex;gap:10px;padding:10px 0 0;align-items:flex-start}
+.vid-ch-avatar{
+  width:36px;height:36px;min-width:36px;border-radius:50%;
+  background:var(--accent);overflow:hidden;margin-top:2px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;
+}
+.vid-ch-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.vid-text{flex:1;min-width:0}
+.vid-title{
+  font-size:14px;font-weight:500;line-height:1.4;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+  color:var(--text);margin-bottom:4px;
+  word-break:break-word;
+}
+.vid-ch-name{font-size:13px;color:var(--text2);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vid-meta{font-size:13px;color:var(--text3)}
+
+/* ── THREE-DOT MENU BUTTON ── */
+.vid-menu-btn{
+  width:32px;height:32px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;transition:opacity .15s,background .15s;
+  cursor:pointer;flex-shrink:0;margin-top:1px;margin-left:2px;
+  border:none;color:var(--text2);background:transparent;
+}
+.vid-card:hover .vid-menu-btn{opacity:1}
+.vid-menu-btn:hover{background:rgba(255,255,255,.15);color:var(--text)}
+body.light-mode .vid-menu-btn:hover{background:rgba(0,0,0,.08)}
+.vid-menu-btn .ms{font-size:20px}
+
+/* ── WATCH LATER SECTION ── */
+.wl-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.wl-clear-btn{
+  padding:6px 14px;background:var(--surface2);border:1px solid var(--border);
+  color:var(--text2);border-radius:8px;font-size:13px;cursor:pointer;
+}
+.wl-clear-btn:hover{background:var(--surface3)}
+.wl-empty{text-align:center;padding:60px 0;color:var(--text3)}
+.wl-empty .ms{font-size:64px;display:block;margin-bottom:12px}
+.wl-empty-title{font-size:16px;font-weight:500;color:var(--text2);margin-bottom:6px}
+.wl-empty-sub{font-size:13px}
+
+/* ── CONTEXT MENU ── */
+.ctx-menu{
+  position:fixed;z-index:999;
+  background:#282828;border-radius:12px;
+  box-shadow:0 8px 32px rgba(0,0,0,.6);
+  padding:8px 0;min-width:220px;
+  animation:ctxIn .12s ease-out;
+}
+@keyframes ctxIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+.ctx-item{
+  display:flex;align-items:center;gap:16px;
+  padding:8px 16px;font-size:14px;cursor:pointer;transition:background .1s;
+  color:var(--text);white-space:nowrap;
+}
+.ctx-item:hover{background:rgba(255,255,255,.1)}
+.ctx-item .ms{font-size:22px;color:var(--text2)}
+.ctx-item.danger{color:#f44}
+.ctx-item.danger .ms{color:#f44}
+.ctx-divider{height:1px;background:#3a3a3a;margin:6px 0}
+/* Sub-menu for playlist picker */
+.ctx-sub{padding:0 0 4px}
+.ctx-sub-title{padding:6px 16px 4px;font-size:12px;color:var(--text3);font-weight:500;text-transform:uppercase;letter-spacing:.5px}
+.ctx-pl-item{
+  display:flex;align-items:center;gap:10px;
+  padding:6px 16px;font-size:14px;cursor:pointer;transition:background .1s;
+}
+.ctx-pl-item:hover{background:rgba(255,255,255,.1)}
+.ctx-pl-check{width:18px;height:18px;border-radius:3px;border:2px solid var(--text3);flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.ctx-pl-check.checked{background:var(--accent);border-color:var(--accent)}
+.ctx-pl-check.checked::after{content:'✓';color:#fff;font-size:11px;font-weight:700}
+
+.q-clear-btn{
+  width:36px;height:36px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  background:transparent;border:none;cursor:pointer;
+  transition:background .15s;margin-right:4px;
+}
+.q-clear-btn:hover{background:rgba(255,255,255,.1)}
+.search-dropdown{
+  position:absolute;top:calc(100% + 2px);left:0;right:0;
+  background:#282828;border-radius:12px;
+  box-shadow:0 8px 24px rgba(0,0,0,.55);
+  z-index:300;overflow:hidden;
+  border:1px solid #3f3f3f;
+}
+.search-drop-item{
+  display:flex;align-items:center;gap:12px;
+  padding:10px 16px;font-size:14px;cursor:pointer;
+  color:var(--text);transition:background .1s;
+}
+.search-drop-item:hover,.search-drop-item.active{background:rgba(255,255,255,.08)}
+.search-drop-item svg{flex-shrink:0;opacity:.6}
+
+/* ── CHANNEL PAGE ── */
+#channel-page{display:none;max-width:1400px}
+.ch-back-btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:40px;height:40px;border-radius:50%;margin-bottom:14px;
+  background:transparent;transition:background .15s;cursor:pointer;
+}
+.ch-back-btn:hover{background:rgba(255,255,255,.1)}
+.ch-back-btn .ms{font-size:24px}
+.ch-banner{
+  width:100%;aspect-ratio:6.2/1;min-height:80px;max-height:180px;
+  border-radius:var(--radius);overflow:hidden;
+  background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);
+}
+.ch-banner img{width:100%;height:100%;object-fit:cover}
+.ch-page-top{display:flex;align-items:flex-start;gap:20px;padding:14px 0 18px;border-bottom:1px solid var(--border);margin-bottom:0}
+.ch-page-pfp{
+  width:80px;height:80px;border-radius:50%;overflow:hidden;flex-shrink:0;
+  background:var(--accent);display:flex;align-items:center;justify-content:center;
+  font-size:28px;font-weight:700;color:#fff;
+  border:3px solid var(--bg);margin-top:-36px;position:relative;z-index:2;
+}
+.ch-page-pfp img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.ch-page-info{flex:1;min-width:0;padding-top:2px}
+.ch-page-name{font-size:22px;font-weight:700;line-height:1.3}
+.ch-page-handle{font-size:14px;color:var(--text2);margin-top:2px}
+.ch-page-subs{font-size:14px;color:var(--text2);margin-top:3px}
+.ch-tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:20px}
+.ch-tab{
+  padding:12px 20px;font-size:14px;font-weight:500;color:var(--text2);
+  border-bottom:2px solid transparent;cursor:pointer;transition:color .15s;white-space:nowrap;
+}
+.ch-tab:hover{color:var(--text);background:rgba(255,255,255,.05)}
+.ch-tab.active{color:var(--text);border-bottom-color:var(--text)}
+
+/* ── PLAYLISTS (channel page) ── */
+.pl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+.pl-card{cursor:pointer;border-radius:var(--radius);overflow:hidden;transition:opacity .15s;position:relative}
+.pl-card:hover{opacity:.85}
+.pl-thumb-wrap{position:relative;aspect-ratio:16/9;background:#1a1a1a;border-radius:var(--radius);overflow:hidden}
+.pl-thumb-wrap img{width:100%;height:100%;object-fit:cover}
+.pl-count-badge{
+  position:absolute;right:0;top:0;bottom:0;width:35%;
+  background:rgba(0,0,0,.82);display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:3px;
+}
+.pl-count-badge span:first-child{font-size:16px;font-weight:700}
+.pl-count-badge span:last-child{font-size:10px;color:#ccc}
+.pl-info{padding:10px 2px 4px}
+.pl-title{font-size:14px;font-weight:500;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.pl-sub{font-size:12px;color:var(--text3);margin-top:3px}
+.pl-pin-btn{
+  position:absolute;top:6px;left:6px;
+  background:rgba(0,0,0,.75);border:none;border-radius:20px;
+  color:#fff;font-size:12px;padding:3px 9px;
+  cursor:pointer;display:flex;align-items:center;gap:4px;
+  opacity:0;transition:opacity .15s;z-index:2;
+}
+.pl-card:hover .pl-pin-btn{opacity:1}
+.pl-pin-btn.pinned{opacity:1;background:rgba(200,0,0,.85)}
+.pl-pin-btn:hover{background:rgba(200,0,0,.95)!important}
+
+/* ── SEARCH ── */
+#search-section{display:none;max-width:1280px}
+.sort-row{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.sort-pill{
+  padding:5px 12px;border-radius:20px;font-size:14px;font-weight:500;
+  background:var(--surface2);border:1px solid var(--border);color:var(--text2);
+  cursor:pointer;transition:background .15s;
+}
+.sort-pill.active{background:var(--text);color:var(--bg)}
+.sort-pill:hover:not(.active){background:var(--surface3)}
+.status-txt{font-size:14px;color:var(--text2);margin-bottom:14px}
+.search-card{
+  display:flex;gap:16px;cursor:pointer;padding:12px 8px;
+  border-radius:var(--radius);transition:background .1s;
+  text-decoration:none;color:inherit;
+}
+.search-card:hover{background:rgba(255,255,255,.05)}
+.search-thumb{
+  position:relative;width:min(360px,38vw);min-width:min(240px,38vw);
+  border-radius:10px;overflow:hidden;background:#1a1a1a;flex-shrink:0;
+  aspect-ratio:16/9;
+}
+.search-thumb img{width:100%;height:100%;object-fit:cover}
+.search-dur{
+  position:absolute;bottom:5px;right:6px;
+  background:rgba(0,0,0,.85);color:#fff;border-radius:4px;
+  font-size:12px;font-weight:500;padding:2px 5px;pointer-events:none;
+}
+.search-info{flex:1;min-width:0;padding:0 4px;display:flex;flex-direction:column;gap:6px}
+.search-title{
+  font-size:18px;font-weight:400;line-height:1.4;
+  color:var(--text);
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
+.search-meta{font-size:13px;color:var(--text3)}
+.search-ch-row{display:flex;align-items:center;gap:8px;margin-top:4px}
+.search-ch-avatar{
+  width:24px;height:24px;border-radius:50%;overflow:hidden;
+  background:var(--accent);display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:700;color:#fff;flex-shrink:0;
+}
+.search-ch-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.search-ch-name{font-size:13px;color:var(--text2)}
+.search-pl-card{display:flex;gap:16px;cursor:pointer;padding:12px 8px;border-radius:var(--radius);transition:background .1s}
+.search-pl-card:hover{background:rgba(255,255,255,.05)}
+.search-pl-thumb{position:relative;width:min(360px,38vw);min-width:min(240px,38vw);border-radius:10px;overflow:hidden;background:#1a1a1a;flex-shrink:0;aspect-ratio:16/9}
+.search-pl-thumb img{width:100%;height:100%;object-fit:cover}
+.search-pl-overlay{position:absolute;right:0;top:0;bottom:0;width:35%;background:rgba(0,0,0,.82);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.search-pl-overlay span:first-child{font-size:18px;font-weight:700;color:#fff}
+.search-pl-overlay span:last-child{font-size:11px;color:#ccc}
+.search-pl-info{flex:1;min-width:0;padding:0 4px;display:flex;flex-direction:column;gap:5px}
+.search-pl-title{font-size:18px;font-weight:400;color:var(--text);line-height:1.4}
+.search-pl-badge{display:inline-flex;align-items:center;gap:4px;background:var(--surface2);border-radius:4px;padding:2px 8px;font-size:12px;color:var(--text2);width:fit-content}
+
+/* ── HISTORY ── */
+#history-section{display:none;max-width:1280px}
+.history-page-wrap{display:flex;gap:40px;align-items:flex-start}
+.history-main{flex:1;min-width:0}
+.history-sidebar{
+  width:310px;flex-shrink:0;position:sticky;top:calc(var(--header-h) + 24px);
+}
+.history-sidebar-search{
+  display:flex;align-items:center;gap:10px;padding-bottom:12px;
+  border-bottom:1px solid var(--border);margin-bottom:16px;
+}
+.history-sidebar-search .ms{font-size:22px;color:var(--text2)}
+.history-sidebar-search input{
+  flex:1;background:transparent;border:none;color:var(--text);
+  font-size:14px;outline:none;font-family:'Roboto',Arial,sans-serif;
+}
+.history-sidebar-search input::placeholder{color:var(--text3)}
+.history-sidebar-divider{height:1px;background:var(--border);margin:4px 0 14px}
+.history-sidebar-clear{
+  display:flex;align-items:center;gap:14px;
+  padding:10px 0;cursor:pointer;color:var(--text);transition:color .15s;
+  font-size:14px;font-weight:500;
+}
+.history-sidebar-clear .ms{font-size:22px;color:var(--text2)}
+.history-sidebar-clear:hover{color:var(--accent)}
+.history-sidebar-clear:hover .ms{color:var(--accent)}
+
+.history-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.history-clear-btn{padding:6px 14px;border-radius:20px;font-size:13px;background:var(--surface2);border:1px solid var(--border);color:var(--text2);cursor:pointer;transition:background .15s}
+.history-clear-btn:hover{background:var(--surface3);color:var(--text)}
+
+/* History list items — YouTube style */
+.history-item{
+  display:flex;align-items:flex-start;gap:16px;
+  padding:10px 8px;border-radius:10px;
+  cursor:pointer;transition:background .12s;
+  text-decoration:none;color:inherit;position:relative;
+}
+.history-item:hover{background:rgba(255,255,255,.05)}
+.history-thumb{
+  width:min(360px,38vw);min-width:min(240px,38vw);
+  border-radius:10px;overflow:hidden;background:#1a1a1a;flex-shrink:0;
+  aspect-ratio:16/9;position:relative;
+}
+.history-thumb img{width:100%;height:100%;object-fit:cover}
+.history-info{flex:1;min-width:0;padding:0 4px;display:flex;flex-direction:column;gap:5px}
+.history-title{
+  font-size:18px;font-weight:400;line-height:1.4;color:var(--text);
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
+.history-meta{font-size:13px;color:var(--text3);margin-top:1px}
+.history-ch-row{display:flex;align-items:center;gap:8px;margin-top:4px}
+.history-ch-avatar{
+  width:24px;height:24px;border-radius:50%;overflow:hidden;
+  background:var(--accent);display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:700;color:#fff;flex-shrink:0;
+}
+.history-ch-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.history-ch{font-size:13px;color:var(--text2)}
+.history-time{font-size:12px;color:var(--text3);margin-top:4px}
+.history-menu-btn{
+  width:36px;height:36px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;transition:opacity .15s,background .15s;
+  cursor:pointer;flex-shrink:0;margin-top:2px;
+  border:none;color:var(--text2);background:transparent;
+}
+.history-item:hover .history-menu-btn{opacity:1}
+.history-menu-btn:hover{background:rgba(255,255,255,.12);color:var(--text)}
+.history-menu-btn .ms{font-size:20px}
+.history-empty{color:var(--text3);text-align:center;padding:48px 0;font-size:14px}
+
+
+
+/* ── MY PLAYLISTS DETAIL VIEW (YT split layout) ── */
+.pl-detail-wrap{
+  display:flex;gap:24px;align-items:flex-start;
+}
+.pl-detail-sidebar{
+  width:320px;flex-shrink:0;position:sticky;
+  top:calc(var(--header-h) + 16px);
+  border-radius:16px;overflow:hidden;
+  background:linear-gradient(180deg,#1e1e2e 0%,#141420 100%);
+}
+body.light-mode .pl-detail-sidebar{background:linear-gradient(180deg,#e8eaf6 0%,#d0d3e8 100%)}
+.pl-detail-cover{position:relative;aspect-ratio:1/1;overflow:hidden;background:#1a1a2e}
+.pl-detail-cover img{width:100%;height:100%;object-fit:cover}
+.pl-detail-cover-empty{
+  width:100%;height:100%;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#1a1a3e,#2a2a5e);
+}
+.pl-detail-cover-empty .ms{font-size:80px;color:rgba(255,255,255,.3)}
+.pl-detail-info{padding:16px 16px 20px}
+.pl-detail-name{font-size:20px;font-weight:700;line-height:1.3;color:var(--text);margin-bottom:6px}
+.pl-detail-meta{font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.5}
+.pl-detail-actions{display:flex;gap:8px;flex-wrap:wrap}
+.pl-detail-play-btn{
+  display:flex;align-items:center;gap:6px;
+  padding:9px 20px;background:#fff;color:#0f0f0f;
+  border-radius:20px;font-size:14px;font-weight:600;
+  border:none;cursor:pointer;transition:background .15s;flex:1;justify-content:center;
+}
+.pl-detail-play-btn:hover{background:#e8e8e8}
+.pl-detail-play-btn .ms{font-size:18px}
+.pl-detail-shuffle-btn{
+  display:flex;align-items:center;gap:6px;
+  padding:9px 16px;background:rgba(255,255,255,.1);color:#fff;
+  border-radius:20px;font-size:14px;font-weight:500;
+  border:none;cursor:pointer;transition:background .15s;
+}
+body.light-mode .pl-detail-shuffle-btn{background:rgba(0,0,0,.08);color:#0f0f0f}
+.pl-detail-shuffle-btn:hover{background:rgba(255,255,255,.18)}
+.pl-detail-shuffle-btn .ms{font-size:18px}
+
+/* Playlist video list (right panel) */
+.pl-video-list{flex:1;min-width:0}
+.pl-video-list-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding-bottom:12px;border-bottom:1px solid var(--border);margin-bottom:4px;
+}
+.pl-video-list-count{font-size:13px;color:var(--text2)}
+.pl-video-row{
+  display:flex;gap:10px;align-items:flex-start;
+  padding:8px 6px;border-radius:8px;cursor:pointer;
+  transition:background .1s;text-decoration:none;color:inherit;
+  position:relative;
+}
+.pl-video-row:hover{background:rgba(255,255,255,.06)}
+body.light-mode .pl-video-row:hover{background:rgba(0,0,0,.04)}
+.pl-video-num{
+  width:20px;flex-shrink:0;text-align:center;
+  font-size:12px;color:var(--text3);padding-top:10px;
+}
+.pl-video-thumb{
+  position:relative;width:120px;min-width:120px;
+  border-radius:6px;overflow:hidden;background:#1a1a1a;
+  aspect-ratio:16/9;flex-shrink:0;
+}
+.pl-video-thumb img{width:100%;height:100%;object-fit:cover}
+.pl-video-dur{
+  position:absolute;bottom:3px;right:4px;
+  background:rgba(0,0,0,.88);color:#fff;border-radius:3px;
+  font-size:10px;font-weight:500;padding:1px 3px;pointer-events:none;
+}
+.pl-video-info{flex:1;min-width:0;padding-top:2px}
+.pl-video-title{
+  font-size:13px;font-weight:500;line-height:1.4;color:var(--text);
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+  margin-bottom:4px;
+}
+.pl-video-ch{font-size:12px;color:var(--text2)}
+.pl-video-remove{
+  width:28px;height:28px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;transition:opacity .15s;background:none;border:none;
+  cursor:pointer;color:var(--text3);margin-top:4px;
+}
+.pl-video-row:hover .pl-video-remove{opacity:1}
+.pl-video-remove:hover{background:rgba(255,255,255,.1);color:var(--text)}
+.pl-video-remove .ms{font-size:16px}
+
+/* Drop hint inside detail view */
+.pl-detail-drop-hint{
+  display:none;align-items:center;justify-content:center;gap:8px;
+  margin:12px 0;padding:14px;border:2px dashed #7cacff;
+  border-radius:10px;font-size:13px;color:#7cacff;
+}
+#mpl-grid-wrap.pl-inner-drop-active .pl-detail-drop-hint{display:flex}
+#mpl-grid-wrap.pl-inner-drop-over .pl-detail-drop-hint{background:rgba(100,150,255,.1)}
+#myplaylists-section{display:none;max-width:1400px}
+.mpl-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.new-pl-btn{display:flex;align-items:center;gap:6px;padding:8px 16px;border:1px solid var(--border);border-radius:20px;color:var(--text);font-size:14px;font-weight:500;cursor:pointer;transition:background .15s}
+.new-pl-btn:hover{background:rgba(255,255,255,.1)}
+.new-pl-btn .ms{font-size:20px}
+.mpl-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:72px 0;text-align:center}
+.mpl-empty .ms{font-size:64px;color:var(--text3)}
+.mpl-empty-title{font-size:16px;font-weight:500}
+.mpl-empty-sub{font-size:14px;color:var(--text3)}
+.mpl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:18px}
+.mpl-card{cursor:pointer;border-radius:var(--radius);overflow:hidden;background:var(--surface);border:1px solid var(--border);transition:background .15s;position:relative}
+.mpl-card:hover{background:var(--surface2)}
+.mpl-thumb{position:relative;aspect-ratio:16/9;background:#1a1a1a;border-radius:var(--radius) var(--radius) 0 0;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.mpl-thumb img{width:100%;height:100%;object-fit:cover}
+.mpl-count{position:absolute;right:0;top:0;bottom:0;width:35%;background:rgba(0,0,0,.82);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
+.mpl-count span:first-child{font-size:15px;font-weight:700}
+.mpl-count span:last-child{font-size:10px;color:#ccc}
+.mpl-info{padding:10px 12px 12px}
+.mpl-title{font-size:14px;font-weight:500;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.mpl-sub{font-size:12px;color:var(--text3);margin-top:3px}
+.mpl-del-btn{position:absolute;top:6px;right:6px;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s;z-index:2}
+.mpl-card:hover .mpl-del-btn{opacity:1}
+.mpl-del-btn:hover{background:rgba(200,0,0,.8)}
+.mpl-del-btn .ms{font-size:16px;color:#fff}
+
+/* ── MODALS ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:500;display:flex;align-items:center;justify-content:center}
+.modal-box{background:#282828;border-radius:12px;padding:24px;width:380px;max-width:92vw}
+.modal-box h3{font-size:16px;font-weight:500;margin-bottom:16px}
+.modal-input{width:100%;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;outline:none;transition:border-color .2s;margin-bottom:16px}
+.modal-input:focus{border-color:var(--accent)}
+.modal-actions{display:flex;justify-content:flex-end;gap:8px}
+.modal-cancel{padding:8px 16px;background:transparent;border:1px solid var(--border);color:var(--text);border-radius:8px;font-size:14px;cursor:pointer}
+.modal-cancel:hover{background:rgba(255,255,255,.1)}
+.modal-create{padding:8px 16px;background:var(--accent);color:#fff;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer}
+.modal-create:hover{background:#cc0000}
+
+/* ── DRAG & DROP WATCH LATER ── */
+.vid-card[draggable="true"],.search-card[draggable="true"]{cursor:grab}
+.vid-card.dragging,.search-card.dragging{opacity:.4;transform:scale(.98)}
+
+/* Sidebar glows green when dragging */
+#sidebar.drag-active{background:rgba(15,25,15,.98)}
+#nav-watchlater.wl-drop-target{
+  background:rgba(46,202,106,.15)!important;
+  border:2px dashed #2eca6a;
+  color:#2eca6a;
+  margin:0 4px;
+  transition:background .15s,border .15s,color .15s,transform .1s;
+}
+#nav-watchlater.wl-drop-target .ms{color:#2eca6a!important}
+#nav-watchlater.wl-drop-over{
+  background:rgba(46,202,106,.28)!important;
+  transform:scale(1.04);
+  box-shadow:0 0 18px rgba(46,202,106,.3);
+}
+#nav-watchlater.wl-drop-saved{
+  animation:wlSaved .55s ease-out;
+}
+@keyframes wlSaved{
+  0%{background:rgba(46,202,106,.55)!important;transform:scale(1.06)}
+  100%{background:rgba(46,202,106,.15);transform:scale(1)}
+}
+
+/* ── SKELETON ── */
+.skeleton{background:linear-gradient(90deg,#1e1e1e 25%,#2a2a2a 50%,#1e1e1e 75%);background-size:200% 100%;animation:sk 1.4s infinite;border-radius:8px}
+@keyframes sk{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* ── LOAD MORE ── */
+.load-more-wrap{text-align:center;margin-top:24px}
+.load-more-btn{padding:9px 22px;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:20px;font-size:14px;font-weight:500;transition:background .15s;cursor:pointer}
+.load-more-btn:hover{background:var(--surface3)}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:8px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:#444;border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:#555}
+
+/* ── SETTINGS MODAL ── */
+#settings-modal{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:600;display:flex;align-items:center;justify-content:center}
+.settings-box{background:#1e1e1e;border:1px solid #3a3a3a;border-radius:14px;width:500px;max-width:94vw;max-height:88vh;display:flex;flex-direction:column;overflow:hidden}
+.settings-header{display:flex;align-items:center;justify-content:space-between;padding:16px 18px 13px;border-bottom:1px solid #2e2e2e;flex-shrink:0}
+.settings-header h3{font-size:15px;font-weight:500;display:flex;align-items:center;gap:8px}
+.settings-close{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--text2);transition:background .15s;background:none;border:none;cursor:pointer}
+.settings-close:hover{background:rgba(255,255,255,.1);color:var(--text)}
+.settings-body{overflow-y:auto;padding:18px;flex:1}
+.settings-section-label{font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--text3);text-transform:uppercase;margin-bottom:10px}
+.apikey-add-row{display:flex;gap:8px;margin-bottom:14px}
+.apikey-add-row input{flex:1;padding:9px 13px;background:var(--bg);border:1px solid #3a3a3a;border-radius:8px;color:var(--text);font-size:13px;outline:none;transition:border-color .2s;font-family:monospace}
+.apikey-add-row input:focus{border-color:var(--accent)}
+.apikey-add-row button{padding:9px 16px;background:var(--accent);color:#fff;border-radius:8px;font-size:13px;font-weight:500;white-space:nowrap;transition:background .15s}
+.apikey-add-row button:hover{background:#cc0000}
+.apikey-list{display:flex;flex-direction:column;gap:6px}
+/* Compact key card — NO ::after pseudo to prevent overlap */
+.apikey-item{display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid #2e2e2e;border-radius:8px;padding:8px 10px;transition:border-color .2s}
+.apikey-item.active-key{border-color:#2eca6a}
+.apikey-item.exhausted-key{border-color:#ff6b35;opacity:.75}
+.apikey-badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;white-space:nowrap;flex-shrink:0;letter-spacing:.03em}
+.apikey-badge.badge-active{background:rgba(46,202,106,.15);color:#2eca6a;border:1px solid rgba(46,202,106,.3)}
+.apikey-badge.badge-exhausted{background:rgba(255,107,53,.12);color:#ff6b35;border:1px solid rgba(255,107,53,.3)}
+.apikey-badge.badge-idle{background:rgba(255,255,255,.06);color:var(--text3);border:1px solid #333}
+/* Quota usage bar inside key card */
+.apikey-quota-row{display:flex;align-items:center;gap:6px;margin-top:5px}
+.apikey-quota-bar{flex:1;height:3px;background:#2a2a2a;border-radius:2px;overflow:hidden}
+.apikey-quota-fill{height:100%;border-radius:2px;transition:width .3s}
+.apikey-val{flex:1;font-family:monospace;font-size:12px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.apikey-eye{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--text3);transition:background .15s,color .15s;flex-shrink:0;background:none;border:none;cursor:pointer}
+.apikey-eye:hover{background:rgba(255,255,255,.08);color:var(--text)}
+.apikey-del{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--text3);transition:background .15s,color .15s;flex-shrink:0;background:none;border:none;cursor:pointer}
+.apikey-del:hover{background:rgba(255,30,30,.15);color:#ff6b6b}
+.apikey-empty{color:var(--text3);font-size:13px;text-align:center;padding:20px 0;opacity:.7}
+.apikey-status{margin-top:12px;font-size:12px;color:var(--text3);display:flex;align-items:center;gap:6px;line-height:1.5}
+.apikey-status .dot{width:7px;height:7px;border-radius:50%;background:#2eca6a;flex-shrink:0}
+.apikey-status .dot.warn{background:#ff6b35}
+.settings-divider{border:none;border-top:1px solid #2e2e2e;margin:16px 0}
+
+/* Keyword drop zone */
+.kw-drop-zone{border:2px dashed #3a3a3a;border-radius:10px;padding:14px;display:flex;align-items:center;justify-content:center;gap:10px;transition:border-color .15s,background .15s;cursor:default}
+.kw-drop-zone.drag-over{border-color:var(--accent);background:rgba(255,0,0,.06)}
+.kw-drop-zone.drop-success{border-color:#2eca6a;background:rgba(46,202,106,.08)}
+
+/* Clickable channel name in search results */
+.search-ch-link{cursor:pointer;transition:color .15s}
+.search-ch-link:hover{color:var(--text);text-decoration:underline}
+
+/* Blocked keywords list */
+.bk-tag{display:inline-flex;align-items:center;gap:5px;background:#2a1a1a;border:1px solid #5a2020;border-radius:20px;padding:3px 10px;font-size:12px;color:#f99;margin:3px 3px 3px 0}
+.bk-tag .ms{font-size:13px;color:#f44}
+
+/* ── MANAGE CHANNELS PANEL ── */
+#manage-channels-panel{
+  position:fixed;top:0;right:-360px;width:340px;height:100vh;
+  background:var(--bg);border-left:1px solid var(--border);
+  z-index:400;display:flex;flex-direction:column;
+  transition:right .25s cubic-bezier(.4,0,.2,1);
+  box-shadow:-4px 0 24px rgba(0,0,0,.35);
+}
+#manage-channels-panel.open{right:0}
+body.light-mode #manage-channels-panel{box-shadow:-4px 0 24px rgba(0,0,0,.12)}
+.mcp-header{
+  display:flex;align-items:center;gap:12px;
+  padding:14px 16px;border-bottom:1px solid var(--border);flex-shrink:0;
+}
+.mcp-header h3{font-size:15px;font-weight:500;flex:1}
+.mcp-close{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--text2);background:none;border:none;cursor:pointer;transition:background .15s}
+.mcp-close:hover{background:rgba(255,255,255,.1)}
+body.light-mode .mcp-close:hover{background:rgba(0,0,0,.07)}
+.mcp-list{flex:1;overflow-y:auto;padding:8px 0}
+.mcp-item{
+  display:flex;align-items:center;gap:12px;
+  padding:10px 16px;transition:background .1s;
+}
+.mcp-item:hover{background:rgba(255,255,255,.05)}
+body.light-mode .mcp-item:hover{background:rgba(0,0,0,.04)}
+.mcp-avatar{
+  width:36px;height:36px;border-radius:50%;flex-shrink:0;
+  background:var(--accent);display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:700;color:#fff;overflow:hidden;
+}
+.mcp-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.mcp-info{flex:1;min-width:0}
+.mcp-name{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mcp-subs{font-size:12px;color:var(--text3);margin-top:1px}
+.mcp-unsub-btn{
+  padding:6px 12px;border-radius:18px;font-size:12px;font-weight:500;
+  border:1px solid var(--border);color:var(--text2);background:none;cursor:pointer;
+  transition:background .15s,color .15s,border-color .15s;white-space:nowrap;flex-shrink:0;
+}
+.mcp-unsub-btn:hover{background:rgba(255,0,0,.1);border-color:#f44;color:#f44}
+.mcp-empty{text-align:center;padding:40px 20px;color:var(--text3);font-size:13px}
+#manage-channels-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:399;
+  opacity:0;pointer-events:none;transition:opacity .25s;
+}
+#manage-channels-overlay.open{opacity:1;pointer-events:all}
+
+@media(max-width:900px){
+  #main{margin-left:0!important;padding:14px}
+  .search-thumb,.search-pl-thumb{width:180px;min-width:180px}
+  .pl-detail-wrap{flex-direction:column}
+  .pl-detail-sidebar{width:100%;position:static}
+  .pl-detail-cover{aspect-ratio:16/9}
+  .vid-grid{grid-template-columns:repeat(3,1fr)!important;gap:12px 10px!important}
+}
+@media(max-width:600px){
+  .search-card,.search-pl-card{flex-direction:column}
+  .search-thumb,.search-pl-thumb{width:100%;min-width:unset}
+  .vid-grid{grid-template-columns:repeat(2,1fr)!important;gap:10px 6px!important}
+  .pl-video-thumb{width:90px;min-width:90px}
+  .pl-video-num{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- YT LOADING BAR -->
+<div id="yt-loading-bar"></div>
+
+<!-- HEADER -->
+<header id="top-header">
+  <button id="hamburger-btn" class="hdr-btn" onclick="toggleSidebar()" aria-label="Toggle menu" title="Menu" style="margin-right:4px;flex-shrink:0">
+    <span class="ms">menu</span>
+  </button>
+  <a class="yt-logo" onclick="goHome()" style="cursor:pointer" title="Home">
+    <svg class="yt-logo-svg" viewBox="0 0 90 20" xmlns="http://www.w3.org/2000/svg">
+      <g><path d="M27.9727 3.12324C27.6435 1.89323 26.6768 0.926181 25.4468 0.596791C23.2197 0 14.285 0 14.285 0C14.285 0 5.35042 0 3.12323 0.596791C1.89323 0.926181 0.926181 1.89323 0.596791 3.12324C0 5.35042 0 10 0 10C0 10 0 14.6496 0.596791 16.8768C0.926181 18.1068 1.89323 19.0738 3.12323 19.4032C5.35042 20 14.285 20 14.285 20C14.285 20 23.2197 20 25.4468 19.4032C26.6768 19.0738 27.6435 18.1068 27.9727 16.8768C28.5695 14.6496 28.5695 10 28.5695 10C28.5695 10 28.5695 5.35042 27.9727 3.12324Z" fill="#FF0000"/><path d="M11.4253 14.2854L18.8477 10.0004L11.4253 5.71533V14.2854Z" fill="white"/></g>
+      <g fill="#FFFFFF">
+        <path d="M34.6024 13.0036L31.3945 1.41846H34.1932L35.3174 6.6701C35.6043 7.96361 35.8136 9.06662 35.9455 9.97913H36.0218C36.1218 9.32532 36.3364 8.22937 36.6651 6.68892L37.8269 1.41846H40.6256L37.3799 13.0036V18.561H34.6024V13.0036Z"/>
+        <path d="M41.4697 18.1937C40.9020 17.8127 40.4979 17.2186 40.2472 16.4113C39.9938 15.6040 39.8684 14.5497 39.8684 13.2424V11.3522C39.8684 10.0377 40.0097 9.06662 40.2925 8.25892C40.5799 7.44566 41.0181 6.84857 41.6010 6.46756C42.1838 6.08655 42.9489 5.89604 43.8907 5.89604C44.8262 5.89604 45.5839 6.09087 46.1699 6.47756C46.7530 6.86715 47.1789 7.46424 47.4474 8.27750C47.7158 9.09076 47.8508 10.0545 47.8508 11.3522V13.2424C47.8508 14.5497 47.7221 15.6108 47.4600 16.4211C47.1980 17.2344 46.7911 17.8316 46.2335 18.2126C45.6759 18.5937 44.9099 18.7842 43.9364 18.7842C42.9175 18.7842 42.1046 18.5873 41.4697 18.1937ZM44.6830 16.2846C44.8578 15.8592 44.9441 15.1697 44.9441 14.2186V10.3512C44.9441 9.43244 44.8578 8.75489 44.6830 8.31842C44.5083 7.88194 44.2079 7.66370 43.7764 7.66370C43.3576 7.66370 43.0635 7.88194 42.8950 8.31842C42.7265 8.75489 42.6402 9.43244 42.6402 10.3512V14.2186C42.6402 15.1697 42.7201 15.8592 42.8823 16.2846C43.0444 16.7101 43.3449 16.9220 43.7764 16.9220C44.2079 16.9220 44.5083 16.7101 44.6830 16.2846Z"/>
+        <path d="M56.8154 18.5634H54.6509L54.3996 17.0099H54.3552C53.7944 18.1871 52.9159 18.7809 51.7236 18.7809C50.8894 18.7809 50.2693 18.4968 49.8614 17.9286C49.4536 17.3605 49.2496 16.4909 49.2496 15.3200V6.08667H51.9933V15.1522C51.9933 15.6446 52.0640 16.0024 52.2007 16.2275C52.3375 16.4494 52.5546 16.5604 52.8487 16.5604C53.1014 16.5604 53.3477 16.4808 53.5880 16.3186C53.8283 16.1565 54.0050 15.9502 54.1145 15.6985V6.08667H56.8154V18.5634Z"/>
+        <path d="M64.4755 3.68758H61.6768V18.5629H58.9990V3.68758H56.2003V1.41846H64.4755V3.68758Z"/>
+        <path d="M71.2768 18.5634H69.1124L68.8611 17.0099H68.8167C68.2559 18.1871 67.3773 18.7809 66.1851 18.7809C65.3508 18.7809 64.7308 18.4968 64.3229 17.9286C63.9150 17.3605 63.7110 16.4909 63.7110 15.3200V6.08667H66.4548V15.1522C66.4548 15.6446 66.5255 16.0024 66.6622 16.2275C66.7989 16.4494 67.0161 16.5604 67.3102 16.5604C67.5628 16.5604 67.8092 16.4808 68.0495 16.3186C68.2898 16.1565 68.4664 15.9502 68.5760 15.6985V6.08667H71.2768V18.5634Z"/>
+        <path d="M80.609 8.0387C80.4053 7.26014 80.0639 6.68536 79.5999 6.31455C79.1279 5.94031 78.4978 5.75543 77.6951 5.75543C77.0777 5.75543 76.5117 5.93001 75.9978 6.28258C75.4897 6.63515 75.0924 7.09424 74.8164 7.65985H74.7944V0.778015H72.1887V18.5633H74.5088L74.8227 17.3067H74.8798C75.1374 17.7972 75.5256 18.1783 76.0396 18.4531C76.5519 18.7278 77.1105 18.8657 77.7217 18.8657C78.8814 18.8657 79.7272 18.3815 80.2538 17.4130C80.7803 16.4446 81.0441 14.9874 81.0441 13.0415V11.3583C81.0441 9.92318 80.8976 8.81726 80.609 8.0387ZM78.3103 12.9034C78.3103 13.8980 78.2600 14.6748 78.1578 15.2339C78.0556 15.7930 77.8958 16.1932 77.6730 16.4351C77.4542 16.6739 77.1676 16.7921 76.8085 16.7921C76.5092 16.7921 76.2346 16.7156 75.9978 16.5594C75.7571 16.4032 75.5671 16.1778 75.4205 15.8900V8.88955C75.5458 8.50540 75.7348 8.19712 75.9978 7.97074C76.2608 7.74435 76.5519 7.63116 76.8782 7.63116C77.2271 7.63116 77.5003 7.75749 77.6951 8.01015C77.8899 8.26280 78.0325 8.68282 78.1261 9.26448C78.2155 9.84614 78.2600 10.6656 78.2600 11.7125L78.3103 12.9034Z"/>
+        <path d="M84.8657 13.8454C84.8657 14.8177 84.9552 15.5445 85.1372 16.0338C85.3162 16.5229 85.6656 16.7652 86.1884 16.7652C86.6670 16.7652 87.0011 16.5570 87.1900 16.1375C87.3788 15.7210 87.4763 15.0248 87.4921 14.0557L89.8694 14.1950C89.8821 14.3091 89.8885 14.4647 89.8885 14.6617C89.8885 15.8485 89.5772 16.7652 88.9547 17.4130C88.3322 18.0608 87.4477 18.3846 86.2997 18.3846C84.9647 18.3846 84.0181 17.9001 83.4578 16.9344C82.8975 15.9686 82.6157 14.4553 82.6157 12.3948V10.2712C82.6157 8.17007 82.9101 6.63858 83.4987 5.67992C84.0876 4.72126 84.9931 4.24194 86.2218 4.24194C87.0619 4.24194 87.7245 4.44993 88.2158 4.86591C88.7068 5.28188 89.0587 5.90726 89.2686 6.74204C89.4784 7.57682 89.5837 8.66247 89.5837 9.99901V11.7776H84.8657V13.8454ZM85.1245 7.24491C84.9394 7.72736 84.8657 8.45636 84.8657 9.43565V10.5081H87.2970V9.43565C87.2970 8.47007 87.2202 7.74107 87.0668 7.24491C86.9133 6.74875 86.6321 6.50067 86.2218 6.50067C85.8021 6.50067 85.5133 6.74875 85.1245 7.24491Z"/>
+      </g>
+    </svg>
+  </a>
+  <div id="header-search">
+    <div style="position:relative;flex:1;max-width:640px;display:flex;align-items:center">
+      <div class="search-input-wrap" style="flex:1">
+        <input type="text" id="q" placeholder="Search" autocomplete="off"/>
+        <button id="q-clear" class="q-clear-btn" onclick="clearSearch()" style="display:none" aria-label="Clear search">
+          <span class="ms sz20" style="color:var(--text2);font-size:20px">close</span>
+        </button>
+      </div>
+      <button class="search-btn" onclick="doSearch()" aria-label="Search">
+        <svg height="22" viewBox="0 0 24 24" width="22" focusable="false" style="display:block;fill:var(--text)"><path d="M20.87 20.17l-5.59-5.59C16.35 13.35 17 11.75 17 10c0-3.87-3.13-7-7-7s-7 3.13-7 7 3.13 7 7 7c1.75 0 3.35-.65 4.58-1.71l5.59 5.59.7-.71zM10 16c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z"/></svg>
+      </button>
+      <!-- Search recommendations dropdown -->
+      <div id="search-dropdown" class="search-dropdown" style="display:none"></div>
+    </div>
+  </div>
+  <div class="header-right" id="header-right">
+    <button class="profile-btn" id="profile-btn" onclick="toggleProfileDropdown()" title="Account">
+      <img src="channels4_profile.jpg" alt="Profile" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block"/>
+    </button>
+  </div>
+</header>
+
+<!-- Profile dropdown (outside header so it overlays correctly) -->
+<div id="profile-dropdown" class="profile-dropdown">
+  <div class="profile-dd-item" onclick="toggleTheme();closeProfileDropdown()">
+    <span class="ms" id="theme-icon">light_mode</span>
+    <span id="theme-label">Switch to Light mode</span>
+  </div>
+  <div class="profile-dd-divider"></div>
+  <div class="profile-dd-item" onclick="openSettings();closeProfileDropdown()">
+    <span class="ms">settings</span>
+    <span>Settings</span>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <!-- Home -->
+  <div class="sb-section">
+    <div class="sb-item active" id="nav-home" onclick="goHome()">
+      <span class="ms filled">home</span><span>Home</span>
+    </div>
+  </div>
+  <div class="sb-section-divider"></div>
+  <!-- Subscriptions -->
+  <div class="sb-section" id="sb-channels-section">
+    <div class="sb-section-header" id="subs-header">
+      <span style="flex:1">Subscriptions</span>
+      <button onclick="event.stopPropagation();openAddChannelModal()" title="Add channel" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--text3);background:none;border:none;cursor:pointer;transition:background .15s;flex-shrink:0" onmouseover="this.style.background='rgba(255,255,255,.1)'" onmouseout="this.style.background='none'">
+        <span class="ms" style="font-size:20px">add</span>
+      </button>
+      <button onclick="event.stopPropagation();openManageChannels()" title="Manage subscriptions" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--text3);background:none;border:none;cursor:pointer;transition:background .15s;flex-shrink:0" onmouseover="this.style.background='rgba(255,255,255,.1)'" onmouseout="this.style.background='none'">
+        <span class="ms" style="font-size:20px">chevron_right</span>
+      </button>
+    </div>
+    <div id="sb-channels-wrap">
+      <div id="sb-channels"></div>
+    </div>
+  </div>
+  <div class="sb-section-divider"></div>
+  <!-- You -->
+  <div class="sb-section">
+    <div class="sb-section-header expanded" id="you-header" onclick="toggleYouSection()">
+      <span>You</span>
+      <span class="ms">chevron_right</span>
+    </div>
+    <div id="you-section-wrap">
+      <div class="sb-item" id="nav-history" onclick="showSection('history')">
+        <span class="ms">history</span><span>History</span>
+      </div>
+      <div class="sb-item" id="nav-watchlater" onclick="showSection('watchlater')">
+        <span class="ms">watch_later</span><span>Watch later</span>
+      </div>
+      <div class="sb-item" id="nav-myplaylists" onclick="showSection('myplaylists')">
+        <span class="ms">video_library</span><span>Playlists</span>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main id="main">
+
+  <!-- CHANNEL PAGE -->
+  <div id="channel-page" style="display:none">
+    <button class="ch-back-btn" onclick="goBack()"><span class="ms">arrow_back</span></button>
+    <div class="ch-banner" id="ch-banner"><img id="ch-banner-img" src="" alt="" style="display:none"/></div>
+    <div class="ch-page-top">
+      <div class="ch-page-pfp" id="ch-page-pfp">
+        <span id="ch-page-initials"></span>
+        <img id="ch-page-pfp-img" src="" alt="" style="display:none"/>
+      </div>
+      <div class="ch-page-info">
+        <div class="ch-page-name" id="ch-page-name"></div>
+        <div class="ch-page-handle" id="ch-page-handle"></div>
+        <div class="ch-page-subs" id="ch-page-subs"></div>
+        <button id="ch-hide-btn" onclick="toggleHideCurrentChannel()" style="display:none;margin-top:8px;align-items:center;gap:6px;padding:6px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;transition:background .15s">
+          <span class="ms sz16" id="ch-hide-icon">visibility_off</span>
+          <span id="ch-hide-label">Hide from Home</span>
+        </button>
+      </div>
+    </div>
+    <div class="ch-tabs" id="ch-tabs">
+      <div class="ch-tab active" onclick="chTab('videos')">Videos</div>
+      <div class="ch-tab" onclick="chTab('playlists')">Playlists</div>
+    </div>
+    <div id="ch-home-panel" style="display:none"></div>
+    <div id="ch-videos-panel"></div>
+    <div id="ch-playlists-panel" style="display:none"></div>
+  </div>
+
+  <!-- SEARCH -->
+  <div id="search-section">
+    <!-- HOME FEED (shown when no search active) -->
+    <div id="home-feed-wrap">
+      <div id="pinned-section-wrap" style="display:none">
+        <div class="pinned-section">
+          <div class="pinned-section-title"><span class="ms sz20">push_pin</span><span>Pinned Playlists</span></div>
+          <div class="pinned-pl-row" id="pinned-pl-row"></div>
+        </div>
+      </div>
+      <div class="ch-chips-row-wrap" id="home-chips-wrap" style="display:none">
+        <div class="ch-chips-scroll" id="home-chips-scroll"></div>
+      </div>
+      <div class="section-title" id="home-feed-title" style="display:none;margin-bottom:16px">Latest from your subscriptions</div>
+      <div id="home-feed"></div>
+      <div class="load-more-wrap" id="home-load-more" style="display:none">
+        <button class="load-more-btn" onclick="loadMoreHome()">Load more</button>
+      </div>
+    </div>
+    <!-- SEARCH RESULTS (shown when searching) -->
+    <div id="search-results-wrap" style="display:none">
+      <div class="sort-row" id="sort-row" style="display:none">
+        <span style="font-size:14px;color:var(--text2)">Sort by:</span>
+        <button class="sort-pill active" onclick="setSort('relevance')">Relevance</button>
+        <button class="sort-pill" onclick="setSort('date')">Upload date</button>
+        <button class="sort-pill" onclick="setSort('views')">View count</button>
+      </div>
+      <div class="status-txt" id="search-status"></div>
+      <div id="search-results"></div>
+      <div class="load-more-wrap" id="search-more" style="display:none">
+        <button class="load-more-btn" onclick="loadMoreSearch()">Load more</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTORY -->
+  <div id="history-section">
+    <div class="section-title" style="margin-bottom:18px">Watch History</div>
+    <div class="history-page-wrap">
+      <div class="history-main">
+        <div id="history-list"></div>
+      </div>
+      <div class="history-sidebar">
+        <div class="history-sidebar-search">
+          <span class="ms sz20">search</span>
+          <input type="text" placeholder="Search watch history" id="history-search-input" oninput="filterHistory(this.value)"/>
+        </div>
+        <div class="history-sidebar-clear" onclick="clearHistory()">
+          <span class="ms">delete</span>
+          Clear all watch history
+        </div>
+        <!-- SEARCH HISTORY -->
+        <div class="search-history-section" id="search-history-section">
+          <div class="search-history-label">Search history</div>
+          <div id="search-history-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WATCH LATER -->
+  <div id="watchlater-section" style="display:none">
+    <div class="wl-header">
+      <div class="section-title" style="margin:0">Watch Later</div>
+      <button class="wl-clear-btn" onclick="clearWatchLater()">Clear all</button>
+    </div>
+    <div id="wl-list"></div>
+  </div>
+
+  <!-- MY PLAYLISTS -->
+  <div id="myplaylists-section">
+    <div class="mpl-header">
+      <div class="section-title" style="margin:0">Playlists</div>
+      <button class="new-pl-btn" onclick="showNewPlaylistModal()">
+        <span class="ms">add</span>New playlist
+      </button>
+    </div>
+    <div id="mpl-grid-wrap"></div>
+  </div>
+
+</main>
+
+<!-- Settings Modal -->
+<div id="settings-modal" style="display:none" onclick="if(event.target===this)closeSettings()">
+  <div class="settings-box">
+    <div class="settings-header">
+      <h3><span class="ms sz20">settings</span>Settings</h3>
+      <button class="settings-close" onclick="closeSettings()"><span class="ms sz20">close</span></button>
+    </div>
+    <div class="settings-body">
+
+      <!-- API KEYS -->
+      <div class="settings-section-label">YouTube Data API Keys</div>
+      <div class="apikey-add-row">
+        <input type="password" id="new-apikey-input" placeholder="Paste API key here…" autocomplete="off" onkeydown="if(event.key==='Enter')addApiKey()"/>
+        <button onclick="addApiKey()">Add Key</button>
+      </div>
+      <div class="apikey-list" id="apikey-list"></div>
+      <div id="apikey-status-bar" class="apikey-status" style="display:none"></div>
+
+      <hr class="settings-divider"/>
+
+      <!-- CHANNEL RESOLUTION -->
+      <div class="settings-section-label">Channel Resolution</div>
+      <div id="resolve-status" style="font-size:12px;color:var(--text3);line-height:1.8;margin-bottom:10px"></div>
+      <button id="re-resolve-btn" onclick="reResolveChannels()" style="padding:8px 16px;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;transition:background .15s" onmouseover="this.style.background='var(--surface3)'" onmouseout="this.style.background='var(--surface2)'">&#x1F504; Re-resolve unresolved channels</button>
+      <div style="font-size:11px;color:var(--text3);margin-top:6px">Tip: paste a raw Channel ID (starts with UC…) to skip the quota-heavy search call.</div>
+
+      <hr class="settings-divider"/>
+
+      <!-- BLOCKED KEYWORDS -->
+      <div class="settings-section-label">Blocked Keywords</div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:10px;line-height:1.6">
+        Keywords are <strong style="color:#f44">permanent and cannot be removed</strong>. Any video, channel, or search containing these words will be completely hidden. Min 3 characters.
+      </div>
+      <div class="apikey-add-row" style="margin-top:10px">
+        <input type="text" id="new-keyword-input" placeholder="e.g. gaming, music, prank…" autocomplete="off" onkeydown="if(event.key==='Enter')addKeywordFromSettings()"/>
+        <button onclick="addKeywordFromSettings()">Block</button>
+      </div>
+      <div id="keyword-add-error" style="font-size:12px;color:#f44;min-height:16px;margin-top:-8px;margin-bottom:10px"></div>
+      <div id="blocked-keywords-list"></div>
+
+      <hr class="settings-divider"/>
+
+      <!-- HOW IT WORKS -->
+      <div class="settings-section-label">How it works</div>
+      <div style="font-size:12px;color:var(--text3);line-height:1.8">
+        Keys are saved in <strong style="color:var(--text2)">localStorage</strong> and never sent anywhere except YouTube's API.<br>
+        When a key hits its daily quota, the app <strong style="color:var(--text2)">automatically switches</strong> to the next key and retries.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- New Playlist Modal -->
+<div id="modal-overlay" class="modal-overlay" style="display:none" onclick="if(event.target===this)hideNewPlaylistModal()">
+  <div class="modal-box">
+    <h3>New playlist</h3>
+    <input class="modal-input" id="modal-pl-name" type="text" placeholder="Playlist title" autocomplete="off" maxlength="150"
+      onkeydown="if(event.key==='Enter')createPlaylist()"/>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="hideNewPlaylistModal()">Cancel</button>
+      <button class="modal-create" onclick="createPlaylist()">Create</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Channel Modal -->
+<div id="add-channel-modal" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeAddChannelModal()">
+  <div class="modal-box">
+    <h3>Add Channel to Sidebar</h3>
+    <input class="modal-input" id="add-channel-input" type="text" placeholder="Channel name or @handle…" autocomplete="off" maxlength="100"
+      onkeydown="if(event.key==='Enter')addChannelFromModal()"/>
+    <div id="add-channel-status" style="font-size:12px;color:var(--text3);min-height:18px;margin-top:-8px;margin-bottom:12px"></div>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeAddChannelModal()">Cancel</button>
+      <button class="modal-create" id="add-channel-btn" onclick="addChannelFromModal()">Add</button>
+    </div>
+  </div>
+</div>
+
+<!-- Context Menu -->
+<div id="ctx-menu" class="ctx-menu" style="display:none"></div>
+
+<script>
+'use strict';
+// ── API KEY MANAGER ──
+const LS_APIKEYS = 'yt_apikeys_v1';
+const ApiKeyManager = (() => {
+  let keys = [];         // [{key, masked, exhausted, visible}]
+  let activeIdx = 0;
+
+  function load() {
+    try { keys = JSON.parse(localStorage.getItem(LS_APIKEYS) || '[]'); } catch { keys = []; }
+    // Remove the old hardcoded legacy key if it's still in the list
+    const legacy = 'AIzaSyDlIZqkSeSyxScDv2lqm5wL6kYbcbsVGHQ';
+    keys = keys.filter(k => k.key !== legacy);
+    save();
+    activeIdx = keys.findIndex(k => !k.exhausted);
+    if (activeIdx < 0) activeIdx = 0;
+  }
+
+  function save() { localStorage.setItem(LS_APIKEYS, JSON.stringify(keys)); }
+
+  function currentKey() {
+    // Always prefer a non-exhausted key
+    const available = keys.find((k, i) => i === activeIdx && !k.exhausted);
+    if (available) return available.key;
+    // activeIdx is exhausted — find any available key
+    const any = keys.find(k => !k.exhausted);
+    if (any) return any.key;
+    // All exhausted — return activeIdx key so the quota error surfaces properly
+    return keys[activeIdx]?.key || '';
+  }
+
+  function markExhausted(key) {
+    const k = keys.find(k => k.key === key);
+    if (k) { k.exhausted = true; save(); }
+    // Find next available
+    const next = keys.findIndex((k, i) => i > activeIdx && !k.exhausted);
+    if (next >= 0) { activeIdx = next; return true; }
+    // Wrap around
+    const any = keys.findIndex(k => !k.exhausted);
+    if (any >= 0) { activeIdx = any; return true; }
+    return false; // all exhausted
+  }
+
+  function addKey(rawKey) {
+    rawKey = rawKey.trim();
+    if (!rawKey || keys.some(k => k.key === rawKey)) return false;
+    keys.push({ key: rawKey, exhausted: false, visible: false });
+    // If no active non-exhausted key exists, point to the new one
+    const anyActive = keys.findIndex(k => !k.exhausted);
+    activeIdx = anyActive >= 0 ? anyActive : keys.length - 1;
+    save();
+    return true;
+  }
+
+  function removeKey(idx) {
+    keys.splice(idx, 1);
+    if (activeIdx >= keys.length) activeIdx = Math.max(0, keys.length - 1);
+    save();
+  }
+
+  function toggleVisible(idx) { keys[idx].visible = !keys[idx].visible; save(); }
+
+  function getAll() { return keys; }
+  function getActiveIdx() { return activeIdx; }
+  function resetExhausted() { keys.forEach(k => k.exhausted = false); save(); }
+
+  load();
+  return { currentKey, markExhausted, addKey, removeKey, toggleVisible, getAll, getActiveIdx, resetExhausted, save };
+})();
+
+// ── SETTINGS UI ──
+function openSettings() {
+  renderApiKeyList();
+  renderResolveStatus();
+  renderBlockedKeywordsList();
+  document.getElementById('settings-modal').style.display = 'flex';
+  setTimeout(()=>document.getElementById('new-apikey-input').focus(), 80);
+}
+function renderResolveStatus(){
+  const el=document.getElementById('resolve-status');
+  if(!el)return;
+  const unresolved=channels.filter(n=>!channelIds[n]);
+  if(!unresolved.length){el.innerHTML='<span style="color:#2eca6a">✓ All '+channels.length+' channel'+(channels.length!==1?'s':'')+' resolved.</span>';return;}
+  el.innerHTML='<span style="color:#ff6b35">⚠ '+unresolved.length+' unresolved: </span><span style="color:var(--text2)">'+unresolved.map(n=>esc(n)).join(', ')+'</span>';
+}
+async function reResolveChannels(){
+  const btn=document.getElementById('re-resolve-btn');
+  const unresolved=channels.filter(n=>!channelIds[n]);
+  if(!unresolved.length){showToast('All channels already resolved!');return;}
+  btn.disabled=true;btn.textContent='Resolving…';
+  try{
+    await resolveChannelIds(true);
+    renderSidebarChannels();
+    if(currentSection==='home')renderHome();
+    renderResolveStatus();
+    const stillBad=channels.filter(n=>!channelIds[n]);
+    showToast(stillBad.length?'Partial: '+stillBad.length+' still unresolved':'✓ All channels resolved!');
+  }catch(e){showToast('Error: '+e.message);}
+  btn.disabled=false;btn.textContent='&#x1F504; Re-resolve unresolved channels';
+}
+function closeSettings() { document.getElementById('settings-modal').style.display = 'none'; }
+
+function renderBlockedKeywordsList(){
+  const el=document.getElementById('blocked-keywords-list');
+  if(!el)return;
+  if(!blockedKeywords.length){
+    el.innerHTML='<div style="color:var(--text3);font-size:13px;padding:10px 0;opacity:.7">No keywords blocked yet.</div>';
+    return;
+  }
+  el.innerHTML=`<div style="display:flex;flex-wrap:wrap;gap:4px;padding:4px 0">`+
+    blockedKeywords.map(kw=>`<span class="bk-tag"><span class="ms">block</span>${esc(kw)}</span>`).join('')+
+  `</div>`;
+}
+
+function addKeywordFromSettings(){
+  const inp=document.getElementById('new-keyword-input');
+  const errEl=document.getElementById('keyword-add-error');
+  const err=addBlockedKeyword(inp.value);
+  if(err){errEl.textContent=err;return;}
+  inp.value='';
+  errEl.textContent='';
+  renderBlockedKeywordsList();
+  showToast('🚫 Keyword blocked permanently');
+}
+
+function addApiKey() {
+  const inp = document.getElementById('new-apikey-input');
+  const val = inp.value.trim();
+  if (!val) return;
+  if (!ApiKeyManager.addKey(val)) { showToast('Key already exists'); return; }
+  inp.value = '';
+  renderApiKeyList();
+  showToast('✓ API key added');
+}
+
+function renderApiKeyList() {
+  const list = document.getElementById('apikey-list');
+  const keys = ApiKeyManager.getAll();
+  const activeIdx = ApiKeyManager.getActiveIdx();
+  if (!keys.length) {
+    list.innerHTML = '<div class="apikey-empty">No API keys saved. Add one above.</div>';
+    document.getElementById('apikey-status-bar').style.display = 'none';
+    return;
+  }
+  // YouTube Data API v3 free quota: 10,000 units/day
+  // Each search costs 100 units. We track searches per key in localStorage.
+  const LS_QUOTA_USAGE = 'yt_quota_usage_v1';
+  let quotaUsage = {};
+  try { quotaUsage = JSON.parse(localStorage.getItem(LS_QUOTA_USAGE)||'{}'); } catch{}
+
+  list.innerHTML = keys.map((k, i) => {
+    const masked = k.visible ? esc(k.key) : esc(k.key.slice(0,8)+'••••••••••'+k.key.slice(-4));
+    const isActive = i === activeIdx && !k.exhausted;
+    const cls = k.exhausted ? 'exhausted-key' : (isActive ? 'active-key' : '');
+    const badgeCls = k.exhausted ? 'badge-exhausted' : (isActive ? 'badge-active' : 'badge-idle');
+    const badgeLabel = k.exhausted ? 'Quota ✕' : (isActive ? 'Active' : 'Standby');
+    // Quota usage: units used (each search = 100 units, max 10000/day)
+    const used = quotaUsage[k.key] || 0;
+    const pct = Math.min(100, Math.round(used/100));
+    const barColor = pct>80?'#ff6b35':pct>50?'#f0c040':'#2eca6a';
+    const searchesLeft = Math.max(0, Math.floor((10000-used)/100));
+    return `<div class="apikey-item ${cls}">
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+          <span class="apikey-val">${masked}</span>
+          <span class="apikey-badge ${badgeCls}">${badgeLabel}</span>
+        </div>
+        <div class="apikey-quota-row">
+          <div class="apikey-quota-bar"><div class="apikey-quota-fill" style="width:${pct}%;background:${barColor}"></div></div>
+          <span style="font-size:10px;color:var(--text3);white-space:nowrap;flex-shrink:0">${used} units · ~${searchesLeft} searches left</span>
+        </div>
+      </div>
+      <button class="apikey-eye" onclick="ApiKeyManager.toggleVisible(${i});renderApiKeyList()" title="${k.visible?'Hide':'Show'} key">
+        <span class="ms sz18">${k.visible?'visibility_off':'visibility'}</span>
+      </button>
+      <button class="apikey-del" onclick="removeApiKey(${i})" title="Remove key">
+        <span class="ms sz18">close</span>
+      </button>
+    </div>`;
+  }).join('');
+
+  // Status bar
+  const sb = document.getElementById('apikey-status-bar');
+  const exhaustedCount = keys.filter(k => k.exhausted).length;
+  const available = keys.length - exhaustedCount;
+  if (exhaustedCount > 0) {
+    sb.style.display = 'flex';
+    sb.innerHTML = `<span class="dot ${available===0?'warn':''}"></span>
+      ${available>0
+        ? `${available} of ${keys.length} key${keys.length>1?'s':''} available — auto-rotation active`
+        : `⚠️ All keys exhausted. <button onclick="ApiKeyManager.resetExhausted();resetQuotaUsage();renderApiKeyList();showToast('Quotas reset')" style="color:var(--accent);background:none;border:none;cursor:pointer;font-size:12px;padding:0;text-decoration:underline">Reset quotas</button>`}`;
+  } else {
+    sb.style.display = keys.length > 1 ? 'flex' : 'none';
+    if (keys.length > 1) sb.innerHTML = `<span class="dot"></span>${keys.length} keys loaded — auto-rotation ready`;
+  }
+}
+
+// Track quota usage per key (100 units per search call)
+function trackQuotaUsage(key, units){
+  const LS_QUOTA_USAGE='yt_quota_usage_v1';
+  let u={};try{u=JSON.parse(localStorage.getItem(LS_QUOTA_USAGE)||'{}');}catch{}
+  u[key]=(u[key]||0)+units;
+  localStorage.setItem(LS_QUOTA_USAGE,JSON.stringify(u));
+}
+function resetQuotaUsage(){localStorage.removeItem('yt_quota_usage_v1');}
+
+function removeApiKey(idx) {
+  ApiKeyManager.removeKey(idx);
+  renderApiKeyList();
+  showToast('Key removed');
+}
+
+const LS_CH         = 'yt_channels_v4';
+const LS_IDS        = 'yt_channel_ids_v4';
+const LS_META       = 'yt_channel_meta_v4';
+const LS_AFFINITY   = 'yt_affinity_v1';
+const LS_HISTORY    = 'yt_history_v1';
+const LS_SEARCH_HIST= 'yt_search_history_v1';
+const LS_PINNED     = 'yt_pinned_pl_v1';
+const LS_UPLOAD     = 'yt_upload_pl_v1';
+const LS_MPL        = 'yt_myplaylists_v1';
+const LS_HIDDEN     = 'yt_hidden_ch_v1';   // hidden channels set
+const LS_NOTINT     = 'yt_notinterested_v1'; // not-interested video ids
+const LS_WL         = 'yt_watchlater_v1';   // watch later videos
+const LS_BK_WORDS   = 'yt_block_keywords_v1'; // blocked keywords (permanent)
+
+const BLOCKED = ['song','songs','music','movie','movies','film','comedy','meme','memes','funny','prank','vlog','gaming','gameplay','trailer','web series','reels','dance','tiktok','entertainment','celebrity','gossip','cricket','ipl','football','roast','reaction','drama','podcast'];
+
+let channels    = JSON.parse(localStorage.getItem(LS_CH)||'[]');
+let channelIds  = JSON.parse(localStorage.getItem(LS_IDS)||'{}');
+let channelMeta = JSON.parse(localStorage.getItem(LS_META)||'{}');
+// Avatar cache keyed by channelId — for non-subscribed channels shown in search/home
+const LS_AV = 'yt_ch_avatars_v1';
+let chAvatarCache = JSON.parse(localStorage.getItem(LS_AV)||'{}');
+let affinity    = JSON.parse(localStorage.getItem(LS_AFFINITY)||'{}');
+let history_    = JSON.parse(localStorage.getItem(LS_HISTORY)||'[]');
+let searchHistory_ = JSON.parse(localStorage.getItem(LS_SEARCH_HIST)||'[]');
+let pinnedPls   = JSON.parse(localStorage.getItem(LS_PINNED)||'[]');
+let uploadCache = JSON.parse(localStorage.getItem(LS_UPLOAD)||'{}');
+let myPlaylists = JSON.parse(localStorage.getItem(LS_MPL)||'[]');
+let hiddenChs   = new Set(JSON.parse(localStorage.getItem(LS_HIDDEN)||'[]'));
+let blockedKeywords = JSON.parse(localStorage.getItem(LS_BK_WORDS)||'[]'); // permanent, cannot be removed
+let notInterested = new Set(JSON.parse(localStorage.getItem(LS_NOTINT)||'[]'));
+let watchLater  = JSON.parse(localStorage.getItem(LS_WL)||'[]');
+
+let currentSection    = 'home';
+let currentChannelId  = null;
+let currentChannelName= '';
+let currentChTab      = 'videos';
+let searchResults     = [];
+let searchPlaylists   = [];
+let searchSort        = 'relevance';
+let searchQuery       = '';
+let searchNextTokenMap= {};
+let homeFeedItems     = [];
+let homeFeedPage      = 0;
+const HOME_PAGE_SIZE  = 16;
+let vidNextToken      = null;
+let chUploadPlId      = null;
+let navStack          = [];
+// Playlist pagination per channelId
+let plNextTokenMap    = {};
+
+// Context menu state
+let ctxData = {};
+
+// ── UTILS ──
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function fmtDate(iso){
+  if(!iso)return'';
+  const d=new Date(iso),now=new Date(),diff=Math.floor((now-d)/1000);
+  if(diff<60)return'just now';
+  if(diff<3600)return Math.floor(diff/60)+' min ago';
+  if(diff<86400)return Math.floor(diff/3600)+' hours ago';
+  if(diff<604800)return Math.floor(diff/86400)+' days ago';
+  if(diff<2592000)return Math.floor(diff/604800)+' weeks ago';
+  if(diff<31536000)return Math.floor(diff/2592000)+' months ago';
+  return Math.floor(diff/31536000)+' years ago';
+}
+function fmtViews(n){n=parseInt(n)||0;if(n>=1e9)return(n/1e9).toFixed(1)+'B';if(n>=1e6)return(n/1e6).toFixed(1)+'M';if(n>=1e3)return Math.round(n/1e3)+'K';return n+''}
+function fmtSubs(n){n=parseInt(n)||0;if(n>=1e6)return(n/1e6).toFixed(1)+'M subscribers';if(n>=1e3)return Math.round(n/1e3)+'K subscribers';return n+' subscribers'}
+function fmtDur(iso){
+  if(!iso)return'';
+  const m=iso.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+  if(!m)return'';
+  const h=parseInt(m[1]||0),mn=parseInt(m[2]||0),s=parseInt(m[3]||0);
+  if(h)return`${h}:${String(mn).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  return`${mn}:${String(s).padStart(2,'0')}`;
+}
+function ytLink(vid){return`https://www.yout-ube.com/watch?v=${vid}`}
+// Returns the highest-quality thumbnail URL for a given video ID or existing URL
+function maxresThumbnail(vidOrUrl){
+  // If it's already a YouTube thumbnail URL, extract the video ID and upgrade
+  if(vidOrUrl&&vidOrUrl.includes('ytimg.com')){
+    // Replace any quality variant with maxresdefault
+    return vidOrUrl.replace(/\/(default|mqdefault|hqdefault|sddefault|maxresdefault)(\.\w+)?$/,'/maxresdefault.jpg');
+  }
+  // If it's a raw video ID
+  if(vidOrUrl&&!vidOrUrl.includes('/')&&vidOrUrl.length>5){
+    return`https://i.ytimg.com/vi/${vidOrUrl}/maxresdefault.jpg`;
+  }
+  return vidOrUrl||'';
+}
+// Pick the best thumbnail from a snippets.thumbnails object and upgrade to maxres
+function bestThumb(thumbnails,videoId){
+  if(videoId)return`https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`;
+  const url=(thumbnails?.maxres?.url||thumbnails?.standard?.url||thumbnails?.high?.url||thumbnails?.medium?.url||thumbnails?.default?.url||'');
+  return maxresThumbnail(url);
+}
+function isShort(title){return/(#shorts?|#short)\b/i.test(title)}
+function isShortDuration(dur){
+  if(!dur)return false;
+  const m=dur.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+  if(!m)return false;
+  return(parseInt(m[1]||0)*3600+parseInt(m[2]||0)*60+parseInt(m[3]||0))<65;
+}
+function isBlocked(q){return BLOCKED.some(w=>new RegExp(`\\b${w}\\b`,'i').test(q))}
+async function api(path, _retryCount = 0) {
+  const key = ApiKeyManager.currentKey();
+  if (!key) throw new Error('No API key configured. Open Settings (⚙) to add one.');
+  const sep = path.includes('?') ? '&' : '?';
+  const r = await fetch(`https://www.googleapis.com/youtube/v3/${path}${sep}key=${key}`);
+  // Track quota: search=100 units, others=1-5 units
+  const units = path.startsWith('search')?100:path.startsWith('videos')||path.startsWith('channels')?5:1;
+  if(r.ok) try{trackQuotaUsage(key,units);}catch(e){}
+  if (!r.ok) {
+    const e = await r.json().catch(() => ({}));
+    const reason = e?.error?.errors?.[0]?.reason || '';
+    const isQuota = r.status === 403 && (reason === 'quotaExceeded' || reason === 'dailyLimitExceeded' || (e?.error?.message || '').toLowerCase().includes('quota'));
+    if (isQuota) {
+      showToast(`⚠️ Key #${ApiKeyManager.getActiveIdx() + 1} quota exceeded — switching…`);
+      const switched = ApiKeyManager.markExhausted(key);
+      if (document.getElementById('settings-modal').style.display !== 'none') renderApiKeyList();
+      if (switched && _retryCount < ApiKeyManager.getAll().length) {
+        return api(path, _retryCount + 1);
+      } else {
+        throw new Error('All API keys have exceeded their quota. Add a new key in Settings.');
+      }
+    }
+    throw new Error(e?.error?.message || r.statusText);
+  }
+  return r.json();
+}
+function avatarHtml(name,meta,cls='vid-ch-avatar',chId){
+  const initials=(name||'').slice(0,2).toUpperCase();
+  const thumb=meta?.thumb||(chId&&chAvatarCache[chId])||'';
+  if(thumb)return`<div class="${cls}"><img src="${esc(thumb)}" alt="" loading="lazy" onerror="this.style.display='none'"/></div>`;
+  return`<div class="${cls}">${esc(initials)}</div>`;
+}
+function saveLS(key,val){localStorage.setItem(key,JSON.stringify(val))}
+
+// Fetch avatars for channel IDs not yet in cache, then re-render cards that need them
+async function fetchAndCacheAvatars(chIds){
+  const missing=[...new Set(chIds)].filter(id=>id&&!chAvatarCache[id]);
+  if(!missing.length)return;
+  for(let i=0;i<missing.length;i+=50){
+    try{
+      const batch=missing.slice(i,i+50).join(',');
+      const d=await api(`channels?part=snippet&id=${batch}`);
+      (d.items||[]).forEach(ch=>{
+        const thumb=ch.snippet?.thumbnails?.medium?.url||ch.snippet?.thumbnails?.default?.url||'';
+        if(thumb)chAvatarCache[ch.id]=thumb;
+      });
+    }catch(e){/* non-critical */}
+  }
+  localStorage.setItem(LS_AV,JSON.stringify(chAvatarCache));
+  // Refresh any visible avatar images that are still showing initials
+  missing.forEach(id=>{
+    const thumb=chAvatarCache[id];
+    if(!thumb)return;
+    // Update all avatar divs whose parent card has data matching this channelId
+    document.querySelectorAll(`[data-hi="${CSS.escape(id)}"]`).forEach(link=>{
+      const card=link.closest('.vid-card,.search-card,.search-pl-card');
+      if(!card)return;
+      const av=card.querySelector('.vid-ch-avatar,.search-ch-avatar');
+      if(av&&!av.querySelector('img')){
+        av.innerHTML=`<img src="${esc(thumb)}" alt="" loading="lazy" onerror="this.style.display='none'"/>`;
+      }
+    });
+  });
+}
+
+// ── AFFINITY / CLICK TRACKING ──
+function trackClick(channelId,vid,title,channel,thumb){
+  if(!vid)return;
+  if(channelId)affinity[channelId]=(affinity[channelId]||0)+1,saveLS(LS_AFFINITY,affinity);
+  // Always use maxres thumb in history
+  const hiThumb=`https://i.ytimg.com/vi/${vid}/maxresdefault.jpg`;
+  history_=history_.filter(h=>h.vid!==vid);
+  history_.unshift({vid,title,channel,thumb:hiThumb,ts:Date.now()});
+  if(history_.length>500)history_=history_.slice(0,500);
+  saveLS(LS_HISTORY,history_);
+  // If history panel is open, refresh it live
+  if(currentSection==='history')renderHistory();
+}
+
+// ── GLOBAL HISTORY DELEGATION ──
+// Single document mousedown catches left/middle/ctrl+click BEFORE browser opens new tab
+document.addEventListener('mousedown', function(e){
+  const link = e.target.closest('a[data-hv]');
+  if(!link) return;
+  const vid=link.dataset.hv, title=link.dataset.ht||'', channel=link.dataset.hc||'', chId=link.dataset.hi||'';
+  if(vid) trackClick(chId, vid, title, channel, '');
+}, true); // capture phase = fires first
+function scoreVideo(item,channelId){
+  const clicks=affinity[channelId]||0;
+  const age=(Date.now()-new Date(item.snippet?.publishedAt||0))/3600000;
+  const recency=Math.exp(-age/(24*14));
+  const affinityW=Math.log2(clicks+2);
+  const unseen=history_.some(h=>h.vid===(item.id?.videoId||item.vid))?0.7:1.0;
+  return recency*affinityW*unseen;
+}
+
+// ── HIDDEN CHANNELS ──
+function saveHidden(){saveLS(LS_HIDDEN,[...hiddenChs])}
+function toggleHideChannel(name){
+  if(hiddenChs.has(name))hiddenChs.delete(name);else hiddenChs.add(name);
+  saveHidden();
+  renderSidebarChannels();
+  if(currentSection==='home')renderHome();
+}
+function toggleHideCurrentChannel(){
+  toggleHideChannel(currentChannelName);
+  updateChHideBtn(currentChannelName);
+}
+function updateChHideBtn(name){
+  const btn=document.getElementById('ch-hide-btn');if(!btn)return;
+  const h=isHidden(name);
+  document.getElementById('ch-hide-icon').textContent=h?'visibility':'visibility_off';
+  document.getElementById('ch-hide-label').textContent=h?'Unhide from Home':'Hide from Home';
+  btn.style.color=h?'var(--accent)':'var(--text2)';
+  btn.style.borderColor=h?'var(--accent)':'var(--border)';
+}
+function isHidden(name){return hiddenChs.has(name)}
+
+// ── KEYWORD BLOCKING (permanent — keywords cannot be removed once added) ──
+function saveBlockedKeywords(){localStorage.setItem(LS_BK_WORDS,JSON.stringify(blockedKeywords))}
+
+// Validates a keyword before adding: min 3 chars, not a single letter/digit, not already present
+function validateKeyword(kw){
+  kw=kw.trim().toLowerCase();
+  if(!kw)return{ok:false,msg:'Enter a keyword.'};
+  if(kw.length<3)return{ok:false,msg:'Keyword must be at least 3 characters.'};
+  if(/^[a-z0-9]$/.test(kw))return{ok:false,msg:'Single characters are not allowed.'};
+  // Reject pure punctuation or whitespace
+  if(!/[a-z0-9]/.test(kw))return{ok:false,msg:'Keyword must contain letters or numbers.'};
+  if(blockedKeywords.includes(kw))return{ok:false,msg:`"${kw}" is already blocked.`};
+  return{ok:true,kw};
+}
+
+function addBlockedKeyword(raw){
+  const v=validateKeyword(raw);
+  if(!v.ok)return v.msg;
+  blockedKeywords.push(v.kw);
+  saveBlockedKeywords();
+  // Immediately refresh home/search if open
+  if(currentSection==='home')renderHome();
+  if(currentSection==='search')renderSearchResults();
+  return null; // no error
+}
+
+// Returns true if a piece of text matches any blocked keyword
+function matchesBlockedKeyword(text){
+  if(!text||!blockedKeywords.length)return false;
+  const lc=text.toLowerCase();
+  return blockedKeywords.some(kw=>lc.includes(kw));
+}
+
+// Returns true if a video/channel should be hidden based on title, channel name
+function isBlockedContent(title,channelName){
+  return matchesBlockedKeyword(title)||matchesBlockedKeyword(channelName);
+}
+
+// ── NOT INTERESTED ──
+function markNotInterested(vid){
+  notInterested.add(vid);
+  saveLS(LS_NOTINT,[...notInterested]);
+  // Remove card from DOM
+  document.querySelectorAll(`[data-vid="${vid}"]`).forEach(el=>el.closest('.vid-card')?.remove());
+}
+
+// ── WATCH LATER ──
+function saveWL(){saveLS(LS_WL,watchLater)}
+function isInWL(vid){return watchLater.some(v=>v.vid===vid)}
+function toggleWatchLater(e,vid,title,channel,thumb,dur){
+  e.preventDefault();e.stopPropagation();
+  const btn=e.currentTarget;
+  if(isInWL(vid)){
+    watchLater=watchLater.filter(v=>v.vid!==vid);
+    saveWL();
+    btn.classList.remove('saved');
+    btn.querySelector('.ms').textContent='watch_later';
+    btn.title='Save to Watch Later';
+    showToast('Removed from Watch Later');
+  }else{
+    watchLater.unshift({vid,title,channel,thumb,dur:dur||'',ts:Date.now()});
+    if(watchLater.length>500)watchLater=watchLater.slice(0,500);
+    saveWL();
+    btn.classList.add('saved');
+    btn.querySelector('.ms').textContent='check_circle';
+    btn.title='Saved to Watch Later';
+    showToast('Saved to Watch Later');
+  }
+}
+function clearWatchLater(){
+  if(!watchLater.length)return;
+  if(!confirm('Clear all Watch Later videos?'))return;
+  watchLater=[];saveWL();renderWatchLater();
+}
+function renderWatchLater(){
+  const el=document.getElementById('wl-list');
+  if(!watchLater.length){
+    el.innerHTML=`<div class="wl-empty"><span class="ms">watch_later</span><div class="wl-empty-title">No videos saved yet</div><div class="wl-empty-sub">Click the ⋮ menu on any video and choose "Save to Watch Later".</div></div>`;
+    return;
+  }
+  el.innerHTML=`<div class="vid-grid">${watchLater.map(v=>{
+    const link=ytLink(v.vid);
+    const durStr=fmtDur(v.dur||'');
+    return`<div class="vid-card" data-vid="${esc(v.vid)}">
+      <a href="${link}" target="_blank" rel="noopener noreferrer"
+        data-hv="${esc(v.vid)}" data-ht="${esc(v.title||'')}" data-hc="${esc(v.channel||'')}" data-hi=""
+        style="display:block;text-decoration:none;color:inherit">
+        <div class="vid-thumb-wrap">
+          <img src="${esc(v.thumb||'')}" alt="" loading="lazy" onerror="this.src=''"/>
+          ${durStr?`<span class="vid-duration">${esc(durStr)}</span>`:''}
+        </div>
+      </a>
+      <div class="vid-info">
+        <div class="vid-ch-avatar">${esc((v.channel||'').slice(0,2).toUpperCase())}</div>
+        <a href="${link}" target="_blank" rel="noopener noreferrer"
+          data-hv="${esc(v.vid)}" data-ht="${esc(v.title||'')}" data-hc="${esc(v.channel||'')}" data-hi=""
+          style="flex:1;min-width:0;text-decoration:none;color:inherit">
+          <div class="vid-text">
+            <div class="vid-title">${esc(v.title||'')}</div>
+            <div class="vid-ch-name">${esc(v.channel||'')}</div>
+          </div>
+        </a>
+        <button class="vid-menu-btn" style="opacity:1" title="Remove from Watch Later"
+          onclick="removeFromWLPage(event,'${esc(v.vid)}')">
+          <span class="ms" style="color:#2eca6a">check_circle</span>
+        </button>
+      </div>
+    </div>`;
+  }).join('')}</div>`;
+}
+function removeFromWLPage(e,vid){
+  e.preventDefault();e.stopPropagation();
+  watchLater=watchLater.filter(v=>v.vid!==vid);
+  saveWL();
+  showToast('Removed from Watch Later');
+  // Remove card from DOM immediately
+  document.querySelectorAll(`#wl-list [data-vid="${vid}"]`).forEach(el=>el.remove());
+  if(!watchLater.length)renderWatchLater();
+}
+
+// ── MY PLAYLISTS ──
+function saveMPL(){saveLS(LS_MPL,myPlaylists)}
+function showNewPlaylistModal(){
+  document.getElementById('modal-pl-name').value='';
+  document.getElementById('modal-overlay').style.display='flex';
+  setTimeout(()=>document.getElementById('modal-pl-name').focus(),80);
+}
+function hideNewPlaylistModal(){document.getElementById('modal-overlay').style.display='none'}
+function _baseCreatePlaylist_unused(){
+  const name=document.getElementById('modal-pl-name').value.trim();
+  if(!name)return;
+  myPlaylists.unshift({id:'pl_'+Date.now(),name,videos:[],createdAt:Date.now()});
+  saveMPL();
+  hideNewPlaylistModal();
+  if(currentSection==='myplaylists')renderMyPlaylists();
+  showToast(`Playlist "${name}" created`);
+}
+function deletePlaylist(id){
+  if(!confirm('Delete this playlist?'))return;
+  myPlaylists=myPlaylists.filter(p=>p.id!==id);
+  saveMPL();
+  if(currentSection==='myplaylists')renderMyPlaylists();
+}
+function addVideoToPlaylist(plId,vid,title,channel,thumb,dur){
+  const pl=myPlaylists.find(p=>p.id===plId);
+  if(!pl)return;
+  if(pl.videos.some(v=>v.vid===vid)){showToast('Already in playlist');return;}
+  pl.videos.push({vid,title,channel,thumb,dur});
+  saveMPL();
+  showToast(`Added to "${pl.name}"`);
+}
+function removeVideoFromPlaylist(plId,vid){
+  const pl=myPlaylists.find(p=>p.id===plId);
+  if(!pl)return;
+  pl.videos=pl.videos.filter(v=>v.vid!==vid);
+  saveMPL();
+  showToast('Removed from playlist');
+  // If we're inside the playlist detail view, re-render it
+  if(document.getElementById('pl-inner-grid'))openMyPlaylist(plId);
+  else renderMyPlaylists();
+}
+function renderMyPlaylists(){
+  const wrap=document.getElementById('mpl-grid-wrap');
+  // Show skeleton briefly
+  wrap.innerHTML=skelPlaylistGrid(6);
+  setTimeout(()=>{
+  if(!myPlaylists.length){
+    wrap.innerHTML=`<div class="mpl-empty"><span class="ms" style="font-size:64px">queue_music</span><div class="mpl-empty-title">No playlists yet</div><div class="mpl-empty-sub">Click "New playlist" to create one.</div></div>`;
+    return;
+  }
+  wrap.innerHTML=`<div class="mpl-grid">${myPlaylists.map(pl=>{
+    const thumb=pl.videos[0]?.thumb||'';
+    return`<div class="mpl-card" data-plid="${esc(pl.id)}" onclick="openMyPlaylist('${esc(pl.id)}')">
+      <div class="mpl-thumb">
+        ${thumb?`<img src="${esc(thumb)}" alt="" loading="lazy"/>`:'<div style="width:100%;height:100%;background:#222;display:flex;align-items:center;justify-content:center"><span class="ms" style="font-size:40px;color:var(--text3)">queue_music</span></div>'}
+        <div class="mpl-count"><span>${pl.videos.length}</span><span>videos</span></div>
+      </div>
+      <div class="mpl-info">
+        <div class="mpl-title">${esc(pl.name)}</div>
+        <div class="mpl-sub">${pl.videos.length} video${pl.videos.length!==1?'s':''}</div>
+      </div>
+      <button class="mpl-del-btn" title="Delete" onclick="event.stopPropagation();deletePlaylist('${esc(pl.id)}')">
+        <span class="ms">delete</span>
+      </button>
+    </div>`;
+  }).join('')}</div>`;
+  setupPlaylistGridDropZones();
+  },80);
+}
+function openMyPlaylist(plId){
+  const pl=myPlaylists.find(p=>p.id===plId);
+  if(!pl)return;
+  const wrap=document.getElementById('mpl-grid-wrap');
+  const thumb=pl.videos[0]?.thumb||'';
+  const videoRows=pl.videos.map((v,i)=>{
+    const link=ytLink(v.vid);
+    const durStr=fmtDur(v.dur||'');
+    return`<a class="pl-video-row" href="${link}" target="_blank" rel="noopener"
+      data-hv="${esc(v.vid)}" data-ht="${esc(v.title||'')}" data-hc="${esc(v.channel||'')}" data-hi="">
+      <div class="pl-video-num">${i+1}</div>
+      <div class="pl-video-thumb">
+        <img src="${esc(v.thumb||'')}" alt="" loading="lazy" onerror="if(this.src.includes('maxresdefault')){this.src=this.src.replace('maxresdefault','hqdefault')}else{this.src=''}"/>
+        ${durStr?`<span class="pl-video-dur">${esc(durStr)}</span>`:''}
+      </div>
+      <div class="pl-video-info">
+        <div class="pl-video-title">${esc(v.title||'')}</div>
+        <div class="pl-video-ch">${esc(v.channel||'')}</div>
+      </div>
+      <button class="pl-video-remove" title="Remove from playlist" onclick="event.preventDefault();event.stopPropagation();removeVideoFromPlaylist('${esc(pl.id)}','${esc(v.vid)}')">
+        <span class="ms">close</span>
+      </button>
+    </a>`;
+  }).join('');
+
+  wrap.innerHTML=`
+  <button class="load-more-btn" style="margin-bottom:18px;display:inline-flex;align-items:center;gap:6px" onclick="renderMyPlaylists()">
+    <span class="ms" style="font-size:18px">arrow_back</span> All Playlists
+  </button>
+  <div class="pl-detail-wrap">
+    <div class="pl-detail-sidebar">
+      <div class="pl-detail-cover">
+        ${thumb
+          ?`<img src="${esc(thumb)}" alt="" loading="lazy" onerror="if(this.src.includes('maxresdefault')){this.src=this.src.replace('maxresdefault','hqdefault')}else{this.src=''}"/>`
+          :`<div class="pl-detail-cover-empty"><span class="ms">queue_music</span></div>`}
+      </div>
+      <div class="pl-detail-info">
+        <div class="pl-detail-name">${esc(pl.name)}</div>
+        <div class="pl-detail-meta">${pl.videos.length} video${pl.videos.length!==1?'s':''}</div>
+        <div class="pl-detail-actions">
+          <button class="pl-detail-play-btn" onclick="window.open('${pl.videos[0]?ytLink(pl.videos[0].vid):'#'}','_blank')">
+            <span class="ms">play_arrow</span>Play all
+          </button>
+          <button class="pl-detail-shuffle-btn">
+            <span class="ms">shuffle</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="pl-video-list" id="pl-inner-grid">
+      <div class="pl-video-list-header">
+        <span class="pl-video-list-count">${pl.videos.length} video${pl.videos.length!==1?'s':''}</span>
+      </div>
+      <div class="pl-detail-drop-hint"><span class="ms">add_circle</span>Drop videos here to add them</div>
+      ${pl.videos.length
+        ? videoRows
+        : `<div class="mpl-empty" style="padding:40px 0"><span class="ms" style="font-size:40px;color:var(--text3)">video_library</span><div class="mpl-empty-title">No videos yet</div><div class="mpl-empty-sub">Drag any video here, or use the ⋮ menu to add videos.</div></div>`}
+    </div>
+  </div>`;
+  setupInnerPlaylistDropZone(plId,wrap);
+}
+
+// ── PLAYLIST INNER DROP ZONE ──
+// Allows dragging videos INTO an open playlist view
+function setupInnerPlaylistDropZone(plId, wrap){
+  wrap.addEventListener('dragover',e=>{
+    if(!window._ytDragData)return;
+    e.preventDefault();e.dataTransfer.dropEffect='copy';
+    wrap.classList.add('pl-inner-drop-active','pl-inner-drop-over');
+  });
+  wrap.addEventListener('dragleave',e=>{
+    if(!wrap.contains(e.relatedTarget))wrap.classList.remove('pl-inner-drop-active','pl-inner-drop-over');
+  });
+  wrap.addEventListener('drop',e=>{
+    e.preventDefault();
+    wrap.classList.remove('pl-inner-drop-active','pl-inner-drop-over');
+    const d=window._ytDragData;
+    if(!d)return;
+    addVideoToPlaylist(plId,d.vid,d.title,d.channel,d.thumb,d.dur);
+    setTimeout(()=>openMyPlaylist(plId),80);
+  });
+}
+
+// Allows dragging videos onto playlist cards in the grid view
+function setupPlaylistGridDropZones(){
+  document.querySelectorAll('.mpl-card[data-plid]').forEach(card=>{
+    if(card._plDropReady)return;
+    card._plDropReady=true;
+    const plId=card.dataset.plid;
+    card.addEventListener('dragover',e=>{
+      if(!window._ytDragData)return;
+      e.preventDefault();e.dataTransfer.dropEffect='copy';
+      card.classList.add('pl-card-drop-target');
+    });
+    card.addEventListener('dragleave',e=>{
+      if(!card.contains(e.relatedTarget))card.classList.remove('pl-card-drop-target');
+    });
+    card.addEventListener('drop',e=>{
+      e.preventDefault();e.stopPropagation();
+      card.classList.remove('pl-card-drop-target');
+      const d=window._ytDragData;
+      if(!d)return;
+      addVideoToPlaylist(plId,d.vid,d.title,d.channel,d.thumb,d.dur);
+      card.classList.add('pl-card-drop-saved');
+      setTimeout(()=>card.classList.remove('pl-card-drop-saved'),550);
+    });
+  });
+}
+
+// ── TOAST ──
+let _toastTimer;
+function showToast(msg){
+  let t=document.getElementById('toast');
+  if(!t){t=document.createElement('div');t.id='toast';t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#282828;color:#fff;padding:10px 20px;border-radius:8px;font-size:14px;z-index:9999;pointer-events:none;opacity:0;transition:opacity .2s;box-shadow:0 4px 16px rgba(0,0,0,.5)';document.body.appendChild(t);}
+  t.textContent=msg;t.style.opacity='1';
+  clearTimeout(_toastTimer);
+  _toastTimer=setTimeout(()=>{t.style.opacity='0'},2200);
+}
+
+// ── CONTEXT MENU ──
+function closeCtx(){document.getElementById('ctx-menu').style.display='none';ctxData={}}
+document.addEventListener('click',e=>{if(!e.target.closest('#ctx-menu'))closeCtx()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeCtx()});
+
+
+
+// ── SETUP ──
+function initSetup(){
+  document.body.classList.add('sb-unlocked');
+  if(window._sbCollapsedPref)document.body.classList.add('sidebar-collapsed');
+  renderSidebarChannels();
+  showSection('home');
+}
+function addChannel(){
+  const inp=document.getElementById('ch-input');
+  if(!inp)return;
+  const name=inp.value.trim();
+  if(!name||channels.map(c=>c.toLowerCase()).includes(name.toLowerCase())){inp.value='';return}
+  channels.push(name);saveLS(LS_CH,channels);inp.value='';
+}
+function removeChannel(i){channels.splice(i,1);saveLS(LS_CH,channels);}
+
+function openAddChannelModal(){
+  document.getElementById('add-channel-input').value='';
+  document.getElementById('add-channel-status').textContent='';
+  document.getElementById('add-channel-btn').disabled=false;
+  document.getElementById('add-channel-btn').textContent='Add';
+  document.getElementById('add-channel-modal').style.display='flex';
+  setTimeout(()=>document.getElementById('add-channel-input').focus(),80);
+}
+function closeAddChannelModal(){document.getElementById('add-channel-modal').style.display='none'}
+async function addChannelFromModal(){
+  const inp=document.getElementById('add-channel-input');
+  const status=document.getElementById('add-channel-status');
+  const btn=document.getElementById('add-channel-btn');
+  const name=inp.value.trim();
+  if(!name)return;
+  if(matchesBlockedKeyword(name)){
+    status.textContent='🚫 This channel is blocked by a keyword.';status.style.color='#f44';return;
+  }
+  if(channels.map(c=>c.toLowerCase()).includes(name.toLowerCase())){
+    status.textContent='Channel already added.';status.style.color='var(--text3)';return;
+  }
+  btn.disabled=true;btn.textContent='Resolving…';status.textContent='Looking up channel…';status.style.color='var(--text3)';
+  channels.push(name);saveLS(LS_CH,channels);
+  try{
+    await resolveChannelIds(true);
+    // After resolve, check if the resolved title is also blocked
+    const resolvedTitle=channelMeta[name]?.title||'';
+    if(matchesBlockedKeyword(resolvedTitle)){
+      channels=channels.filter(c=>c!==name);saveLS(LS_CH,channels);
+      closeAddChannelModal();
+      showToast('🚫 This channel is blocked by a keyword.');
+      return;
+    }
+    renderSidebarChannels();
+    if(currentSection==='home')renderHome();
+    closeAddChannelModal();
+    showToast(`✓ "${name}" added to sidebar`);
+  }catch(e){
+    renderSidebarChannels();
+    closeAddChannelModal();
+    showToast(`Added "${name}" (resolve failed — add API key in Settings)`);
+  }
+}
+async function resolveChannelIds(onlyUnresolved=false){
+  const toResolve=onlyUnresolved?channels.filter(n=>!channelIds[n]):channels;
+  for(const name of toResolve){
+    try{
+      let chId;
+      // If the user typed a raw Channel ID (starts with UC and ~24 chars), use it directly
+      if(/^UC[\w-]{20,}$/.test(name.trim())){
+        chId=name.trim();
+      }else{
+        const d=await api(`search?part=snippet&type=channel&q=${encodeURIComponent(name)}&maxResults=1`);
+        if(d.items?.[0]){
+          chId=d.items[0].snippet.channelId||d.items[0].id.channelId;
+        }
+      }
+      if(!chId){console.warn('resolve: no channel found for',name);continue;}
+      channelIds[name]=chId;
+      const full=await api(`channels?part=snippet,brandingSettings,statistics,contentDetails&id=${chId}`);
+      if(full.items?.[0]){
+        const ch=full.items[0];
+        const bannerBase=ch.brandingSettings?.image?.bannerExternalUrl||'';
+        channelMeta[name]={
+          thumb:ch.snippet.thumbnails.high?.url||ch.snippet.thumbnails.medium?.url||ch.snippet.thumbnails.default?.url||'',
+          subs:ch.statistics.subscriberCount||'0',handle:ch.snippet.customUrl||'',
+          banner:bannerBase?bannerBase+'=w2560-nd-v1':'',
+          title:ch.snippet.title||name
+        };
+        const uplId=ch.contentDetails?.relatedPlaylists?.uploads;
+        if(uplId)uploadCache[chId]=uplId;
+      }
+    }catch(e){console.warn('resolve failed:',name,e)}
+  }
+  saveLS(LS_IDS,channelIds);saveLS(LS_META,channelMeta);saveLS(LS_UPLOAD,uploadCache);
+}
+
+// ── SIDEBAR ──
+function renderSidebarChannels(){
+  const el=document.getElementById('sb-channels');
+  // Active channels sorted by affinity (most used first), hidden at the end
+  const active=channels.filter(c=>!isHidden(c)).sort((a,b)=>(affinity[channelIds[b]]||0)-(affinity[channelIds[a]]||0));
+  const hidden=channels.filter(c=>isHidden(c));
+  const all=[...active,...hidden];
+  el.innerHTML=all.map(c=>{
+    const meta=channelMeta[c];
+    const h=isHidden(c);
+    return`<div class="sb-ch-item${h?' hidden-ch':''}" onclick="openChannel('${esc(c).replace(/'/g,"\\'")}')">
+      ${avatarHtml(c,meta,'sb-ch-avatar')}
+      <span class="sb-ch-name">${esc(meta?.title||c)}</span>
+      ${h?'<span class="ms sz16" style="color:var(--text3);flex-shrink:0" title="Hidden from Home">visibility_off</span>':''}
+      <button class="sb-ch-unsub-btn" onclick="event.stopPropagation();unsubscribeChannel('${esc(c).replace(/'/g,"\\'")}',this)" title="Unsubscribe">
+        <span class="ms">do_not_disturb_on</span>
+      </button>
+    </div>`;
+  }).join('');
+}
+
+// ── NAV ──
+function showSection(s){
+  const displaySection=s==='home'?'search':s;
+  currentSection=displaySection;
+  ['search-section','history-section','myplaylists-section','watchlater-section'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.style.display='none';
+  });
+  document.getElementById('channel-page').style.display='none';
+  document.querySelectorAll('.sb-item').forEach(el=>{
+    const navId=el.id;
+    const isActive=
+      (navId==='nav-home'&&(s==='home'||s==='search'))||
+      (navId==='nav-'+displaySection&&navId!=='nav-home');
+    el.classList.toggle('active',isActive);
+    const ms=el.querySelector('.ms');
+    if(ms){if(isActive)ms.classList.add('filled');else ms.classList.remove('filled');}
+  });
+  if(displaySection==='search'){
+    document.getElementById('search-section').style.display='block';
+    if(s==='home'){
+      // Show home feed, hide search results
+      document.getElementById('home-feed-wrap').style.display='block';
+      document.getElementById('search-results-wrap').style.display='none';
+      renderHome();
+    }else{
+      // s==='search' — show search results, hide home feed
+      document.getElementById('home-feed-wrap').style.display='none';
+      document.getElementById('search-results-wrap').style.display='block';
+      setTimeout(()=>document.getElementById('q')?.focus(),50);
+    }
+  }
+  else if(displaySection==='history'){document.getElementById('history-section').style.display='block';renderHistory();renderSearchHistoryList();}
+  else if(displaySection==='myplaylists'){document.getElementById('myplaylists-section').style.display='block';renderMyPlaylists();}
+  else if(displaySection==='watchlater'){document.getElementById('watchlater-section').style.display='block';renderWatchLater();}
+}
+
+// ── HOME ──
+async function renderHome(){
+  ytLoadStart();
+  const chipsWrap=document.getElementById('home-chips-wrap');
+  const feed=document.getElementById('home-feed');
+  const feedTitle=document.getElementById('home-feed-title');
+
+  chipsWrap.innerHTML='';
+  renderPinnedSection();
+
+  // Non-hidden, non-blocked channels that have been resolved
+  const activeChips=channels.filter(c=>!isHidden(c));
+  const visibleIds=activeChips.map(c=>channelIds[c]).filter(Boolean);
+
+  if(!visibleIds.length){
+    feedTitle.style.display='none';
+    feed.innerHTML=`<div style="text-align:center;padding:80px 0;color:var(--text3)">
+      <span class="ms" style="font-size:64px;display:block;margin-bottom:16px">search</span>
+      <div style="font-size:16px;font-weight:500;color:var(--text2);margin-bottom:8px">Search anything on YouTube</div>
+      <div style="font-size:14px">Use the search bar above — all results are shown except blocked channels</div>
+    </div>`;
+    document.getElementById('home-load-more').style.display='none';
+    ytLoadEnd();
+    return;
+  }
+
+  feedTitle.style.display='block';
+  feed.innerHTML=skelVidGrid(8);
+  document.getElementById('home-load-more').style.display='none';
+
+  try{
+    let allItems=[];
+    for(const chId of visibleIds){
+      const items=await fetchUploads(chId,25);
+      items.forEach(it=>{it._chId=chId});
+      allItems=allItems.concat(items);
+    }
+    allItems=allItems.filter(i=>{
+      const title=i.snippet?.title||'';
+      const ch=i.snippet?.videoOwnerChannelTitle||i.snippet?.channelTitle||'';
+      return!isShort(title)&&!notInterested.has(i.contentDetails?.videoId||i.snippet?.resourceId?.videoId)&&!isBlockedContent(title,ch);
+    });
+    if(!allItems.length){feed.innerHTML='<p style="color:var(--text3);padding:16px 0">No videos found.</p>';return}
+    const vids=allItems.map(i=>i.contentDetails?.videoId||i.snippet?.resourceId?.videoId).filter(Boolean);
+    const statsMap=await fetchVideoStats(vids);
+    allItems=allItems.filter(i=>{
+      const v=i.contentDetails?.videoId||i.snippet?.resourceId?.videoId;
+      return!isShortDuration(statsMap[v]?.dur||'');
+    });
+    allItems.forEach(i=>{
+      i._score=scoreVideo(i,i._chId);
+      i._vid=i.contentDetails?.videoId||i.snippet?.resourceId?.videoId;
+      i._stats=statsMap[i._vid]||{};
+    });
+    allItems.sort((a,b)=>b._score-a._score);
+    homeFeedItems=allItems;homeFeedPage=0;feed.innerHTML='<div class="vid-grid"></div>';
+    renderHomePage();
+  }catch(e){feed.innerHTML=`<p style="color:var(--text3)">Error: ${esc(e.message)}</p>`}
+  finally{ytLoadEnd();}
+}
+
+function renderHomePage(){
+  const feed=document.getElementById('home-feed');
+  const start=homeFeedPage*HOME_PAGE_SIZE;
+  const slice=homeFeedItems.slice(start,start+HOME_PAGE_SIZE);
+  if(!slice.length)return;
+  let grid=feed.querySelector('.vid-grid');
+  if(!grid){grid=document.createElement('div');grid.className='vid-grid';feed.appendChild(grid);}
+  slice.forEach(item=>{
+    const vid=item._vid;const s=item.snippet||{};const st=item._stats||{};
+    const chName=findChName(item._chId||'');
+    const meta=channelMeta[chName]||null;
+    const thumb=bestThumb(s.thumbnails,vid);
+    const title=s.title||'';
+    const channel=s.videoOwnerChannelTitle||s.channelTitle||chName;
+    grid.innerHTML+=videoCard(vid,title,channel,thumb,s.publishedAt,st.views,st.dur,meta,item._chId);
+  });
+  homeFeedPage++;
+  document.getElementById('home-load-more').style.display=homeFeedItems.length>homeFeedPage*HOME_PAGE_SIZE?'block':'none';
+  // Ensure avatars are cached for all channels in this page
+  const pageChIds=slice.map(i=>i._chId).filter(id=>id&&!chAvatarCache[id]&&!channelMeta[findChName(id)]?.thumb);
+  if(pageChIds.length)fetchAndCacheAvatars(pageChIds);
+}
+function loadMoreHome(){
+  if(homeFeedItems.length>homeFeedPage*HOME_PAGE_SIZE){
+    renderHomePage();
+  } else {
+    renderHome();
+  }
+}
+
+// ── VIDEO CARD CONTEXT MENU (three-dot ⋮) ──
+function openVideoCtx(e,vid,title,channel,thumb,dur){
+  e.preventDefault();e.stopPropagation();
+  ctxData={vid,title,channel,thumb,dur};
+  const menu=document.getElementById('ctx-menu');
+  const inWL=isInWL(vid);
+  const vd=JSON.stringify(vid);const vt=JSON.stringify(title);const vc=JSON.stringify(channel);
+  const vth=JSON.stringify(thumb||'');const vdr=JSON.stringify(dur||'');
+  // Build playlist sub-items
+  const plItems=myPlaylists.map(pl=>{
+    const inPl=pl.videos.some(v=>v.vid===vid);
+    return`<div class="ctx-pl-item" onclick="closeCtx();addVideoToPlaylist('${esc(pl.id)}',${vd},${vt},${vc},${vth},${vdr})">
+      <div class="ctx-pl-check${inPl?' checked':''}"></div>
+      <span>${esc(pl.name)}</span>
+    </div>`;
+  }).join('');
+  menu.innerHTML=`
+    <div class="ctx-item" onclick="toggleWatchLaterCtx(${vd},${vt},${vc},${vth},${vdr})">
+      <span class="ms">${inWL?'check_circle':'watch_later'}</span>
+      <span style="color:${inWL?'#2eca6a':'inherit'}">${inWL?'Saved to Watch Later':'Save to Watch Later'}</span>
+    </div>
+    <div class="ctx-divider"></div>
+    ${myPlaylists.length?`
+    <div class="ctx-sub">
+      <div class="ctx-sub-title">Add to playlist</div>
+      ${plItems}
+    </div>
+    <div class="ctx-divider"></div>`:''}
+    <div class="ctx-item" onclick="closeCtx();markNotInterested(${vd})">
+      <span class="ms">not_interested</span>Not interested
+    </div>`;
+  menu.style.display='block';
+  const rect=e.currentTarget.getBoundingClientRect();
+  let x=rect.left,y=rect.bottom+4;
+  menu.style.left=x+'px';menu.style.top=y+'px';
+  requestAnimationFrame(()=>{
+    const r=menu.getBoundingClientRect();
+    const vw=window.innerWidth,vh=window.innerHeight;
+    if(r.right>vw-8)menu.style.left=(x-r.width+32)+'px';
+    if(r.bottom>vh-8)menu.style.top=(rect.top-r.height-4)+'px';
+  });
+}
+function toggleWatchLaterCtx(vid,title,channel,thumb,dur){
+  const inWL=isInWL(vid);
+  if(inWL){
+    watchLater=watchLater.filter(v=>v.vid!==vid);
+    saveWL();
+    showToast('Removed from Watch Later');
+  }else{
+    watchLater.unshift({vid,title,channel,thumb,dur:dur||'',ts:Date.now()});
+    if(watchLater.length>500)watchLater=watchLater.slice(0,500);
+    saveWL();
+    showToast('Saved to Watch Later ✓');
+  }
+  // Update any visible three-dot menu btn icons if menu still open
+  closeCtx();
+}
+
+// Chip context menu (hide/show channel)
+function openChipMenu(e,name){
+  e.preventDefault();e.stopPropagation();
+  const menu=document.getElementById('ctx-menu');
+  const h=isHidden(name);
+  menu.innerHTML=`
+    <div class="ctx-item" onclick="closeCtx();openChannel('${esc(name).replace(/'/g,"\\'")}')"><span class="ms">open_in_new</span>Open channel</div>
+    <div class="ctx-divider"></div>
+    <div class="ctx-item" onclick="closeCtx();toggleHideChannel('${esc(name).replace(/'/g,"\\'")}')">
+      <span class="ms">${h?'visibility':'visibility_off'}</span>
+      ${h?'Show in Home feed':'Hide from Home feed'}
+    </div>`;
+  menu.style.display='block';
+  let x=e.clientX,y=e.clientY;
+  menu.style.left=x+'px';menu.style.top=y+'px';
+  requestAnimationFrame(()=>{
+    const r=menu.getBoundingClientRect();
+    const vw=window.innerWidth,vh=window.innerHeight;
+    if(r.right>vw-8)menu.style.left=(x-r.width)+'px';
+    if(r.bottom>vh-8)menu.style.top=(y-r.height)+'px';
+  });
+}
+
+// ── FETCH ──
+async function fetchUploads(chId,maxItems=50){
+  try{
+    let uplId=uploadCache[chId];
+    if(!uplId){
+      const ch=await api(`channels?part=contentDetails&id=${chId}`);
+      uplId=ch.items?.[0]?.contentDetails?.relatedPlaylists?.uploads;
+      if(uplId){uploadCache[chId]=uplId;saveLS(LS_UPLOAD,uploadCache)}
+    }
+    if(!uplId)return[];
+    const d=await api(`playlistItems?part=snippet,contentDetails&playlistId=${uplId}&maxResults=${Math.min(maxItems,50)}`);
+    return d.items||[];
+  }catch(e){console.warn('fetchUploads',chId,e);return[]}
+}
+async function fetchVideoStats(vidIds){
+  const map={};
+  const unique=[...new Set(vidIds)].filter(Boolean);
+  for(let i=0;i<unique.length;i+=50){
+    try{
+      const d=await api(`videos?part=statistics,contentDetails&id=${unique.slice(i,i+50).join(',')}`);
+      (d.items||[]).forEach(v=>{map[v.id]={views:v.statistics?.viewCount||0,dur:v.contentDetails?.duration||''}});
+    }catch(e){console.warn('stats fetch',e)}
+  }
+  return map;
+}
+function findChName(chId){return Object.keys(channelIds).find(k=>channelIds[k]===chId)||''}
+
+// ── PINNED PLAYLISTS ──
+function renderPinnedSection(){
+  const sec=document.getElementById('pinned-section-wrap');
+  const row=document.getElementById('pinned-pl-row');
+  if(!pinnedPls.length){sec.style.display='none';return}
+  sec.style.display='block';
+  row.innerHTML=pinnedPls.map((pl,idx)=>`
+    <div class="pinned-pl-card" onclick="openPinnedPlaylist('${esc(pl.plId)}','${esc(pl.title)}','${esc(pl.chName)}')">
+      <div class="pinned-pl-thumb">
+        ${pl.thumb
+          ?`<img src="${esc(pl.thumb)}" alt="" loading="lazy"/>`
+          :`<div class="pinned-pl-thumb-empty"><span class="ms">queue_music</span></div>`}
+        <div class="pinned-pl-count-badge">
+          <span class="ms" style="font-size:18px;color:#fff">play_arrow</span>
+          <span style="font-size:9px;color:#ccc">Play all</span>
+        </div>
+      </div>
+      <div class="pinned-pl-info">
+        <div class="pinned-pl-text">
+          <div class="pinned-pl-title">${esc(pl.title)}</div>
+          <div class="pinned-pl-ch">${esc(pl.chName)}</div>
+        </div>
+        <button class="pinned-pl-unpin" title="Unpin" onclick="event.stopPropagation();unpinPlaylist(${idx})">
+          <span class="ms">close</span>
+        </button>
+      </div>
+    </div>`).join('');
+}
+function togglePin(plId,title,thumb,chName){
+  const idx=pinnedPls.findIndex(p=>p.plId===plId);
+  if(idx>=0){pinnedPls.splice(idx,1);showToast('Playlist unpinned')}
+  else{pinnedPls.push({plId,title,thumb,chName});showToast('Playlist pinned')}
+  saveLS(LS_PINNED,pinnedPls);refreshPinBtns();renderPinnedSection();
+}
+function unpinPlaylist(idx){pinnedPls.splice(idx,1);saveLS(LS_PINNED,pinnedPls);renderPinnedSection();refreshPinBtns()}
+function refreshPinBtns(){
+  document.querySelectorAll('.pl-pin-btn').forEach(btn=>{
+    const id=btn.dataset.plid;
+    const p=pinnedPls.some(p=>p.plId===id);
+    btn.classList.toggle('pinned',p);btn.textContent=p?'📌 Pinned':'📌 Pin';
+  });
+}
+async function openPinnedPlaylist(plId,plName,chName){
+  if(chName&&channelIds[chName]){await openChannel(chName);chTab('playlists');setTimeout(()=>openChPlaylist(plId,plName),800)}
+}
+
+// ── CHANNEL PAGE ──
+async function openChannel(name){
+  ytLoadStart();
+  navStack.push({type:'section',section:currentSection});
+  currentChannelName=name;currentChTab='home';
+  ['search-section','history-section','myplaylists-section','watchlater-section'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none'});
+  document.getElementById('channel-page').style.display='block';
+  document.querySelectorAll('.sb-item').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.ch-tab').forEach((b,i)=>b.classList.toggle('active',i===0));
+  document.getElementById('ch-home-panel').style.display='none';
+  document.getElementById('ch-videos-panel').style.display='block';
+  document.getElementById('ch-videos-panel').innerHTML='';
+  document.getElementById('ch-playlists-panel').style.display='none';
+  document.getElementById('ch-playlists-panel').innerHTML='';
+  delete document.getElementById('ch-playlists-panel').dataset.loaded;
+  plNextTokenMap[name]=null;
+
+  const chId=channelIds[name];const meta=channelMeta[name]||{};
+  const bannerImg=document.getElementById('ch-banner-img');
+  if(meta.banner){bannerImg.src=meta.banner;bannerImg.style.display='block'}else bannerImg.style.display='none';
+  const pfpImg=document.getElementById('ch-page-pfp-img');const initEl=document.getElementById('ch-page-initials');
+  if(meta.thumb){pfpImg.src=meta.thumb;pfpImg.style.display='block';initEl.style.display='none'}
+  else{pfpImg.style.display='none';initEl.style.display='';initEl.textContent=name.slice(0,2).toUpperCase()}
+  document.getElementById('ch-page-name').textContent=meta.title||name;
+  document.getElementById('ch-page-handle').textContent=meta.handle?`@${meta.handle.replace('@','')}`:''
+  document.getElementById('ch-page-subs').textContent=meta.subs?fmtSubs(meta.subs):'';
+  document.getElementById('ch-tabs').style.display='flex';
+  // Update hide button state
+  updateChHideBtn(name);
+  if(!chId){document.getElementById('ch-home-panel').innerHTML='<p style="color:var(--text3);text-align:center;padding:40px">Channel ID not resolved.</p>';return}
+  currentChannelId=chId;vidNextToken=null;chUploadPlId=null;
+  loadChannelVideos(true);
+}
+async function loadChannelVideos(fresh){
+  const panel=document.getElementById('ch-videos-panel');
+  if(fresh)panel.innerHTML=skelVidGrid(8);
+  try{
+    if(!chUploadPlId){
+      let uplId=uploadCache[currentChannelId];
+      if(!uplId){
+        const ch=await api(`channels?part=contentDetails&id=${currentChannelId}`);
+        uplId=ch.items?.[0]?.contentDetails?.relatedPlaylists?.uploads;
+        if(uplId){uploadCache[currentChannelId]=uplId;saveLS(LS_UPLOAD,uploadCache)}
+      }
+      chUploadPlId=uplId;
+    }
+    if(!chUploadPlId){panel.innerHTML='<p style="color:var(--text3);text-align:center;padding:40px">Could not load videos.</p>';return}
+    let url=`playlistItems?part=snippet,contentDetails&playlistId=${chUploadPlId}&maxResults=50`;
+    if(vidNextToken&&!fresh)url+=`&pageToken=${vidNextToken}`;
+    const d=await api(url);vidNextToken=d.nextPageToken||null;
+    const items=(d.items||[]).filter(i=>i.snippet.title!=='Private video'&&i.snippet.title!=='Deleted video'&&!isShort(i.snippet.title));
+    if(!items.length&&fresh){panel.innerHTML='<p style="color:var(--text3);text-align:center;padding:40px">No videos found.</p>';return}
+    const vids=items.map(i=>i.contentDetails.videoId).filter(Boolean).join(',');
+    if(!vids){if(fresh)panel.innerHTML='';return}
+    const stats=await api(`videos?part=statistics,contentDetails&id=${vids}`);
+    const sm={};(stats.items||[]).forEach(v=>sm[v.id]={views:v.statistics?.viewCount||0,dur:v.contentDetails?.duration||''});
+    const filtered=items.filter(i=>!isShortDuration(sm[i.contentDetails.videoId]?.dur||''));
+    if(fresh)panel.innerHTML=`<div class="vid-grid" id="ch-vid-grid"></div>`;
+    else if(!document.getElementById('ch-vid-grid'))panel.insertAdjacentHTML('afterbegin','<div class="vid-grid" id="ch-vid-grid"></div>');
+    const grid=document.getElementById('ch-vid-grid')||panel;
+    filtered.forEach(item=>{
+      const vid=item.contentDetails.videoId;const s=item.snippet;const st=sm[vid]||{};
+      const meta=channelMeta[currentChannelName]||null;
+      const thumb=bestThumb(s.thumbnails,vid);
+      grid.innerHTML+=videoCard(vid,s.title,s.videoOwnerChannelTitle||currentChannelName,thumb,s.publishedAt,st.views,st.dur,meta,currentChannelId);
+    });
+    const existingMore=panel.querySelector('.load-more-wrap');if(existingMore)existingMore.remove();
+    if(vidNextToken){
+      const w=document.createElement('div');w.className='load-more-wrap';
+      w.innerHTML=`<button class="load-more-btn" onclick="loadChannelVideos(false)">Load more</button>`;
+      panel.appendChild(w);
+    }
+  }catch(e){if(fresh)panel.innerHTML=`<p style="color:var(--text3);text-align:center;padding:40px">Error: ${esc(e.message)}</p>`;console.error(e)}
+  finally{ytLoadEnd();}
+}
+function chTab(tab){
+  currentChTab=tab;
+  const tabs=['videos','playlists'];
+  document.querySelectorAll('.ch-tab').forEach((b,i)=>b.classList.toggle('active',tabs[i]===tab));
+  document.getElementById('ch-home-panel').style.display='none';
+  document.getElementById('ch-videos-panel').style.display=tab==='videos'?'':'none';
+  document.getElementById('ch-playlists-panel').style.display=tab==='playlists'?'':'none';
+  if(tab==='videos'&&!document.getElementById('ch-vid-grid')){
+    vidNextToken=null;chUploadPlId=null;loadChannelVideos(true);
+  }
+  if(tab==='playlists'&&!document.getElementById('ch-playlists-panel').dataset.loaded){
+    loadPlaylists(false);
+  }
+}
+// Paginated playlists — load 50 at a time
+async function loadPlaylists(append){
+  const panel=document.getElementById('ch-playlists-panel');
+  if(!append){panel.innerHTML=skelChPlaylistGrid(6);plNextTokenMap[currentChannelName]=null}
+  const token=plNextTokenMap[currentChannelName]||null;
+  try{
+    let url=`playlists?part=snippet,contentDetails&channelId=${currentChannelId}&maxResults=50`;
+    if(token)url+=`&pageToken=${token}`;
+    const d=await api(url);
+    plNextTokenMap[currentChannelName]=d.nextPageToken||null;
+    const items=d.items||[];
+    if(!items.length&&!append){panel.innerHTML='<p style="color:var(--text3);text-align:center;padding:40px;font-size:14px">No playlists found.</p>';panel.dataset.loaded='1';return}
+    if(!append)panel.innerHTML=`<div class="pl-grid" id="pl-grid-inner"></div>`;
+    else{
+      const oldBtn=panel.querySelector('.load-more-wrap');if(oldBtn)oldBtn.remove();
+      if(!document.getElementById('pl-grid-inner'))panel.insertAdjacentHTML('afterbegin','<div class="pl-grid" id="pl-grid-inner"></div>');
+    }
+    const grid=document.getElementById('pl-grid-inner');
+    items.forEach(pl=>{
+      const thumb=pl.snippet.thumbnails.medium?.url||pl.snippet.thumbnails.default?.url||'';
+      const count=pl.contentDetails?.itemCount||0;
+      const safeTitle=esc(pl.snippet.title);
+      const isPinned=pinnedPls.some(p=>p.plId===pl.id);
+      grid.innerHTML+=`<div class="pl-card" onclick="openChPlaylist('${pl.id}','${safeTitle.replace(/'/g,"\\'")}')">
+        <div class="pl-thumb-wrap">
+          ${thumb?`<img src="${thumb}" alt="" loading="lazy"/>`:''}
+          <div class="pl-count-badge"><span>${count}</span><span>videos</span></div>
+          <button class="pl-pin-btn ${isPinned?'pinned':''}" data-plid="${pl.id}"
+            onclick="event.stopPropagation();togglePin('${pl.id}','${safeTitle.replace(/'/g,"\\'")}','${esc(thumb)}','${esc(currentChannelName)}')"
+          >${isPinned?'📌 Pinned':'📌 Pin'}</button>
+        </div>
+        <div class="pl-info">
+          <div class="pl-title">${safeTitle}</div>
+          <div class="pl-sub">Playlist · ${count} videos</div>
+        </div>
+      </div>`;
+    });
+    if(plNextTokenMap[currentChannelName]){
+      const w=document.createElement('div');w.className='load-more-wrap';
+      w.innerHTML=`<button class="load-more-btn" onclick="loadPlaylists(true)">Load more playlists</button>`;
+      panel.appendChild(w);
+    }
+    panel.dataset.loaded='1';
+  }catch(e){if(!append)panel.innerHTML=`<p style="color:var(--text3);text-align:center;padding:40px">${esc(e.message)}</p>`;console.error(e)}
+}
+
+async function openChPlaylist(plId,plName){
+  const panel=document.getElementById('ch-playlists-panel');
+  panel.innerHTML=`<button class="load-more-btn" style="margin-bottom:14px" onclick="loadPlaylists(false)">← All Playlists</button>
+    <div class="section-title" style="margin-bottom:14px">${esc(plName)}</div>
+    <div class="vid-grid" id="pl-vid-grid"></div>`;
+  await loadPlaylistVideos(plId,null);
+}
+async function loadPlaylistVideos(plId,token){
+  const grid=document.getElementById('pl-vid-grid');if(!grid)return;
+  let url=`playlistItems?part=snippet,contentDetails&playlistId=${plId}&maxResults=50`;
+  if(token)url+=`&pageToken=${token}`;
+  const d=await api(url);
+  const items=(d.items||[]).filter(i=>i.snippet.title!=='Private video'&&i.snippet.title!=='Deleted video');
+  if(!items.length)return;
+  const vids=items.map(i=>i.contentDetails.videoId).filter(Boolean).join(',');if(!vids)return;
+  const stats=await api(`videos?part=statistics,contentDetails&id=${vids}`);
+  const sm={};(stats.items||[]).forEach(v=>sm[v.id]={views:v.statistics?.viewCount||0,dur:v.contentDetails?.duration||''});
+  items.forEach(item=>{
+    const vid=item.contentDetails.videoId;const s=item.snippet;const st=sm[vid]||{};
+    if(!isShortDuration(st.dur||'')){
+      const meta=channelMeta[currentChannelName]||null;
+      const thumb=bestThumb(s.thumbnails,vid);
+      grid.innerHTML+=videoCard(vid,s.title,s.videoOwnerChannelTitle||currentChannelName,thumb,s.publishedAt,st.views,st.dur,meta,currentChannelId);
+    }
+  });
+  if(d.nextPageToken){
+    const panel=document.getElementById('ch-playlists-panel');
+    const old=panel.querySelector('.pl-load-more');if(old)old.remove();
+    const w=document.createElement('div');w.className='load-more-wrap pl-load-more';
+    w.innerHTML=`<button class="load-more-btn" onclick="this.parentElement.remove();loadPlaylistVideos('${plId}','${d.nextPageToken}')">Load more videos</button>`;
+    panel.appendChild(w);
+  }
+}
+
+// ── BACK ──
+function goBack(){
+  const prev=navStack.pop();
+  document.getElementById('channel-page').style.display='none';
+  showSection(prev?.section||'home');
+}
+
+// ── SEARCH ──
+// ── SEARCH INPUT — clear btn, recommendations, keyboard nav ──
+document.addEventListener('DOMContentLoaded',()=>{
+  const qi=document.getElementById('q');
+  const qc=document.getElementById('q-clear');
+  const dd=document.getElementById('search-dropdown');
+  if(!qi)return;
+
+  let ddActive=-1;
+
+  function updateClear(){qc.style.display=qi.value?'flex':'none'}
+  function hideDd(){dd.style.display='none';ddActive=-1}
+  function showDd(items){
+    if(!items.length){hideDd();return}
+    ddActive=-1;
+    dd.innerHTML=items.map((s,i)=>`
+      <div class="search-drop-item" data-i="${i}" onmousedown="event.preventDefault()" onclick="pickSuggestion('${s.replace(/'/g,"\\'")}')" onmouseover="setDdActive(${i})">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+        <span>${esc(s)}</span>
+      </div>`).join('');
+    dd.style.display='block';
+  }
+
+  function getSuggestions(q){
+    if(!q.trim())return[];
+    const lq=q.toLowerCase();
+    // Pull from channelMeta titles + channel names
+    const hits=new Set();
+    channels.forEach(c=>{
+      const title=(channelMeta[c]?.title||c).toLowerCase();
+      if(title.includes(lq))hits.add(channelMeta[c]?.title||c);
+    });
+    // Pull from cached history titles matching query
+    history_.forEach(h=>{
+      if(h.title&&h.title.toLowerCase().includes(lq))hits.add(h.title);
+    });
+    return [...hits].slice(0,8);
+  }
+
+  qi.addEventListener('input',()=>{
+    updateClear();
+    showDd(getSuggestions(qi.value));
+  });
+
+  qi.addEventListener('keydown',e=>{
+    const items=dd.querySelectorAll('.search-drop-item');
+    if(e.key==='Enter'){hideDd();doSearch();return}
+    if(e.key==='ArrowDown'){
+      e.preventDefault();
+      ddActive=Math.min(ddActive+1,items.length-1);
+      setDdActive(ddActive);
+      if(items[ddActive])qi.value=items[ddActive].querySelector('span').textContent;
+      updateClear();
+    } else if(e.key==='ArrowUp'){
+      e.preventDefault();
+      ddActive=Math.max(ddActive-1,-1);
+      setDdActive(ddActive);
+      if(ddActive>=0&&items[ddActive])qi.value=items[ddActive].querySelector('span').textContent;
+      updateClear();
+    } else if(e.key==='Escape'){hideDd()}
+  });
+
+  qi.addEventListener('focus',()=>{if(qi.value)showDd(getSuggestions(qi.value))});
+  qi.addEventListener('blur',()=>setTimeout(hideDd,150));
+});
+window.setDdActive=function(i){
+  document.querySelectorAll('.search-drop-item').forEach((el,j)=>el.classList.toggle('active',j===i));
+}
+window.pickSuggestion=function(s){
+  const qi=document.getElementById('q');
+  qi.value=s;
+  document.getElementById('q-clear').style.display='flex';
+  document.getElementById('search-dropdown').style.display='none';
+  doSearch();
+}
+window.clearSearch=function(){
+  const qi=document.getElementById('q');
+  qi.value='';
+  document.getElementById('q-clear').style.display='none';
+  document.getElementById('search-dropdown').style.display='none';
+  qi.focus();
+}
+async function doSearch(){
+  const raw=document.getElementById('q').value.trim();if(!raw)return;
+  if(isBlocked(raw)){document.getElementById('search-status').textContent='🚫 Stay focused! Only educational searches allowed.';showSection('search');document.getElementById('search-results-wrap').style.display='block';document.getElementById('home-feed-wrap').style.display='none';return}
+  // Block search if query contains a blocked keyword
+  if(matchesBlockedKeyword(raw)){
+    showSection('search');document.getElementById('search-results-wrap').style.display='block';document.getElementById('home-feed-wrap').style.display='none';
+    document.getElementById('search-results').innerHTML='';
+    document.getElementById('search-more').style.display='none';
+    document.getElementById('sort-row').style.display='none';
+    document.getElementById('search-status').textContent='🚫 This search is blocked.';
+    return;
+  }
+  // Save to search history
+  trackSearchHistory(raw);
+  searchQuery=raw;searchNextTokenMap={};searchResults=[];searchPlaylists=[];
+  document.getElementById('search-results').innerHTML='';
+  document.getElementById('search-more').style.display='none';
+  document.getElementById('sort-row').style.display='none';
+  document.getElementById('search-status').textContent='Searching…';
+  // Show search results pane, hide home feed
+  currentSection='search';
+  document.getElementById('search-section').style.display='block';
+  document.getElementById('search-results-wrap').style.display='block';
+  document.getElementById('home-feed-wrap').style.display='none';
+  // Show skeleton while loading
+  document.getElementById('search-results').innerHTML=skelSearchGrid(6);
+  ytLoadStart();
+  await fetchSearchPage(false);
+}
+async function fetchSearchPage(isMore){
+  try{
+    const pageToken=isMore?searchNextTokenMap['_global']:null;
+    const order=searchSort==='date'?'date':searchSort==='views'?'viewCount':'relevance';
+
+    // ── Detect if query matches an added channel name/handle ──
+    const qLc=searchQuery.toLowerCase().trim();
+    const matchedChannels=channels.filter(c=>{
+      const name=c.toLowerCase();
+      const title=(channelMeta[c]?.title||'').toLowerCase();
+      const handle=(channelMeta[c]?.handle||'').toLowerCase().replace(/^@/,'');
+      return name.includes(qLc)||qLc.includes(name)||title.includes(qLc)||qLc.includes(title)||(handle&&(handle.includes(qLc)||qLc.includes(handle)));
+    });
+    const boostedIds=matchedChannels.map(c=>channelIds[c]).filter(Boolean);
+
+    // ── Global search ──
+    let url=`search?part=snippet&type=video&q=${encodeURIComponent(searchQuery)}&maxResults=25&order=${order}&safeSearch=none&relevanceLanguage=en`;
+    if(pageToken)url+=`&pageToken=${pageToken}`;
+    const globalPromise=api(url);
+
+    // ── Boosted channel-specific searches (parallel, only on first page) ──
+    const boostPromises=(!isMore&&boostedIds.length)
+      ? boostedIds.slice(0,3).map(chId=>
+          api(`search?part=snippet&type=video&channelId=${chId}&q=${encodeURIComponent(searchQuery)}&maxResults=15&order=${order}`)
+            .then(d=>d.items||[]).catch(()=>[])
+        )
+      : [];
+
+    // ── Playlist search (only on first page) ──
+    const plPromise=(!isMore)
+      ? api(`search?part=snippet&type=playlist&q=${encodeURIComponent(searchQuery)}&maxResults=10&order=relevance`)
+          .then(d=>d.items||[]).catch(()=>[])
+      : Promise.resolve([]);
+
+    const [globalData,...rest]=await Promise.all([globalPromise,...boostPromises,plPromise]);
+    const boostItems=rest.slice(0,boostPromises.length).flat();
+    const rawPl=rest[boostPromises.length]||[];
+
+    if(globalData.nextPageToken)searchNextTokenMap['_global']=globalData.nextPageToken;
+    else delete searchNextTokenMap['_global'];
+
+    // ── Merge & deduplicate ──
+    const seen=new Set(searchResults.map(i=>i.id?.videoId));
+    // Boosted items tagged with high priority
+    boostItems.forEach(i=>{if(i)i._boosted=true});
+    let allItems=[...boostItems,...(globalData.items||[])].filter(i=>{
+      const vid=i?.id?.videoId;
+      if(!vid||seen.has(vid))return false;
+      seen.add(vid);
+      return!isShort(i.snippet?.title||'')&&!isBlockedContent(i.snippet?.title||'',i.snippet?.channelTitle||'');
+    });
+
+    if(!allItems.length&&!isMore){
+      document.getElementById('search-status').textContent=`No results for "${esc(searchQuery)}".`;
+      return;
+    }
+
+    // ── Fetch stats in one batch ──
+    const vids=allItems.map(i=>i.id.videoId);
+    const sm=await fetchVideoStats(vids);
+    allItems=allItems.filter(i=>!isShortDuration(sm[i.id.videoId]?.dur||''));
+
+    // ── Score each result (YouTube-style) ──
+    const qWords=searchQuery.toLowerCase().split(/\s+/).filter(Boolean);
+    const qFull=searchQuery.toLowerCase();
+    allItems.forEach(item=>{
+      const t=(item.snippet.title||'').toLowerCase();
+      const ch=(item.snippet.channelTitle||'').toLowerCase();
+      const desc=(item.snippet.description||'').toLowerCase();
+      // Title relevance
+      let score=0;
+      if(t===qFull)score+=20;
+      else if(t.startsWith(qFull))score+=15;
+      else if(t.includes(qFull))score+=10;
+      else score+=qWords.filter(w=>t.includes(w)).length*3;
+      // Description bonus
+      if(desc.includes(qFull))score+=3;
+      else score+=qWords.filter(w=>desc.includes(w)).length;
+      // Channel name match bonus
+      if(ch.includes(qFull))score+=5;
+      // Boosted channel bonus (added channels get priority)
+      if(item._boosted)score+=8;
+      // Recency bonus (last 30 days)
+      const age=(Date.now()-new Date(item.snippet.publishedAt))/864e5;
+      if(age<7)score+=4;else if(age<30)score+=2;else if(age<365)score+=1;
+      // View count bonus (log scale)
+      const views=parseInt(sm[item.id.videoId]?.views||0);
+      if(views>1e6)score+=3;else if(views>1e5)score+=2;else if(views>1e4)score+=1;
+
+      item._score=score;
+      item._date=new Date(item.snippet.publishedAt);
+      item._views=views;
+      item._dur=sm[item.id.videoId]?.dur||'';
+    });
+
+    searchResults=searchResults.concat(allItems);
+
+    // ── Playlists ──
+    if(!isMore&&rawPl.length){
+      const filtered=rawPl.filter(i=>!isBlockedContent(i.snippet?.title||'',i.snippet?.channelTitle||''));
+      const plIds=filtered.map(i=>i.id?.playlistId).filter(Boolean).join(',');
+      if(plIds){
+        try{
+          const pd=await api(`playlists?part=snippet,contentDetails&id=${plIds}`);
+          searchPlaylists=(pd.items||[]).map(pl=>({
+            id:pl.id,
+            title:pl.snippet.title,
+            thumb:pl.snippet.thumbnails?.medium?.url||'',
+            count:pl.contentDetails?.itemCount||0,
+            channelTitle:pl.snippet.channelTitle,
+            channelId:pl.snippet.channelId,
+            _score:qWords.filter(w=>(pl.snippet.title||'').toLowerCase().includes(w)).length+(
+              (pl.snippet.title||'').toLowerCase().includes(qFull)?5:0)
+          }));
+        }catch(e){}
+      }
+    }
+
+    renderSearchResults();
+    document.getElementById('sort-row').style.display='flex';
+    document.getElementById('search-more').style.display=searchNextTokenMap['_global']?'block':'none';
+  }catch(e){
+    document.getElementById('search-status').textContent='Error: '+e.message;
+    console.error(e);
+  }finally{ytLoadEnd();}
+}
+function setSort(s){
+  searchSort=s;
+  document.querySelectorAll('.sort-pill').forEach(b=>{
+    const m={relevance:'Relevance',date:'Upload date',views:'View count'};
+    b.classList.toggle('active',b.textContent.trim()===m[s]);
+  });
+  renderSearchResults();
+}
+function renderSearchResults(){
+  const el=document.getElementById('search-results');
+  const sorted=[...searchResults];
+  if(searchSort==='date')sorted.sort((a,b)=>b._date-a._date);
+  else if(searchSort==='views')sorted.sort((a,b)=>b._views-a._views);
+  else sorted.sort((a,b)=>b._score-a._score||b._date-a._date);
+
+  const qWords=searchQuery.toLowerCase().split(/\s+/).filter(Boolean);
+  const qFull=searchQuery.toLowerCase();
+
+  // Score playlists same way
+  const scoredPls=searchPlaylists.filter(pl=>!isBlockedContent(pl.title,pl.channelTitle)).map(pl=>{
+    const score=pl._score||(qWords.filter(w=>(pl.title||'').toLowerCase().includes(w)).length+(
+      (pl.title||'').toLowerCase().includes(qFull)?5:0));
+    return{pl,score};
+  }).sort((a,b)=>b.score-a.score);
+
+  const videoItems=sorted.filter(item=>!isBlockedContent(item.snippet.title,item.snippet.channelTitle));
+
+  // Interleave playlists into video list by score — insert playlist when its score >= next video score
+  let html='';
+  let plIdx=0;
+  for(let i=0;i<videoItems.length;i++){
+    while(plIdx<scoredPls.length&&(searchSort==='relevance')&&scoredPls[plIdx].score>=videoItems[i]._score){
+      const{pl}=scoredPls[plIdx];
+      const chName=findChName(pl.channelId||'');const meta=channelMeta[chName]||null;
+      html+=searchPlaylistCard(pl,chName,meta);
+      plIdx++;
+    }
+    const item=videoItems[i];
+    const vid=item.id.videoId;const s=item.snippet;
+    const thumb=bestThumb(s.thumbnails,vid);
+    const chName=findChName(s.channelId||'');const meta=channelMeta[chName]||null;
+    html+=searchCard(vid,s.title,s.channelTitle,thumb,s.publishedAt,item._views,item._dur,meta,s.channelId||'',chName);
+  }
+  // Remaining playlists
+  if(searchSort==='relevance'){
+    while(plIdx<scoredPls.length){
+      const{pl}=scoredPls[plIdx];
+      const chName=findChName(pl.channelId||'');const meta=channelMeta[chName]||null;
+      html+=searchPlaylistCard(pl,chName,meta);
+      plIdx++;
+    }
+  }
+
+  el.innerHTML=html||'<div style="color:var(--text3);padding:24px 0;text-align:center">No results found.</div>';
+
+  // Fetch and cache avatars for any unknown channels in results
+  const unknownChIds=videoItems.map(i=>i.snippet?.channelId).concat(scoredPls.map(p=>p.pl?.channelId)).filter(id=>id&&!chAvatarCache[id]);
+  if(unknownChIds.length)fetchAndCacheAvatars(unknownChIds);
+
+  // Floating result count — shows total with more if available
+  const hasMore=!!searchNextTokenMap['_global'];
+  const count=videoItems.length+scoredPls.length;
+  document.getElementById('search-status').textContent=
+    count?`${count}${hasMore?'+':''} result${count!==1?'s':''}`:'';
+}
+async function loadMoreSearch(){
+  const el=document.getElementById('search-results');
+  el.insertAdjacentHTML('beforeend',skelSearchGrid(3));
+  await fetchSearchPage(true);
+}
+
+// Navigate to a channel by its display title — tries to match against known channels first,
+// otherwise does a YouTube channel search and opens the result
+async function openChannelByTitle(title){
+  if(!title)return;
+  // Try to match against known channels
+  const match=channels.find(c=>{
+    const meta=channelMeta[c];
+    return(meta?.title||'').toLowerCase()===title.toLowerCase()||c.toLowerCase()===title.toLowerCase();
+  });
+  if(match){openChannel(match);return;}
+  // Not in sidebar — do a channel search and open the page dynamically
+  try{
+    showToast('Looking up channel…');
+    const d=await api(`search?part=snippet&type=channel&q=${encodeURIComponent(title)}&maxResults=1`);
+    const item=d.items?.[0];
+    if(!item){showToast('Channel not found');return;}
+    const chId=item.id.channelId||item.snippet.channelId;
+    const chTitle=item.snippet.channelTitle;
+    const thumb=item.snippet.thumbnails?.default?.url||'';
+    // Build a temporary channel entry and open it
+    const tempKey='__tmp_'+chId;
+    channelIds[tempKey]=chId;
+    channelMeta[tempKey]={title:chTitle,thumb,subs:'',handle:''};
+    openChannel(tempKey);
+  }catch(e){showToast('Could not open channel: '+e.message)}
+}
+
+// ── VIDEO CARD ──
+function videoCard(vid,title,channel,thumb,published,views,dur,meta,chId){
+  const link=ytLink(vid);
+  const durStr=fmtDur(dur||'');
+  const viewStr=views?fmtViews(views)+' views':'';
+  const dateStr=fmtDate(published);
+  const vd=JSON.stringify(vid);const vt=JSON.stringify(title);const vc=JSON.stringify(channel);
+  const vth=JSON.stringify(thumb||'');const vdr=JSON.stringify(dur||'');
+  // data-hv/ht/hc/hi used by mousedown handler for reliable history saving
+  return`<div class="vid-card" data-vid="${esc(vid)}">
+    <a href="${link}" target="_blank" rel="noopener noreferrer"
+      data-hv="${esc(vid)}" data-ht="${esc(title)}" data-hc="${esc(channel)}" data-hi="${esc(chId||'')}"
+      style="display:block;text-decoration:none;color:inherit">
+      <div class="vid-thumb-wrap">
+        <img src="${esc(thumb||'')}" alt="" loading="lazy" onerror="if(this.src.includes('maxresdefault')){this.src=this.src.replace('maxresdefault','hqdefault')}else{this.src=''}"/>
+        ${durStr?`<span class="vid-duration">${esc(durStr)}</span>`:''}
+      </div>
+    </a>
+    <div class="vid-info">
+      ${avatarHtml(channel,meta,'vid-ch-avatar',chId||'')}
+      <a href="${link}" target="_blank" rel="noopener noreferrer"
+        data-hv="${esc(vid)}" data-ht="${esc(title)}" data-hc="${esc(channel)}" data-hi="${esc(chId||'')}"
+        style="flex:1;min-width:0;text-decoration:none;color:inherit">
+        <div class="vid-text">
+          <div class="vid-title">${esc(title)}</div>
+          <div class="vid-ch-name">${esc(channel)}</div>
+          <div class="vid-meta">${[viewStr,dateStr].filter(Boolean).join(' · ')}</div>
+        </div>
+      </a>
+      <button class="vid-menu-btn" title="More options"
+        onclick="openVideoCtx(event,${vd},${vt},${vc},${vth},${vdr})">
+        <span class="ms">more_vert</span>
+      </button>
+    </div>
+  </div>`;
+}
+
+function searchCard(vid,title,channel,thumb,published,views,dur,meta,chId,chName){
+  const link=ytLink(vid);
+  const durStr=fmtDur(dur||'');
+  const viewStr=views?fmtViews(views)+' views':'';
+  const dateStr=fmtDate(published);
+  const vd=JSON.stringify(vid);const vt=JSON.stringify(title);const vc=JSON.stringify(channel);
+  const vth=JSON.stringify(thumb||'');const vdr=JSON.stringify(dur||'');
+  // Channel link: if we have a known channel name use openChannel, else try to navigate by title
+  const chNav=chName
+    ?`openChannel('${esc(chName).replace(/'/g,"\\'")}')`
+    :`openChannelByTitle('${esc(channel).replace(/'/g,"\\'")}')`;
+  return`<div class="search-card" data-vid="${esc(vid)}">
+    <a href="${link}" target="_blank" rel="noopener noreferrer"
+      data-hv="${esc(vid)}" data-ht="${esc(title)}" data-hc="${esc(channel)}" data-hi="${esc(chId||'')}"
+      style="display:block;text-decoration:none;flex-shrink:0">
+      <div class="search-thumb" style="position:relative">
+        <img src="${esc(thumb||'')}" alt="" loading="lazy" onerror="if(this.src.includes('maxresdefault')){this.src=this.src.replace('maxresdefault','hqdefault')}else{this.src=''}"/>
+        ${durStr?`<span class="search-dur">${esc(durStr)}</span>`:''}
+      </div>
+    </a>
+    <div class="search-info">
+      <a href="${link}" target="_blank" rel="noopener noreferrer"
+        data-hv="${esc(vid)}" data-ht="${esc(title)}" data-hc="${esc(channel)}" data-hi="${esc(chId||'')}"
+        style="text-decoration:none;color:inherit;display:contents">
+        <div class="search-title">${esc(title)}</div>
+        <div class="search-meta">${[viewStr,dateStr].filter(Boolean).join(' · ')}</div>
+      </a>
+      <div class="search-ch-row">
+        ${avatarHtml(channel,meta,'search-ch-avatar',chId||'')}
+        <span class="search-ch-name search-ch-link" onclick="event.stopPropagation();${chNav}" title="Open channel">${esc(channel)}</span>
+      </div>
+      <button class="vid-menu-btn" style="margin-top:6px;align-self:flex-start" title="More options"
+        onclick="openVideoCtx(event,${vd},${vt},${vc},${vth},${vdr})">
+        <span class="ms">more_vert</span>
+      </button>
+    </div>
+  </div>`;
+}
+function searchPlaylistCard(pl,chName,meta){
+  const safeTitle=esc(pl.title||'');const safeChName=esc(chName||pl.channelTitle||'');
+  const chKey=chName||Object.keys(channelIds).find(k=>channelIds[k]===pl.channelId)||'';
+  const chNav=chKey
+    ?`openChannel('${esc(chKey).replace(/'/g,"\\'")}')`
+    :`openChannelByTitle('${esc(pl.channelTitle||'').replace(/'/g,"\\'")}')`;
+  return`<div class="search-pl-card" onclick="openSearchPlaylist('${esc(pl.id)}','${safeTitle.replace(/'/g,"\\'")}','${esc(chKey).replace(/'/g,"\\'")}')">
+    <div class="search-pl-thumb">
+      ${pl.thumb?`<img src="${esc(pl.thumb)}" alt="" loading="lazy"/>`:''}
+      <div class="search-pl-overlay"><span>${pl.count}</span><span>videos</span></div>
+    </div>
+    <div class="search-pl-info">
+      <div class="search-pl-title">${safeTitle}</div>
+      <div class="search-meta" style="font-size:12px;color:var(--text3)">${pl.count} videos</div>
+      <div class="search-ch-row">
+        ${avatarHtml(chName||pl.channelTitle,meta,'search-ch-avatar',pl.channelId||'')}
+        <span class="search-ch-name search-ch-link" onclick="event.stopPropagation();${chNav}" title="Open channel">${safeChName}</span>
+      </div>
+      <div class="search-pl-badge"><span class="ms sz16">queue_music</span>Playlist</div>
+    </div>
+  </div>`;
+}
+async function openSearchPlaylist(plId,plName,chName){
+  if(chName&&channelIds[chName]){await openChannel(chName);chTab('playlists');setTimeout(()=>openChPlaylist(plId,plName),800)}
+  else{
+    // Hide all sections, show channel-page for playlist view
+    ['search-section','history-section','myplaylists-section','watchlater-section'].forEach(id=>{
+      const el=document.getElementById(id);if(el)el.style.display='none';
+    });
+    document.getElementById('channel-page').style.display='block';
+    document.getElementById('ch-banner-img').style.display='none';
+    document.getElementById('ch-page-name').textContent=plName;
+    document.getElementById('ch-page-handle').textContent='';
+    document.getElementById('ch-page-subs').textContent='';
+    document.getElementById('ch-tabs').style.display='none';
+    document.getElementById('ch-home-panel').style.display='none';
+    document.getElementById('ch-videos-panel').style.display='block';
+    document.getElementById('ch-videos-panel').innerHTML=`<div class="vid-grid" id="pl-vid-grid"></div>`;
+    document.getElementById('ch-playlists-panel').style.display='none';
+    await loadPlaylistVideos(plId,null);
+  }
+}
+
+// ── HISTORY ──
+function historyCardHtml(h){
+  const timeAgo=fmtDate(new Date(h.ts).toISOString());
+  const viewStr=h.views?fmtViews(h.views)+' views':'';
+  const meta=[viewStr,timeAgo].filter(Boolean).join(' · ');
+  const initials=(h.channel||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  const vd=JSON.stringify(h.vid);const vt=JSON.stringify(h.title||'');const vc=JSON.stringify(h.channel||'');
+  const vth=JSON.stringify(h.thumb||'');const vdr=JSON.stringify(h.dur||'');
+  return`<a class="history-item" href="${ytLink(h.vid)}" target="_blank" rel="noopener"
+    data-vid="${esc(h.vid)}" data-hv="${esc(h.vid)}" data-ht="${esc(h.title||'')}" data-hc="${esc(h.channel||'')}" data-hi=""
+    style="position:relative">
+    <div class="history-thumb">
+      ${h.thumb?`<img src="${esc(maxresThumbnail(h.thumb))}" alt="" loading="lazy" onerror="if(this.src.includes('maxresdefault')){this.src=this.src.replace('maxresdefault','hqdefault')}else{this.src=''}"/>`:''}
+    </div>
+    <div class="history-info">
+      <div class="history-title">${esc(h.title||'')}</div>
+      <div class="history-meta">${esc(meta)}</div>
+      <div class="history-ch-row">
+        <div class="history-ch-avatar"><span>${esc(initials)}</span></div>
+        <span class="history-ch">${esc(h.channel||'')}</span>
+      </div>
+    </div>
+    <button class="history-menu-btn" onclick="event.preventDefault();event.stopPropagation();openVideoCtx(event,${vd},${vt},${vc},${vth},${vdr})" title="More options">
+      <span class="ms">more_vert</span>
+    </button>
+  </a>`;
+}
+function renderHistory(items){
+  const list=document.getElementById('history-list');
+  if(!items){
+    // Show skeleton briefly before rendering
+    list.innerHTML=skelHistoryList(5);
+    setTimeout(()=>{
+      const src=history_;
+      if(!src.length){list.innerHTML='<div class="history-empty">No watch history yet.<br>Videos you click will appear here.</div>';return}
+      list.innerHTML=src.map(historyCardHtml).join('');
+    },120);
+    return;
+  }
+  if(!items.length){list.innerHTML='<div class="history-empty">No results found.</div>';return}
+  list.innerHTML=items.map(historyCardHtml).join('');
+}
+function filterHistory(q){
+  if(!q.trim()){renderHistory();return}
+  const lq=q.toLowerCase();
+  const filtered=history_.filter(h=>(h.title||'').toLowerCase().includes(lq)||(h.channel||'').toLowerCase().includes(lq));
+  renderHistory(filtered);
+}
+function clearHistory(){
+  const pwd=prompt('Enter password to clear history:');
+  if(pwd===null)return;
+  if(pwd!=='ioqmpro'){alert('Incorrect password.');return;}
+  if(!confirm('Clear all watch history and search history?'))return;
+  history_=[];saveLS(LS_HISTORY,history_);
+  searchHistory_=[];saveLS(LS_SEARCH_HIST,searchHistory_);
+  renderHistory();renderSearchHistoryList();
+}
+
+// ── YT LOADING BAR ──
+(function(){
+  let _bar=null,_rafId=null,_timer=null,_prog=0,_running=false,_pendingEnd=false;
+  function bar(){return _bar||(_bar=document.getElementById('yt-loading-bar'))}
+  function setWidth(w,dur){
+    const b=bar();
+    b.style.transition=dur>0?`width ${dur}ms linear`:'none';
+    b.style.width=w+'%';
+  }
+  function startLoad(){
+    cancelAnimationFrame(_rafId);clearTimeout(_timer);
+    _running=true;_pendingEnd=false;_prog=0;
+    const b=bar();
+    b.style.transition='none';b.style.width='0%';b.style.opacity='1';
+    void b.offsetWidth;
+    // Quick jump to 20% instantly, then ease up
+    setWidth(20,200);
+    _prog=20;
+    // Incrementally creep toward 90%
+    function creep(){
+      if(!_running)return;
+      const remaining=90-_prog;
+      const step=remaining*0.10+0.5;
+      _prog=Math.min(_prog+step,90);
+      setWidth(_prog,300);
+      if(_prog<90){_rafId=setTimeout(creep,350);}
+      else if(_pendingEnd){doEnd();}
+    }
+    _rafId=setTimeout(creep,250);
+  }
+  function doEnd(){
+    _running=false;
+    clearTimeout(_rafId);
+    const b=bar();
+    b.style.transition='width 0.2s ease';
+    b.style.width='100%';
+    _timer=setTimeout(()=>{
+      b.style.transition='opacity 0.35s ease';
+      b.style.opacity='0';
+      setTimeout(()=>{b.style.transition='none';b.style.width='0%';b.style.opacity='0';},380);
+    },220);
+  }
+  function endLoad(){
+    if(_running){_pendingEnd=true;}
+    else{doEnd();}
+  }
+  window.ytLoadStart=startLoad;
+  window.ytLoadEnd=endLoad;
+})();
+
+// ── GO HOME ──
+function goHome(){
+  document.getElementById('channel-page').style.display='none';
+  const qi=document.getElementById('q');
+  if(qi){qi.value='';const qc=document.getElementById('q-clear');if(qc)qc.style.display='none';}
+  const dd=document.getElementById('search-dropdown');if(dd)dd.style.display='none';
+  searchResults=[];searchPlaylists=[];searchQuery='';
+  const sr=document.getElementById('search-results');if(sr)sr.innerHTML='';
+  const ss=document.getElementById('search-status');if(ss)ss.textContent='';
+  const sm=document.getElementById('search-more');if(sm)sm.style.display='none';
+  const sortRow=document.getElementById('sort-row');if(sortRow)sortRow.style.display='none';
+  navStack=[];
+  showSection('home');
+}
+
+// ── SEARCH HISTORY ──
+function trackSearchHistory(q){
+  if(!q||q.length<2)return;
+  searchHistory_=searchHistory_.filter(s=>s.toLowerCase()!==q.toLowerCase());
+  searchHistory_.unshift(q);
+  if(searchHistory_.length>50)searchHistory_=searchHistory_.slice(0,50);
+  saveLS(LS_SEARCH_HIST,searchHistory_);
+}
+function renderSearchHistoryList(){
+  const el=document.getElementById('search-history-list');
+  if(!el)return;
+  if(!searchHistory_.length){
+    el.innerHTML='<div class="search-history-empty">No searches yet</div>';return;
+  }
+  el.innerHTML=searchHistory_.slice(0,15).map((q)=>`
+    <div class="search-history-item" onclick="pickSearchHistory('${esc(q).replace(/'/g,"\\'")}')">
+      <span class="ms">history</span>
+      <span>${esc(q)}</span>
+    </div>`).join('');
+}
+window.pickSearchHistory=function(q){
+  const qi=document.getElementById('q');if(!qi)return;
+  qi.value=q;
+  const qc=document.getElementById('q-clear');if(qc)qc.style.display='flex';
+  doSearch();
+};
+function removeSearchHistory(idx){
+  searchHistory_.splice(idx,1);
+  saveLS(LS_SEARCH_HIST,searchHistory_);
+  renderSearchHistoryList();
+}
+
+// ── SKELETON ──
+// Home/WatchLater/Channel Videos grid: real YT-size ~300px cards
+function skelVidGrid(n){
+  return`<div class="vid-grid">${Array(n).fill(0).map(()=>`<div class="vid-card" style="pointer-events:none">
+    <div class="skeleton" style="aspect-ratio:16/9;border-radius:10px;width:100%"></div>
+    <div class="vid-info" style="padding-top:10px">
+      <div class="skeleton" style="width:36px;height:36px;min-width:36px;border-radius:50%;flex-shrink:0;margin-top:2px"></div>
+      <div class="vid-text" style="flex:1;min-width:0">
+        <div class="skeleton" style="height:14px;width:95%;border-radius:4px;margin-bottom:6px"></div>
+        <div class="skeleton" style="height:14px;width:75%;border-radius:4px;margin-bottom:6px"></div>
+        <div class="skeleton" style="height:13px;width:50%;border-radius:4px;margin-bottom:4px"></div>
+        <div class="skeleton" style="height:13px;width:38%;border-radius:4px"></div>
+      </div>
+    </div>
+  </div>`).join('')}</div>`;
+}
+// Search results: wide horizontal cards (thumb ~38vw, min 240px)
+function skelSearchGrid(n){
+  return Array(n).fill(0).map(()=>`<div class="search-skel-card">
+    <div class="skeleton search-skel-thumb"></div>
+    <div class="search-skel-info">
+      <div class="skeleton search-skel-title"></div>
+      <div class="skeleton search-skel-title2"></div>
+      <div class="skeleton search-skel-meta"></div>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
+        <div class="skeleton" style="width:24px;height:24px;border-radius:50%;flex-shrink:0"></div>
+        <div class="skeleton search-skel-ch"></div>
+      </div>
+    </div>
+  </div>`).join('');
+}
+// History: wide horizontal cards same width as search
+function skelHistoryList(n){
+  return Array(n).fill(0).map(()=>`<div class="history-skel-item">
+    <div class="skeleton history-skel-thumb"></div>
+    <div class="history-skel-info">
+      <div class="skeleton history-skel-title"></div>
+      <div class="skeleton history-skel-title2"></div>
+      <div class="skeleton history-skel-meta"></div>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
+        <div class="skeleton" style="width:24px;height:24px;border-radius:50%;flex-shrink:0"></div>
+        <div class="skeleton history-skel-ch"></div>
+      </div>
+    </div>
+  </div>`).join('');
+}
+// Playlist grid: ~220px cards
+function skelPlaylistGrid(n){
+  return`<div class="mpl-grid">${Array(n).fill(0).map(()=>`<div style="border-radius:12px;overflow:hidden;background:var(--surface);border:1px solid var(--border)">
+    <div class="skeleton" style="aspect-ratio:16/9;width:100%;border-radius:0"></div>
+    <div style="padding:10px 12px 14px;display:flex;flex-direction:column;gap:8px">
+      <div class="skeleton" style="height:14px;width:80%;border-radius:4px"></div>
+      <div class="skeleton" style="height:12px;width:45%;border-radius:4px"></div>
+    </div>
+  </div>`).join('')}</div>`;
+}
+// Channel playlist grid: ~230px cards
+function skelChPlaylistGrid(n){
+  return`<div class="pl-grid">${Array(n).fill(0).map(()=>`<div style="border-radius:12px;overflow:hidden">
+    <div class="skeleton" style="aspect-ratio:16/9;width:100%;border-radius:12px 12px 0 0"></div>
+    <div style="padding:10px 2px 4px;display:flex;flex-direction:column;gap:7px">
+      <div class="skeleton" style="height:14px;width:85%;border-radius:4px"></div>
+      <div class="skeleton" style="height:12px;width:50%;border-radius:4px"></div>
+    </div>
+  </div>`).join('')}</div>`;
+}
+
+// ── THEME TOGGLE ──
+(function(){
+  const LS_THEME='yt_theme_v1';
+  function applyTheme(light){
+    document.body.classList.toggle('light-mode',light);
+    const icon=document.getElementById('theme-icon');
+    if(icon)icon.textContent=light?'dark_mode':'light_mode';
+    const lbl=document.getElementById('theme-label');
+    if(lbl)lbl.textContent=light?'Switch to Dark mode':'Switch to Light mode';
+  }
+  const saved=localStorage.getItem(LS_THEME);
+  if(saved==='light')applyTheme(true);
+  window.toggleTheme=function(){
+    const isLight=document.body.classList.toggle('light-mode');
+    localStorage.setItem(LS_THEME,isLight?'light':'dark');
+    applyTheme(isLight);
+  };
+})();
+
+// ── PROFILE DROPDOWN ──
+function toggleProfileDropdown(){
+  const dd=document.getElementById('profile-dropdown');
+  dd.classList.toggle('open');
+  if(dd.classList.contains('open')){
+    // Close when clicking outside
+    setTimeout(()=>document.addEventListener('click',_closePDDOutside),0);
+  }
+}
+function closeProfileDropdown(){
+  document.getElementById('profile-dropdown').classList.remove('open');
+  document.removeEventListener('click',_closePDDOutside);
+}
+function _closePDDOutside(e){
+  const dd=document.getElementById('profile-dropdown');
+  const btn=document.getElementById('profile-btn');
+  if(!dd.contains(e.target)&&!btn.contains(e.target)){closeProfileDropdown();}
+}
+
+// ── SIDEBAR TOGGLE ──
+(function(){
+  const LS_SB='yt_sidebar_collapsed_v1';
+  // Collapsed state is restored in initSetup after unlock check
+  window._sbCollapsedPref = localStorage.getItem(LS_SB)==='1';
+  window.toggleSidebar=function(){
+    const collapsed=document.body.classList.toggle('sidebar-collapsed');
+    localStorage.setItem(LS_SB,collapsed?'1':'0');
+  };
+})();
+
+// ── YOU SECTION TOGGLE ──
+function toggleYouSection(){
+  const wrap=document.getElementById('you-section-wrap');
+  const header=document.getElementById('you-header');
+  const isExpanded=header.classList.toggle('expanded');
+  wrap.style.display=isExpanded?'':'none';
+}
+
+// ── MANAGE CHANNELS PANEL ──
+function openManageChannels(){
+  const list=document.getElementById('mcp-list');
+  if(!channels.length){
+    list.innerHTML='<div class="mcp-empty">No subscriptions yet.<br>Use + to add channels.</div>';
+  }else{
+    list.innerHTML=channels.map(c=>{
+      const meta=channelMeta[c];
+      const initials=(meta?.title||c).split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+      return`<div class="mcp-item">
+        <div class="mcp-avatar">${meta?.thumb?`<img src="${esc(meta.thumb)}" alt="" onerror="this.style.display='none'"/><span style="display:none">${esc(initials)}</span>`:`<span>${esc(initials)}</span>`}</div>
+        <div class="mcp-info">
+          <div class="mcp-name">${esc(meta?.title||c)}</div>
+          ${meta?.subs?`<div class="mcp-subs">${esc(meta.subs)} subscribers</div>`:''}
+        </div>
+        <button class="mcp-unsub-btn" onclick="unsubscribeChannel('${esc(c).replace(/'/g,"\\'")}',this)">Unsubscribe</button>
+      </div>`;
+    }).join('');
+  }
+  document.getElementById('manage-channels-panel').classList.add('open');
+  document.getElementById('manage-channels-overlay').classList.add('open');
+}
+function closeManageChannels(){
+  document.getElementById('manage-channels-panel').classList.remove('open');
+  document.getElementById('manage-channels-overlay').classList.remove('open');
+}
+
+// ── UNSUBSCRIBE CHANNEL ──
+function unsubscribeChannel(chName,btn){
+  if(!confirm(`Unsubscribe from "${chName}"?`))return;
+  channels=channels.filter(c=>c!==chName);
+  delete channelMeta[chName];
+  delete channelIds[chName];
+  saveLS(LS_CH,channels);saveLS(LS_IDS,channelIds);saveLS(LS_META,channelMeta);
+  renderSidebarChannels();
+  if(document.getElementById('manage-channels-panel').classList.contains('open'))openManageChannels();
+  showToast(`Unsubscribed from ${chName}`);
+}
+
+// ── INIT ──
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeCtx();hideNewPlaylistModal();closeSettings()}});
+initSetup();
+
+// ── DRAG & DROP → Watch Later + Playlist ──
+(function(){
+  const sidebar=document.getElementById('sidebar');
+  const wlItem=document.getElementById('nav-watchlater');
+  const plItem=document.getElementById('nav-myplaylists');
+  let dragData=null;
+
+  function setupDraggable(card){
+    if(card._dragReady)return;
+    card._dragReady=true;
+    card.setAttribute('draggable','true');
+
+    card.addEventListener('dragstart',e=>{
+      const vid=card.dataset.vid;
+      if(!vid){e.preventDefault();return;}
+      dragData={
+        vid,
+        title:card.querySelector('.vid-title,.search-title,.history-title')?.textContent?.trim()||'',
+        channel:card.querySelector('.vid-ch-name,.search-ch-name,.history-ch')?.textContent?.trim()||'',
+        thumb:card.querySelector('img')?.src||'',
+        dur:card.querySelector('.vid-duration,.search-dur')?.textContent?.trim()||''
+      };
+      window._ytDragData=dragData;
+      e.dataTransfer.effectAllowed='copy';
+      e.dataTransfer.setData('text/plain',vid);
+      card.classList.add('dragging');
+      sidebar.classList.add('drag-active');
+      wlItem.classList.add('wl-drop-target');
+      plItem.classList.add('pl-drop-target');
+      // Show inner playlist drop hint if we're inside a playlist view
+      const inner=document.getElementById('mpl-grid-wrap');
+      if(inner)inner.classList.add('pl-inner-drop-active');
+    });
+
+    card.addEventListener('dragend',()=>{
+      card.classList.remove('dragging');
+      sidebar.classList.remove('drag-active');
+      wlItem.classList.remove('wl-drop-target','wl-drop-over');
+      plItem.classList.remove('pl-drop-target','pl-drop-over');
+      dragData=null;
+      window._ytDragData=null;
+      // Hide all playlist card targets
+      document.querySelectorAll('.mpl-card.pl-card-drop-target').forEach(c=>c.classList.remove('pl-card-drop-target'));
+      const inner=document.getElementById('mpl-grid-wrap');
+      if(inner)inner.classList.remove('pl-inner-drop-active','pl-inner-drop-over');
+    });
+  }
+
+  // Watch for new cards (vid-card, search-card, history-item with data-vid)
+  const obs=new MutationObserver(muts=>{
+    muts.forEach(m=>m.addedNodes.forEach(n=>{
+      if(n.nodeType!==1)return;
+      if(n.classList?.contains('vid-card')||n.classList?.contains('search-card'))setupDraggable(n);
+      n.querySelectorAll?.('.vid-card,.search-card').forEach(setupDraggable);
+      // Also handle history items that have data-vid
+      if(n.dataset?.vid)setupDraggable(n);
+      n.querySelectorAll?.('[data-vid]').forEach(el=>{
+        if(!el.classList.contains('vid-card')&&!el.classList.contains('search-card'))setupDraggable(el);
+      });
+    }));
+  });
+  obs.observe(document.body,{childList:true,subtree:true});
+  document.querySelectorAll('.vid-card,.search-card,[data-vid]').forEach(setupDraggable);
+
+  // ── WATCH LATER drop ──
+  wlItem.addEventListener('dragover',e=>{e.preventDefault();e.dataTransfer.dropEffect='copy';wlItem.classList.add('wl-drop-over');});
+  wlItem.addEventListener('dragleave',()=>wlItem.classList.remove('wl-drop-over'));
+  wlItem.addEventListener('drop',e=>{
+    e.preventDefault();
+    wlItem.classList.remove('wl-drop-over','wl-drop-target');
+    sidebar.classList.remove('drag-active');
+    if(!dragData)return;
+    const {vid,title,channel,thumb,dur}=dragData;dragData=null;window._ytDragData=null;
+    if(watchLater.some(v=>v.vid===vid)){showToast('Already in Watch Later');return;}
+    watchLater.unshift({vid,title,channel,thumb,dur,added:Date.now()});
+    saveWL();
+    showToast('✓ Saved to Watch Later');
+    wlItem.classList.add('wl-drop-saved');
+    setTimeout(()=>wlItem.classList.remove('wl-drop-saved'),600);
+    if(currentSection==='watchlater')renderWatchLater();
+  });
+
+  // ── PLAYLIST drop (sidebar nav item) ──
+  plItem.addEventListener('dragover',e=>{e.preventDefault();e.dataTransfer.dropEffect='copy';plItem.classList.add('pl-drop-over');});
+  plItem.addEventListener('dragleave',()=>plItem.classList.remove('pl-drop-over'));
+  plItem.addEventListener('drop',e=>{
+    e.preventDefault();
+    plItem.classList.remove('pl-drop-over','pl-drop-target');
+    sidebar.classList.remove('drag-active');
+    if(!dragData)return;
+    const data={...dragData};dragData=null;window._ytDragData=null;
+
+    if(!myPlaylists.length){
+      // No playlists — open a nice modal instead of prompt
+      showNewPlaylistModalWithVideo(data);
+    } else if(myPlaylists.length===1){
+      // Exactly one playlist — add directly
+      addVideoToPlaylist(myPlaylists[0].id,data.vid,data.title,data.channel,data.thumb,data.dur);
+      plItem.classList.add('pl-drop-saved');
+      setTimeout(()=>plItem.classList.remove('pl-drop-saved'),600);
+    } else {
+      // Multiple playlists — show picker near the sidebar item
+      showPlPicker(data, plItem);
+    }
+  });
+})();
+
+// Show "New Playlist" modal pre-loaded with a pending video to add after creation
+let _pendingVideoForNewPlaylist=null;
+function showNewPlaylistModalWithVideo(videoData){
+  _pendingVideoForNewPlaylist=videoData;
+  document.getElementById('modal-pl-name').value='';
+  document.getElementById('modal-overlay').style.display='flex';
+  setTimeout(()=>document.getElementById('modal-pl-name').focus(),80);
+}
+// Patch createPlaylist to handle the pending video
+const _origCreatePlaylist=window.createPlaylist||null;
+function createPlaylist(){
+  const name=document.getElementById('modal-pl-name').value.trim();
+  if(!name)return;
+  const newPl={id:'pl_'+Date.now(),name,videos:[],createdAt:Date.now()};
+  myPlaylists.unshift(newPl);saveMPL();
+  hideNewPlaylistModal();
+  if(_pendingVideoForNewPlaylist){
+    const d=_pendingVideoForNewPlaylist;_pendingVideoForNewPlaylist=null;
+    addVideoToPlaylist(newPl.id,d.vid,d.title,d.channel,d.thumb,d.dur);
+    document.getElementById('nav-myplaylists').classList.add('pl-drop-saved');
+    setTimeout(()=>document.getElementById('nav-myplaylists').classList.remove('pl-drop-saved'),600);
+  } else {
+    if(currentSection==='myplaylists')renderMyPlaylists();
+    showToast(`Playlist "${name}" created`);
+  }
+}
+
+// ── PLAYLIST PICKER ──
+let _plPickerData=null;
+function showPlPicker(data, anchorEl){
+  _plPickerData=data;
+  const popup=document.getElementById('pl-picker-popup');
+  const list=document.getElementById('pl-picker-list');
+  list.innerHTML=myPlaylists.map(pl=>{
+    const inPl=pl.videos.some(v=>v.vid===data.vid);
+    return`<div class="pl-picker-item${inPl?' pl-picker-item--in':''}" onclick="pickPlaylist('${esc(pl.id)}')">
+      <span class="ms">${inPl?'check_circle':'queue_music'}</span>
+      <span>${esc(pl.name)}</span>
+      ${inPl?'<span class="ms sz16" style="color:#2eca6a">done</span>':''}
+    </div>`;
+  }).join('')+`
+  <div class="pl-picker-divider"></div>
+  <div class="pl-picker-item pl-picker-new" onclick="pickPlaylistNew()">
+    <span class="ms">add</span>
+    <span>New playlist…</span>
+  </div>`;
+  // Position near the playlists sidebar item
+  const rect=anchorEl?anchorEl.getBoundingClientRect():{left:240,bottom:200};
+  popup.style.left=(rect.right+8)+'px';
+  popup.style.top=Math.min(rect.top, window.innerHeight-280)+'px';
+  popup.classList.add('open');
+  // Close on outside click
+  setTimeout(()=>document.addEventListener('click',_closePlPickerOutside),0);
+}
+function closePlPicker(){
+  document.getElementById('pl-picker-popup').classList.remove('open');
+  document.removeEventListener('click',_closePlPickerOutside);
+  _plPickerData=null;
+}
+function _closePlPickerOutside(e){
+  const popup=document.getElementById('pl-picker-popup');
+  if(!popup.contains(e.target)){closePlPicker();}
+}
+window.pickPlaylist=function(plId){
+  if(!_plPickerData)return;
+  const d=_plPickerData;
+  closePlPicker();
+  addVideoToPlaylist(plId,d.vid,d.title,d.channel,d.thumb,d.dur);
+  document.getElementById('nav-myplaylists').classList.add('pl-drop-saved');
+  setTimeout(()=>document.getElementById('nav-myplaylists').classList.remove('pl-drop-saved'),600);
+};
+window.pickPlaylistNew=function(){
+  if(!_plPickerData)return;
+  const d=_plPickerData;
+  closePlPicker();
+  const name=prompt('New playlist name:');
+  if(!name||!name.trim())return;
+  const newPl={id:'pl_'+Date.now(),name:name.trim(),videos:[],createdAt:Date.now()};
+  myPlaylists.unshift(newPl);saveMPL();
+  addVideoToPlaylist(newPl.id,d.vid,d.title,d.channel,d.thumb,d.dur);
+  document.getElementById('nav-myplaylists').classList.add('pl-drop-saved');
+  setTimeout(()=>document.getElementById('nav-myplaylists').classList.remove('pl-drop-saved'),600);
+};
+</script>
+<!-- MANAGE CHANNELS PANEL -->
+<div id="manage-channels-overlay" onclick="closeManageChannels()"></div>
+<div id="manage-channels-panel">
+  <div class="mcp-header">
+    <button class="mcp-close" onclick="closeManageChannels()"><span class="ms">arrow_back</span></button>
+    <h3>Manage Subscriptions</h3>
+    <button onclick="openAddChannelModal()" title="Add channel" style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--text2);background:none;border:none;cursor:pointer;transition:background .15s" onmouseover="this.style.background='rgba(255,255,255,.1)'" onmouseout="this.style.background='none'">
+      <span class="ms">add</span>
+    </button>
+  </div>
+  <div class="mcp-list" id="mcp-list"></div>
+</div>
+<!-- PLAYLIST PICKER POPUP (drag-drop) -->
+<div id="pl-picker-popup">
+  <div class="pl-picker-header">
+    <span>Add to playlist</span>
+    <button class="pl-picker-close" onclick="closePlPicker()"><span class="ms sz18">close</span></button>
+  </div>
+  <div class="pl-picker-list" id="pl-picker-list"></div>
+</div>
+</body>
+</html>
