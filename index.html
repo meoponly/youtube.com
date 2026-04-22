@@ -1466,6 +1466,21 @@ function renderApiKeyList() {
   // YouTube Data API v3 free quota: 10,000 units/day
   // Each search costs 100 units. We track searches per key in localStorage.
   const LS_QUOTA_USAGE = 'yt_quota_usage_v1';
+  // Auto-reset quota if the stored date is before today (Google resets at midnight PT)
+  (function autoResetQuotaIfNewDay(){
+    try {
+      const raw = JSON.parse(localStorage.getItem(LS_QUOTA_USAGE)||'{}');
+      const storedDate = raw.__date__ || '';
+      // Get today in PT (UTC-7 or UTC-8). Using a simple UTC offset check:
+      const nowPT = new Date(Date.now() - (7*60*60*1000)); // approx PT
+      const todayStr = nowPT.toISOString().slice(0,10); // "YYYY-MM-DD"
+      if (storedDate !== todayStr) {
+        // New day — wipe quota usage and reset exhausted keys too
+        localStorage.removeItem(LS_QUOTA_USAGE);
+        ApiKeyManager.resetExhausted();
+      }
+    } catch{}
+  })();
   let quotaUsage = {};
   try { quotaUsage = JSON.parse(localStorage.getItem(LS_QUOTA_USAGE)||'{}'); } catch{}
 
@@ -1520,6 +1535,9 @@ function renderApiKeyList() {
 function trackQuotaUsage(key, units){
   const LS_QUOTA_USAGE='yt_quota_usage_v1';
   let u={};try{u=JSON.parse(localStorage.getItem(LS_QUOTA_USAGE)||'{}');}catch{}
+  // Always stamp today's PT date so auto-reset can detect a new day
+  const nowPT = new Date(Date.now() - (7*60*60*1000));
+  u.__date__ = nowPT.toISOString().slice(0,10);
   u[key]=(u[key]||0)+units;
   localStorage.setItem(LS_QUOTA_USAGE,JSON.stringify(u));
 }
