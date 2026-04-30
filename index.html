@@ -4459,10 +4459,7 @@ async function openChPlaylist(plId,plName){
           <div class="pl-sort-bar">
             <span class="pl-sort-label"><span class="ms">sort</span>Sort:</span>
             <select class="pl-sort-select" id="ch-pl-sort-select" onchange="sortChPlaylistRows(this.value)">
-              <option value="default" selected>Default order</option>
-              <option value="newest">Newest first</option>
-              <option value="oldest">Oldest first</option>
-              <option value="views">Most viewed</option>
+              ${['default','newest','oldest','views'].map(v=>`<option value="${v}"${(localStorage.getItem('yt_ch_pl_sort')||'default')===v?' selected':''}>${{default:'Default order',newest:'Newest first',oldest:'Oldest first',views:'Most viewed'}[v]}</option>`).join('')}
             </select>
           </div>
         </div>
@@ -4500,7 +4497,9 @@ async function loadPlaylistVideos(plId,token,fresh){
     list._chPlData.push({vid,title:s.title||'',channel:s.videoOwnerChannelTitle||currentChannelName||'',thumb,dur:st.dur||'',views:st.views||0,published:pub});
   });
   const sortSel=document.getElementById('ch-pl-sort-select');
-  renderChPlaylistRows(list,sortSel?sortSel.value:'default');
+  const savedSort=localStorage.getItem('yt_ch_pl_sort')||'default';
+  if(sortSel){sortSel.value=savedSort;}
+  renderChPlaylistRows(list,savedSort);
   if(fresh&&firstVid){
     const playBtn=document.getElementById('ch-pl-play-btn');
     if(playBtn)playBtn.onclick=()=>window.open(ytLink(firstVid),'_blank');
@@ -4546,6 +4545,7 @@ function renderChPlaylistRows(list,sort){
   }).join('');
 }
 function sortChPlaylistRows(sort){
+  localStorage.setItem('yt_ch_pl_sort',sort);
   renderChPlaylistRows(document.getElementById('pl-vid-rows'),sort);
 }
 
