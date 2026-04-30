@@ -2393,6 +2393,7 @@ function openSettings() {
   if(banner)banner.style.display=isFocusModeActive()?'flex':'none';
   if(isFocusModeActive()){const lbl=document.getElementById('focus-mode-timer');if(lbl)lbl.textContent=formatFocusRemaining()+' remaining';}
   document.getElementById('settings-modal').style.display = 'flex';
+  if(new URLSearchParams(location.search).get('modal')!=='settings') history.pushState(null,'',location.pathname+'?modal=settings');
   setTimeout(()=>document.getElementById('new-apikey-input').focus(), 80);
 }
 function renderResolveStatus(){
@@ -2417,7 +2418,10 @@ async function reResolveChannels(){
   }catch(e){showToast('Error: '+e.message);}
   btn.disabled=false;btn.textContent='&#x1F504; Re-resolve unresolved channels';
 }
-function closeSettings() { document.getElementById('settings-modal').style.display = 'none'; }
+function closeSettings() {
+  document.getElementById('settings-modal').style.display = 'none';
+  if(new URLSearchParams(location.search).get('modal')==='settings') history.back();
+}
 
 function renderBlockedKeywordsList(){
   const el=document.getElementById('blocked-keywords-list');
@@ -3043,9 +3047,11 @@ function renderMyPlaylists(){
   setupPlaylistGridDropZones();
   },80);
 }
-function openMyPlaylist(plId){
+let _currentPlSort='manual';
+function openMyPlaylist(plId,_skipPush){
   const pl=myPlaylists.find(p=>p.id===plId);
   if(!pl)return;
+  if(!_skipPush)history.pushState(null,'',location.pathname+'?page=playlists&pl='+encodeURIComponent(plId));
   const wrap=document.getElementById('mpl-grid-wrap');
   const thumb=pl.videos[0]?.thumb||'';
 
@@ -3056,7 +3062,7 @@ function openMyPlaylist(plId){
     seen.add(v.vid);return true;
   });
 
-  const sortVal=wrap.dataset.plSort||'manual';
+  const sortVal=_currentPlSort;
 
   function fmtAge(ts){
     if(!ts)return'';
@@ -3107,7 +3113,7 @@ function openMyPlaylist(plId){
   }
 
   wrap.innerHTML=`
-  <button class="load-more-btn" style="margin-bottom:18px;display:inline-flex;align-items:center;gap:6px" onclick="renderMyPlaylists()">
+  <button class="load-more-btn" style="margin-bottom:18px;display:inline-flex;align-items:center;gap:6px" onclick="history.pushState(null,'',location.pathname+'?page=playlists');renderMyPlaylists()">
     <span class="ms" style="font-size:18px">arrow_back</span> All Playlists
   </button>
   <div class="pl-detail-wrap">
@@ -3135,7 +3141,7 @@ function openMyPlaylist(plId){
         <span class="pl-video-list-count">${uniqueVideos.length} video${uniqueVideos.length!==1?'s':''}</span>
         <div class="pl-sort-bar">
           <span class="pl-sort-label"><span class="ms">sort</span>Sort:</span>
-          <select class="pl-sort-select" id="pl-sort-select" onchange="(function(sel){var w=document.getElementById('mpl-grid-wrap');w.dataset.plSort=sel.value;var c=document.getElementById('pl-rows-container');if(c&&window._plBuildRows)c.innerHTML=window._plBuildRows(sel.value)})(this)">
+          <select class="pl-sort-select" id="pl-sort-select" onchange="(function(sel){_currentPlSort=sel.value;var c=document.getElementById('pl-rows-container');if(c&&window._plBuildRows)c.innerHTML=window._plBuildRows(sel.value)})(this)">
             <option value="manual"${sortVal==='manual'?' selected':''}>Default order</option>
             <option value="newest"${sortVal==='newest'?' selected':''}>Newest added</option>
             <option value="oldest"${sortVal==='oldest'?' selected':''}>Oldest added</option>
@@ -4450,6 +4456,15 @@ async function openChPlaylist(plId,plName){
       <div class="pl-video-list" id="ch-pl-video-list">
         <div class="pl-video-list-header">
           <span class="pl-video-list-count">${totalCount?totalCount+' videos':'Loading…'}</span>
+          <div class="pl-sort-bar">
+            <span class="pl-sort-label"><span class="ms">sort</span>Sort:</span>
+            <select class="pl-sort-select" id="ch-pl-sort-select" onchange="sortChPlaylistRows(this.value)">
+              <option value="default" selected>Default order</option>
+              <option value="newest">Newest first</option>
+              <option value="oldest">Oldest first</option>
+              <option value="views">Most viewed</option>
+            </select>
+          </div>
         </div>
         <div id="pl-vid-rows"></div>
       </div>
@@ -4470,41 +4485,29 @@ async function loadPlaylistVideos(plId,token,fresh){
   if(!items.length)return;
   const vids=items.map(i=>i.contentDetails.videoId).filter(Boolean).join(',');if(!vids)return;
   const stats=await api(`videos?part=statistics,contentDetails&id=${vids}`);
-  const sm={};(stats.items||[]).forEach(v=>sm[v.id]={views:v.statistics?.viewCount||0,dur:v.contentDetails?.duration||''});
-  const _seenPl=new Set([...list.querySelectorAll('.pl-video-row')].map(r=>r.dataset.hv).filter(Boolean));
-  let rowNum=list.querySelectorAll('.pl-video-row').length;
+  const sm={};(stats.items||[]).forEach(v=>sm[v.id]={views:parseInt(v.statistics?.viewCount||0),dur:v.contentDetails?.duration||''});
+  if(!list._chPlData)list._chPlData=[];
+  const _seenPl=new Set(list._chPlData.map(r=>r.vid).filter(Boolean));
   let firstVid=null;
-  let batchRows2='';
   items.forEach(item=>{
     const vid=item.contentDetails.videoId;const s=item.snippet;const st=sm[vid]||{};
     if(!vid||_seenPl.has(vid))return;
     _seenPl.add(vid);
     if(isShortDuration(st.dur||''))return;
-    rowNum++;
     if(!firstVid)firstVid=vid;
     const thumb=bestThumb(s.thumbnails,vid);
-    const durStr=fmtDur(st.dur||'');
-    batchRows2+=`<a class="pl-video-row" href="${ytLink(vid)}" target="_blank" rel="noopener"
-      data-hv="${esc(vid)}" data-ht="${esc(s.title||'')}" data-hc="${esc(s.videoOwnerChannelTitle||currentChannelName||'')}" data-hi="">
-      <div class="pl-video-num">${rowNum}</div>
-      <div class="pl-video-thumb">
-        <img src="${esc(thumb)}" alt="" loading="lazy" onerror="if(this.src.includes('maxresdefault')){this.src=this.src.replace('maxresdefault','hqdefault')}else{this.src=''}"/>
-        ${durStr?`<span class="pl-video-dur">${esc(durStr)}</span>`:''}
-      </div>
-      <div class="pl-video-info">
-        <div class="pl-video-title">${esc(s.title||'')}</div>
-        <div class="pl-video-ch">${esc(s.videoOwnerChannelTitle||currentChannelName||'')}</div>
-      </div>
-    </a>`;
+    const pub=s.publishedAt?new Date(s.publishedAt).getTime():0;
+    list._chPlData.push({vid,title:s.title||'',channel:s.videoOwnerChannelTitle||currentChannelName||'',thumb,dur:st.dur||'',views:st.views||0,published:pub});
   });
-  list.insertAdjacentHTML('beforeend',batchRows2);
+  const sortSel=document.getElementById('ch-pl-sort-select');
+  renderChPlaylistRows(list,sortSel?sortSel.value:'default');
   if(fresh&&firstVid){
     const playBtn=document.getElementById('ch-pl-play-btn');
     if(playBtn)playBtn.onclick=()=>window.open(ytLink(firstVid),'_blank');
     const shuffleBtn=document.getElementById('ch-pl-shuffle-btn');
     if(shuffleBtn)shuffleBtn.onclick=()=>{
-      const rows=[...list.querySelectorAll('.pl-video-row')];
-      if(rows.length){const r=rows[Math.floor(Math.random()*rows.length)];window.open(r.href,'_blank');}
+      const rows=list._chPlData||[];
+      if(rows.length){const r=rows[Math.floor(Math.random()*rows.length)];window.open(ytLink(r.vid),'_blank');}
     };
   }
   if(d.nextPageToken){
@@ -4514,6 +4517,36 @@ async function loadPlaylistVideos(plId,token,fresh){
     w.innerHTML=`<button class="load-more-btn" onclick="this.parentElement.remove();loadPlaylistVideos('${plId}','${d.nextPageToken}',false)">Load more videos</button>`;
     panel.appendChild(w);
   }
+}
+function renderChPlaylistRows(list,sort){
+  if(!list)return;
+  const data=[...(list._chPlData||[])];
+  if(sort==='newest')data.sort((a,b)=>b.published-a.published);
+  else if(sort==='oldest')data.sort((a,b)=>a.published-b.published);
+  else if(sort==='views')data.sort((a,b)=>b.views-a.views);
+  list.innerHTML=data.map((v,i)=>{
+    const durStr=fmtDur(v.dur);
+    const viewStr=fmtViewCount(v.views);
+    const ageStr=fmtPublishedAge(v.published);
+    const metaParts=[];if(viewStr)metaParts.push(viewStr);if(ageStr)metaParts.push(ageStr);
+    const metaStr=metaParts.join(' • ');
+    return`<a class="pl-video-row" href="${ytLink(v.vid)}" target="_blank" rel="noopener"
+      data-hv="${esc(v.vid)}" data-ht="${esc(v.title)}" data-hc="${esc(v.channel)}" data-hi="">
+      <div class="pl-video-num">${i+1}</div>
+      <div class="pl-video-thumb">
+        <img src="${esc(v.thumb)}" alt="" loading="lazy" onerror="if(this.src.includes('maxresdefault')){this.src=this.src.replace('maxresdefault','hqdefault')}else{this.src=''}"/>
+        ${durStr?`<span class="pl-video-dur">${esc(durStr)}</span>`:''}
+      </div>
+      <div class="pl-video-info">
+        <div class="pl-video-title">${esc(v.title)}</div>
+        <div class="pl-video-ch">${esc(v.channel)}</div>
+        ${metaStr?`<div class="pl-video-meta">${esc(metaStr)}</div>`:''}
+      </div>
+    </a>`;
+  }).join('');
+}
+function sortChPlaylistRows(sort){
+  renderChPlaylistRows(document.getElementById('pl-vid-rows'),sort);
 }
 
 // ── BACK ──
@@ -6610,7 +6643,10 @@ else initAdmin();
 // ── URL QUERY-PARAM ROUTER (YouTube-style) ──
 function navigateToQuery(){
   const p=new URLSearchParams(location.search);
-  const q=p.get('q'),channel=p.get('channel'),page=p.get('page');
+  const q=p.get('q'),channel=p.get('channel'),page=p.get('page'),modal=p.get('modal'),pl=p.get('pl');
+  // Close any open modals first
+  document.getElementById('settings-modal').style.display='none';
+  if(modal==='settings'){openSettings();return;}
   if(q){
     const qi=document.getElementById('q');
     if(qi) qi.value=q;
@@ -6622,7 +6658,12 @@ function navigateToQuery(){
   }
   if(channel){openChannel(decodeURIComponent(channel));return;}
   if(page==='history'){showSection('history');return;}
-  if(page==='playlists'){showSection('myplaylists');return;}
+  if(page==='playlists'){
+    showSection('myplaylists');
+    // If a specific playlist id is in the URL, open it after render
+    if(pl) setTimeout(()=>openMyPlaylist(decodeURIComponent(pl),true),150);
+    return;
+  }
   if(page==='watchlater'){showSection('watchlater');return;}
   showSection('home');
 }
