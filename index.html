@@ -1185,7 +1185,7 @@ body.light-mode .pl-video-row:hover{background:rgba(0,0,0,.05)}
   font-size:13px;color:var(--text3);padding-top:6px;
 }
 .pl-video-thumb{
-  position:relative;width:220px;min-width:220px;
+  position:relative;width:280px;min-width:280px;
   border-radius:8px;overflow:hidden;background:var(--surface);
   aspect-ratio:16/9;flex-shrink:0;
 }
@@ -1483,7 +1483,7 @@ body.light-mode .mcp-item:hover{background:rgba(0,0,0,.04)}
   .search-card,.search-pl-card{flex-direction:column}
   .search-thumb,.search-pl-thumb{width:100%;min-width:unset}
   .vid-grid{grid-template-columns:repeat(2,1fr)!important;gap:10px 6px!important}
-  .pl-video-thumb{width:120px;min-width:120px}
+  .pl-video-thumb{width:150px;min-width:150px}
   .pl-video-num{display:none}
 }
 
@@ -3014,11 +3014,11 @@ function deletePlaylist(id){
   saveMPL();
   if(currentSection==='myplaylists')renderMyPlaylists();
 }
-function addVideoToPlaylist(plId,vid,title,channel,thumb,dur){
+function addVideoToPlaylist(plId,vid,title,channel,thumb,dur,publishedAt){
   const pl=myPlaylists.find(p=>p.id===plId);
   if(!pl)return;
   if(pl.videos.some(v=>v.vid===vid)){showTrNotif('info','Already in "'+pl.name+'"','info');return;}
-  pl.videos.push({vid,title,channel,thumb,dur,added:Date.now()});
+  pl.videos.push({vid,title,channel,thumb,dur,added:Date.now(),publishedAt:publishedAt||null});
   saveMPL();
   const short=title&&title.length>40?title.slice(0,38)+'…':title||'Video';
   showTrNotif('queue_music','Added to "'+pl.name+'"');
@@ -3070,7 +3070,7 @@ function renderMyPlaylists(){
   setupPlaylistGridDropZones();
   },80);
 }
-let _currentPlSort=localStorage.getItem('yt_mpl_sort')||'manual';
+let _currentPlSort=localStorage.getItem('yt_mpl_sort')||'newest';
 function openMyPlaylist(plId,_skipPush){
   const pl=myPlaylists.find(p=>p.id===plId);
   if(!pl)return;
@@ -3110,20 +3110,17 @@ function openMyPlaylist(plId,_skipPush){
   function buildRows(sort){
     const vids=sortedVideos(sort);
     if(!vids.length)return`<div class="mpl-empty" style="padding:40px 0"><span class="ms" style="font-size:40px;color:var(--text3)">video_library</span><div class="mpl-empty-title">No videos yet</div><div class="mpl-empty-sub">Drag any video here, or use the ⋮ menu to add videos.</div></div>`;
-    const isManual=sort==='manual';
     return vids.map((v,i)=>{
       const link=ytLink(v.vid);
       const durStr=fmtDur(v.dur||'');
-      const age=fmtAge(v.added||v.ts||0);
+      const age=v.publishedAt?fmtPublishedAge(new Date(v.publishedAt).getTime()):fmtAge(v.added||v.ts||0);
       const metaParts=[];if(v.views)metaParts.push(v.views);if(age)metaParts.push(age);
       const metaStr=metaParts.join(' • ');
-      // Use div not <a> so we control drag fully; click opens link
       return`<div class="pl-video-row" role="link" tabindex="0"
         data-idx="${i}" data-link="${esc(link)}"
         data-vid="${esc(v.vid)}" data-hv="${esc(v.vid)}" data-ht="${esc(v.title||'')}" data-hc="${esc(v.channel||'')}" data-hi=""
-        onclick="if(!event.defaultPrevented&&!event.target.closest('.pl-video-remove,.pl-drag-handle'))window.open('${link}','_blank')"
+        onclick="if(!event.defaultPrevented&&!event.target.closest('.pl-video-remove'))window.open('${link}','_blank')"
         onkeydown="if(event.key==='Enter')window.open('${link}','_blank')">
-        ${isManual?`<div class="pl-drag-handle" title="Drag to reorder" draggable="true"><span class="ms" style="font-size:20px">drag_indicator</span></div>`:''}
         <div class="pl-video-num">${i+1}</div>
         <div class="pl-video-thumb">
           <img src="${esc(v.thumb||'')}" alt="" loading="lazy" onerror="if(this.src.includes('maxresdefault')){this.src=this.src.replace('maxresdefault','hqdefault')}else{this.src=''}"/>
@@ -3146,35 +3143,19 @@ function openMyPlaylist(plId,_skipPush){
   <button class="load-more-btn" style="margin-bottom:18px;display:inline-flex;align-items:center;gap:6px" onclick="history.pushState(null,'',location.pathname+'?page=playlists');renderMyPlaylists()">
     <span class="ms" style="font-size:18px">arrow_back</span> All Playlists
   </button>
-  <div class="pl-detail-wrap">
-    <div class="pl-detail-sidebar">
-      <div class="pl-detail-cover">
-        ${thumb
-          ?`<img src="${esc(thumb)}" alt="" loading="lazy" onerror="if(this.src.includes('maxresdefault')){this.src=this.src.replace('maxresdefault','hqdefault')}else{this.src=''}"/>`
-          :`<div class="pl-detail-cover-empty"><span class="ms">queue_music</span></div>`}
-      </div>
-      <div class="pl-detail-info">
-        <div class="pl-detail-name">${esc(pl.name)}</div>
-        <div class="pl-detail-meta">${uniqueVideos.length} video${uniqueVideos.length!==1?'s':''}</div>
-        <div class="pl-detail-actions">
-          <button class="pl-detail-play-btn" onclick="window.open('${uniqueVideos[0]?ytLink(uniqueVideos[0].vid):'#'}','_blank')">
-            <span class="ms">play_arrow</span>Play all
-          </button>
-          <button class="pl-detail-shuffle-btn">
-            <span class="ms">shuffle</span>
-          </button>
-        </div>
-      </div>
-    </div>
+  <div class="pl-detail-wrap pl-detail-wrap--simple">
     <div class="pl-video-list" id="pl-inner-grid">
       <div class="pl-video-list-header">
-        <span class="pl-video-list-count">${uniqueVideos.length} video${uniqueVideos.length!==1?'s':''}</span>
+        <div style="display:flex;flex-direction:column;gap:2px">
+          <span style="font-size:20px;font-weight:700;color:var(--text)">${esc(pl.name)}</span>
+          <span class="pl-video-list-count">${uniqueVideos.length} video${uniqueVideos.length!==1?'s':''}</span>
+        </div>
         <div class="pl-sort-bar">
           <span class="pl-sort-label"><span class="ms">sort</span>Sort:</span>
-          <select class="pl-sort-select" id="pl-sort-select" onchange="(function(sel){_currentPlSort=sel.value;localStorage.setItem('yt_mpl_sort',sel.value);var c=document.getElementById('pl-rows-container');if(c&&window._plBuildRows){c.innerHTML=window._plBuildRows(sel.value);if(sel.value==='manual'&&window._setupPlRowDrag){delete c._plDragReady;window._setupPlRowDrag();}}})(this)">
-            <option value="manual"${sortVal==='manual'?' selected':''}>Manual order</option>
-            <option value="newest"${sortVal==='newest'?' selected':''}>Newest added</option>
-            <option value="oldest"${sortVal==='oldest'?' selected':''}>Oldest added</option>
+          <select class="pl-sort-select" id="pl-sort-select" onchange="(function(sel){_currentPlSort=sel.value;localStorage.setItem('yt_mpl_sort',sel.value);var c=document.getElementById('pl-rows-container');if(c&&window._plBuildRows){c.innerHTML=window._plBuildRows(sel.value);}})(this)">
+            <option value="newest"${sortVal==='newest'?' selected':''}>Newest first</option>
+            <option value="oldest"${sortVal==='oldest'?' selected':''}>Oldest first</option>
+            <option value="default"${(sortVal==='default'||!sortVal||sortVal==='manual')?' selected':''}>Default order</option>
           </select>
         </div>
       </div>
@@ -3186,80 +3167,6 @@ function openMyPlaylist(plId,_skipPush){
   </div>`;
 
   window._plBuildRows=buildRows;
-
-  // Drag-to-reorder via event delegation on container — no stale listeners
-  function setupPlRowDrag(){
-    const container=document.getElementById('pl-rows-container');
-    if(!container||container._plDragReady)return;
-    container._plDragReady=true;
-    let dragSrcIdx=null;
-
-    container.addEventListener('dragstart',e=>{
-      const handle=e.target.closest('.pl-drag-handle');
-      if(!handle){e.preventDefault();return;}
-      const row=handle.closest('.pl-video-row');
-      if(!row){e.preventDefault();return;}
-      dragSrcIdx=parseInt(row.dataset.idx||'0');
-      row.classList.add('pl-dragging');
-      e.dataTransfer.effectAllowed='move';
-      e.dataTransfer.setData('text/plain',String(dragSrcIdx));
-      e.stopPropagation();
-    });
-
-    container.addEventListener('dragend',e=>{
-      dragSrcIdx=null;
-      container.querySelectorAll('.pl-video-row').forEach(r=>
-        r.classList.remove('pl-dragging','pl-drag-over-top','pl-drag-over-bot'));
-    });
-
-    container.addEventListener('dragover',e=>{
-      if(dragSrcIdx===null)return;
-      const row=e.target.closest('.pl-video-row');
-      if(!row)return;
-      if(parseInt(row.dataset.idx)===dragSrcIdx)return;
-      e.preventDefault();e.stopPropagation();
-      e.dataTransfer.dropEffect='move';
-      container.querySelectorAll('.pl-video-row').forEach(r=>
-        r.classList.remove('pl-drag-over-top','pl-drag-over-bot'));
-      const rect=row.getBoundingClientRect();
-      row.classList.toggle('pl-drag-over-top',e.clientY<rect.top+rect.height/2);
-      row.classList.toggle('pl-drag-over-bot',e.clientY>=rect.top+rect.height/2);
-    });
-
-    container.addEventListener('dragleave',e=>{
-      if(!container.contains(e.relatedTarget))
-        container.querySelectorAll('.pl-video-row').forEach(r=>
-          r.classList.remove('pl-drag-over-top','pl-drag-over-bot'));
-    });
-
-    container.addEventListener('drop',e=>{
-      e.preventDefault();e.stopPropagation();
-      if(dragSrcIdx===null)return;
-      const row=e.target.closest('.pl-video-row');
-      if(!row)return;
-      const toIdx=parseInt(row.dataset.idx||'0');
-      if(toIdx===dragSrcIdx)return;
-      const before=row.classList.contains('pl-drag-over-top');
-      container.querySelectorAll('.pl-video-row').forEach(r=>
-        r.classList.remove('pl-drag-over-top','pl-drag-over-bot'));
-      const pl2=myPlaylists.find(p=>p.id===plId);
-      if(!pl2)return;
-      const vids=[...pl2.videos];
-      const [moved]=vids.splice(dragSrcIdx,1);
-      let dest=before?toIdx:toIdx+1;
-      if(dest>dragSrcIdx)dest--;
-      vids.splice(dest,0,moved);
-      pl2.videos=vids;
-      dragSrcIdx=null;
-      saveMPL();
-      // Re-render in place — no full re-run of openMyPlaylist
-      const c=document.getElementById('pl-rows-container');
-      if(c&&window._plBuildRows)c.innerHTML=window._plBuildRows('manual');
-      // Don't call setupPlRowDrag again — delegation is already on container
-    });
-  }
-  window._setupPlRowDrag=setupPlRowDrag;
-  if(_currentPlSort==='manual')setupPlRowDrag();
 
   setupInnerPlaylistDropZone(plId,wrap);
 }
@@ -3680,17 +3587,17 @@ function loadMoreHome(){
 }
 
 // ── VIDEO CARD CONTEXT MENU (three-dot ⋮) ──
-function openVideoCtx(e,vid,title,channel,thumb,dur){
+function openVideoCtx(e,vid,title,channel,thumb,dur,publishedAt){
   e.preventDefault();e.stopPropagation();
-  ctxData={vid,title,channel,thumb,dur};
+  ctxData={vid,title,channel,thumb,dur,publishedAt};
   const menu=document.getElementById('ctx-menu');
   const inWL=isInWL(vid);
   const vd=JSON.stringify(vid);const vt=JSON.stringify(title);const vc=JSON.stringify(channel);
-  const vth=JSON.stringify(thumb||'');const vdr=JSON.stringify(dur||'');
+  const vth=JSON.stringify(thumb||'');const vdr=JSON.stringify(dur||'');const vpub=JSON.stringify(publishedAt||'');
   // Build playlist sub-items
   const plItems=myPlaylists.map(pl=>{
     const inPl=pl.videos.some(v=>v.vid===vid);
-    return`<div class="ctx-pl-item" onclick="closeCtx();addVideoToPlaylist('${esc(pl.id)}',${vd},${vt},${vc},${vth},${vdr})">
+    return`<div class="ctx-pl-item" onclick="closeCtx();addVideoToPlaylist('${esc(pl.id)}',${vd},${vt},${vc},${vth},${vdr},${vpub})">
       <div class="ctx-pl-check${inPl?' checked':''}"></div>
       <span>${esc(pl.name)}</span>
     </div>`;
@@ -3886,11 +3793,8 @@ async function openYtPlaylist(plId,plName,backFn){
           <span class="pl-video-list-count">${totalCount?totalCount+' videos':'Loading…'}</span>
           <div class="pl-sort-bar">
             <span class="pl-sort-label"><span class="ms">sort</span>Sort:</span>
-            <select class="pl-sort-select" id="ytpl-sort-select" onchange="sortYtPlaylistRows(this.value)">
-              <option value="default" selected>Default order</option>
-              <option value="newest">Newest first</option>
-              <option value="oldest">Oldest first</option>
-              <option value="views">Most viewed</option>
+            <select class="pl-sort-select" id="ytpl-sort-select" onchange="localStorage.setItem('yt_ytpl_sort',this.value);sortYtPlaylistRows(this.value)">
+              ${['default','newest','oldest','views'].map(v=>`<option value="${v}"${(localStorage.getItem('yt_ytpl_sort')||'default')===v?' selected':''}>${{default:'Default order',newest:'Newest first',oldest:'Oldest first',views:'Most viewed'}[v]}</option>`).join('')}
             </select>
           </div>
         </div>
@@ -3930,7 +3834,9 @@ async function loadYtPlaylistVideos(plId,token,fresh){
   });
 
   const sortSel=document.getElementById('ytpl-sort-select');
-  renderYtPlaylistRows(list,sortSel?sortSel.value:'default');
+  const savedYtSort=localStorage.getItem('yt_ytpl_sort')||'default';
+  if(sortSel)sortSel.value=savedYtSort;
+  renderYtPlaylistRows(list,savedYtSort);
 
   if(fresh&&firstVid){
     const playBtn=document.getElementById('ytpl-play-btn');
@@ -5343,7 +5249,7 @@ function videoCard(vid,title,channel,thumb,published,views,dur,meta,chId){
   const viewStr=views?fmtViews(views)+' views':'';
   const dateStr=fmtDate(published);
   const vd=JSON.stringify(vid);const vt=JSON.stringify(title);const vc=JSON.stringify(channel);
-  const vth=JSON.stringify(thumb||'');const vdr=JSON.stringify(dur||'');
+  const vth=JSON.stringify(thumb||'');const vdr=JSON.stringify(dur||'');const vpub=JSON.stringify(published||'');
   // Check if already watched
   const isWatched=history_.some(h=>h.vid===vid);
   const watchedBar=isWatched?`<div class="vid-watched-bar"><div class="vid-watched-fill" style="width:85%"></div></div>`:'';
@@ -5370,7 +5276,7 @@ function videoCard(vid,title,channel,thumb,published,views,dur,meta,chId){
         </div>
       </a>
       <button class="vid-menu-btn" title="More options"
-        onclick="openVideoCtx(event,${vd},${vt},${vc},${vth},${vdr})">
+        onclick="openVideoCtx(event,${vd},${vt},${vc},${vth},${vdr},${vpub})">
         <span class="ms">more_vert</span>
       </button>
     </div>
@@ -5383,7 +5289,7 @@ function searchCard(vid,title,channel,thumb,published,views,dur,meta,chId,chName
   const viewStr=views?fmtViews(views)+' views':'';
   const dateStr=fmtDate(published);
   const vd=JSON.stringify(vid);const vt=JSON.stringify(title);const vc=JSON.stringify(channel);
-  const vth=JSON.stringify(thumb||'');const vdr=JSON.stringify(dur||'');
+  const vth=JSON.stringify(thumb||'');const vdr=JSON.stringify(dur||'');const vpub=JSON.stringify(published||'');
   // Channel link: if we have a known channel name use openChannel, else try to navigate by title
   const chNav=chName
     ?`openChannel('${esc(chName).replace(/'/g,"\\'")}')`
@@ -5425,7 +5331,7 @@ function searchCard(vid,title,channel,thumb,published,views,dur,meta,chId,chName
         <span class="search-ch-name search-ch-link" onclick="event.stopPropagation();${chNav}" title="Open channel">${esc(channel)}</span>
       </div>
       <button class="vid-menu-btn" style="margin-top:6px;align-self:flex-start" title="More options"
-        onclick="openVideoCtx(event,${vd},${vt},${vc},${vth},${vdr})">
+        onclick="openVideoCtx(event,${vd},${vt},${vc},${vth},${vdr},${vpub})">
         <span class="ms">more_vert</span>
       </button>
     </div>
