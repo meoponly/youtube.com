@@ -1173,19 +1173,19 @@ body.light-mode .pl-detail-shuffle-btn{background:rgba(0,0,0,.08);color:#0f0f0f}
 }
 .pl-video-list-count{font-size:13px;color:var(--text2)}
 .pl-video-row{
-  display:flex;gap:10px;align-items:flex-start;
-  padding:8px 6px;border-radius:8px;cursor:pointer;
+  display:flex;gap:12px;align-items:flex-start;
+  padding:12px 8px;border-radius:10px;cursor:pointer;
   transition:background .1s;text-decoration:none;color:inherit;
   position:relative;
 }
-.pl-video-row:hover{background:rgba(255,255,255,.05)}
-body.light-mode .pl-video-row:hover{background:rgba(0,0,0,.04)}
+.pl-video-row:hover{background:rgba(255,255,255,.06)}
+body.light-mode .pl-video-row:hover{background:rgba(0,0,0,.05)}
 .pl-video-num{
-  width:20px;flex-shrink:0;text-align:center;
-  font-size:12px;color:var(--text3);padding-top:10px;
+  width:24px;flex-shrink:0;text-align:center;
+  font-size:13px;color:var(--text3);padding-top:6px;
 }
 .pl-video-thumb{
-  position:relative;width:180px;min-width:180px;
+  position:relative;width:220px;min-width:220px;
   border-radius:8px;overflow:hidden;background:var(--surface);
   aspect-ratio:16/9;flex-shrink:0;
 }
@@ -1196,14 +1196,15 @@ body.light-mode .pl-video-row:hover{background:rgba(0,0,0,.04)}
   background:rgba(0,0,0,.88);color:#fff;border-radius:4px;
   font-size:11px;font-weight:600;padding:2px 5px;pointer-events:none;letter-spacing:.2px;
 }
-.pl-video-info{flex:1;min-width:0;padding-top:3px}
+.pl-video-info{flex:1;min-width:0;padding:4px 0 4px;min-height:0}
 .pl-video-title{
   font-size:14px;font-weight:500;line-height:1.4;color:var(--text);
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
-  margin-bottom:5px;
+  margin-bottom:4px;padding-right:70px;
 }
-.pl-video-ch{font-size:13px;color:var(--text2);margin-bottom:3px}
+.pl-video-ch{font-size:13px;color:var(--text2);margin-bottom:2px}
 .pl-video-meta{font-size:12px;color:var(--text3)}
+.pl-video-desc{font-size:12px;color:var(--text3);margin-top:5px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 /* Sort bar inside playlist detail */
 .pl-sort-bar{display:flex;align-items:center;gap:10px}
 .pl-sort-label{font-size:12px;color:var(--text3);white-space:nowrap;display:flex;align-items:center;gap:4px}
@@ -1247,10 +1248,11 @@ body.light-mode .tr-notif-item.tr-success{background:#edfbf3;color:#1a6638;borde
 body.light-mode .tr-notif-item.tr-info{background:#fff8f4;color:#1a1a18;border-color:rgba(196,97,60,.2);box-shadow:0 6px 20px rgba(0,0,0,.1)}
 .tr-notif-icon{font-size:18px;flex-shrink:0;font-family:'Material Symbols Rounded';font-weight:normal;font-style:normal;line-height:1;letter-spacing:normal;text-transform:none;display:inline-block;white-space:nowrap;word-wrap:normal;direction:ltr;-webkit-font-smoothing:antialiased;font-variation-settings:'FILL' 1,'wght' 400,'GRAD' -25,'opsz' 20}
 .pl-video-remove{
+  position:absolute;top:10px;right:40px;
   width:28px;height:28px;border-radius:50%;flex-shrink:0;
   display:flex;align-items:center;justify-content:center;
   opacity:0;transition:opacity .15s;background:none;border:none;
-  cursor:pointer;color:var(--text3);margin-top:4px;
+  cursor:pointer;color:var(--text3);
 }
 .pl-video-row:hover .pl-video-remove{opacity:1}
 .pl-video-remove:hover{background:rgba(255,255,255,.1);color:var(--text)}
@@ -1276,18 +1278,28 @@ body.light-mode .tr-notif-item.tr-info{background:#fff8f4;color:#1a1a18;border-c
 .mpl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:18px}
 .mpl-card{cursor:pointer;border-radius:var(--radius);overflow:hidden;background:var(--surface);border:1px solid var(--border);transition:background .15s;position:relative}
 .mpl-card:hover{background:var(--surface2)}
-.mpl-thumb{position:relative;aspect-ratio:16/9;background:var(--surface);border-radius:var(--radius) var(--radius) 0 0;overflow:hidden;display:flex;align-items:center;justify-content:center}
-.mpl-thumb img{width:100%;height:100%;object-fit:cover}
-.mpl-count{position:absolute;right:0;top:0;bottom:0;width:35%;background:rgba(0,0,0,.82);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
+.mpl-thumb{position:relative;aspect-ratio:16/9;background:var(--surface2);border-radius:var(--radius) var(--radius) 0 0;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.mpl-thumb-main{position:absolute;inset:0;width:65%;height:100%;object-fit:cover;left:0;top:0}
+.mpl-thumb-stack{position:absolute;right:0;top:0;bottom:0;width:35%;background:rgba(0,0,0,.82);display:flex;flex-direction:column;overflow:hidden}
+.mpl-thumb-stack img{width:100%;flex:1;object-fit:cover;opacity:.55}
+.mpl-count{position:absolute;right:0;top:0;bottom:0;width:35%;background:rgba(0,0,0,.7);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;z-index:2}
 .mpl-count span:first-child{font-size:15px;font-weight:700}
 .mpl-count span:last-child{font-size:10px;color:#ccc}
+.mpl-thumb-empty{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--surface2)}
 .mpl-info{padding:10px 12px 12px}
 .mpl-title{font-size:14px;font-weight:500;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .mpl-sub{font-size:12px;color:var(--text3);margin-top:3px}
+.mpl-desc{font-size:12px;color:var(--text3);margin-top:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.4}
 .mpl-del-btn{position:absolute;top:6px;right:6px;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s;z-index:2}
 .mpl-card:hover .mpl-del-btn{opacity:1}
 .mpl-del-btn:hover{background:rgba(180,80,40,.8)}
 .mpl-del-btn .ms{font-size:16px;color:#fff}
+.pl-drag-handle{display:flex;align-items:center;justify-content:center;width:28px;flex-shrink:0;cursor:grab;color:var(--text3);opacity:.3;transition:opacity .15s;user-select:none}
+.pl-video-row:hover .pl-drag-handle{opacity:.8}
+.pl-drag-handle:active{cursor:grabbing}
+.pl-video-row.pl-dragging{opacity:.4;background:var(--surface2)}
+.pl-video-row.pl-drag-over-top{border-top:2px solid var(--accent)}
+.pl-video-row.pl-drag-over-bot{border-bottom:2px solid var(--accent)}
 
 /* ── MODALS ── */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:500;display:flex;align-items:center;justify-content:center}
@@ -1502,15 +1514,17 @@ body.light-mode .mcp-item:hover{background:rgba(0,0,0,.04)}
 
 /* ── CTRL+Y TICK MARK ── */
 .vid-tick-overlay{
-  position:absolute;top:6px;right:6px;
-  width:28px;height:28px;border-radius:50%;
+  position:absolute;top:8px;right:8px;
+  width:26px;height:26px;border-radius:50%;
   background:#00c853;border:2.5px solid #fff;
   display:flex;align-items:center;justify-content:center;
-  pointer-events:none;z-index:10;
+  pointer-events:none;z-index:20;
   box-shadow:0 2px 8px rgba(0,0,0,.45);
   animation:tickPop .18s cubic-bezier(.34,1.56,.64,1) both;
 }
-.vid-tick-overlay svg{width:16px;height:16px;display:block;}
+.vid-tick-overlay svg{width:14px;height:14px;display:block;}
+/* On pl-video-row the tick goes top-right corner of the row */
+.pl-video-row .vid-tick-overlay{top:8px;right:8px;transform:none}
 @keyframes tickPop{
   from{transform:scale(0);opacity:0}
   to{transform:scale(1);opacity:1}
@@ -3021,7 +3035,6 @@ function removeVideoFromPlaylist(plId,vid){
 }
 function renderMyPlaylists(){
   const wrap=document.getElementById('mpl-grid-wrap');
-  // Show skeleton briefly
   wrap.innerHTML=skelPlaylistGrid(6);
   setTimeout(()=>{
   if(!myPlaylists.length){
@@ -3029,15 +3042,25 @@ function renderMyPlaylists(){
     return;
   }
   wrap.innerHTML=`<div class="mpl-grid">${myPlaylists.map(pl=>{
-    const thumb=pl.videos[0]?.thumb||'';
+    const thumbs=pl.videos.slice(0,4).map(v=>v.thumb).filter(Boolean);
+    const mainThumb=thumbs[0]||'';
+    const stackThumbs=thumbs.slice(1,4);
+    const descVid=pl.videos[1]||pl.videos[0];
+    const descText=descVid?descVid.title:'';
     return`<div class="mpl-card" data-plid="${esc(pl.id)}" onclick="openMyPlaylist('${esc(pl.id)}')">
       <div class="mpl-thumb">
-        ${thumb?`<img src="${esc(thumb)}" alt="" loading="lazy"/>`:'<div style="width:100%;height:100%;background:var(--surface);display:flex;align-items:center;justify-content:center"><span class="ms" style="font-size:40px;color:var(--text3)">queue_music</span></div>'}
+        ${mainThumb
+          ?`<img class="mpl-thumb-main" src="${esc(mainThumb)}" alt="" loading="lazy" onerror="if(this.src.includes('maxresdefault')){this.src=this.src.replace('maxresdefault','hqdefault')}else{this.src=''}"/>`
+          :''}
+        ${stackThumbs.length
+          ?`<div class="mpl-thumb-stack">${stackThumbs.map(t=>`<img src="${esc(t)}" alt="" loading="lazy" onerror="if(this.src.includes('maxresdefault')){this.src=this.src.replace('maxresdefault','hqdefault')}else{this.src=''}">`).join('')}</div>`
+          :(mainThumb?'':'<div class="mpl-thumb-empty"><span class="ms" style="font-size:40px;color:var(--text3)">queue_music</span></div>')}
         <div class="mpl-count"><span>${pl.videos.length}</span><span>videos</span></div>
       </div>
       <div class="mpl-info">
         <div class="mpl-title">${esc(pl.name)}</div>
-        <div class="mpl-sub">${pl.videos.length} video${pl.videos.length!==1?'s':''}</div>
+        <div class="mpl-sub">${pl.videos.length} video${pl.videos.length!==1?'s':''} • View full playlist</div>
+        ${descText?`<div class="mpl-desc">${esc(descText)}</div>`:''}
       </div>
       <button class="mpl-del-btn" title="Delete" onclick="event.stopPropagation();deletePlaylist('${esc(pl.id)}')">
         <span class="ms">delete</span>
@@ -3047,7 +3070,7 @@ function renderMyPlaylists(){
   setupPlaylistGridDropZones();
   },80);
 }
-let _currentPlSort='manual';
+let _currentPlSort=localStorage.getItem('yt_mpl_sort')||'manual';
 function openMyPlaylist(plId,_skipPush){
   const pl=myPlaylists.find(p=>p.id===plId);
   if(!pl)return;
@@ -3087,14 +3110,20 @@ function openMyPlaylist(plId,_skipPush){
   function buildRows(sort){
     const vids=sortedVideos(sort);
     if(!vids.length)return`<div class="mpl-empty" style="padding:40px 0"><span class="ms" style="font-size:40px;color:var(--text3)">video_library</span><div class="mpl-empty-title">No videos yet</div><div class="mpl-empty-sub">Drag any video here, or use the ⋮ menu to add videos.</div></div>`;
+    const isManual=sort==='manual';
     return vids.map((v,i)=>{
       const link=ytLink(v.vid);
       const durStr=fmtDur(v.dur||'');
       const age=fmtAge(v.added||v.ts||0);
       const metaParts=[];if(v.views)metaParts.push(v.views);if(age)metaParts.push(age);
       const metaStr=metaParts.join(' • ');
-      return`<a class="pl-video-row" href="${link}" target="_blank" rel="noopener"
-        data-hv="${esc(v.vid)}" data-hv="${esc(v.vid)}" data-ht="${esc(v.title||'')}" data-hc="${esc(v.channel||'')}" data-hi="">
+      // Use div not <a> so we control drag fully; click opens link
+      return`<div class="pl-video-row" role="link" tabindex="0"
+        data-idx="${i}" data-link="${esc(link)}"
+        data-vid="${esc(v.vid)}" data-hv="${esc(v.vid)}" data-ht="${esc(v.title||'')}" data-hc="${esc(v.channel||'')}" data-hi=""
+        onclick="if(!event.defaultPrevented&&!event.target.closest('.pl-video-remove,.pl-drag-handle'))window.open('${link}','_blank')"
+        onkeydown="if(event.key==='Enter')window.open('${link}','_blank')">
+        ${isManual?`<div class="pl-drag-handle" title="Drag to reorder" draggable="true"><span class="ms" style="font-size:20px">drag_indicator</span></div>`:''}
         <div class="pl-video-num">${i+1}</div>
         <div class="pl-video-thumb">
           <img src="${esc(v.thumb||'')}" alt="" loading="lazy" onerror="if(this.src.includes('maxresdefault')){this.src=this.src.replace('maxresdefault','hqdefault')}else{this.src=''}"/>
@@ -3103,12 +3132,13 @@ function openMyPlaylist(plId,_skipPush){
         <div class="pl-video-info">
           <div class="pl-video-title">${esc(v.title||'')}</div>
           <div class="pl-video-ch">${esc(v.channel||'')}</div>
-          ${metaStr?`<div class="pl-video-meta">${esc(metaStr)}</div>`:''}
+          <div class="pl-video-meta">${[durStr?`<span style="background:rgba(0,0,0,.18);border-radius:3px;padding:1px 5px;font-size:11px;font-weight:600">${esc(durStr)}</span>`:'',age].filter(Boolean).join(' &nbsp;')}</div>
+          ${v.desc?`<div class="pl-video-desc">${esc(v.desc)}</div>`:''}
         </div>
         <button class="pl-video-remove" title="Remove from playlist" onclick="event.preventDefault();event.stopPropagation();removeVideoFromPlaylist('${esc(pl.id)}','${esc(v.vid)}')">
           <span class="ms">close</span>
         </button>
-      </a>`;
+      </div>`;
     }).join('');
   }
 
@@ -3141,8 +3171,8 @@ function openMyPlaylist(plId,_skipPush){
         <span class="pl-video-list-count">${uniqueVideos.length} video${uniqueVideos.length!==1?'s':''}</span>
         <div class="pl-sort-bar">
           <span class="pl-sort-label"><span class="ms">sort</span>Sort:</span>
-          <select class="pl-sort-select" id="pl-sort-select" onchange="(function(sel){_currentPlSort=sel.value;var c=document.getElementById('pl-rows-container');if(c&&window._plBuildRows)c.innerHTML=window._plBuildRows(sel.value)})(this)">
-            <option value="manual"${sortVal==='manual'?' selected':''}>Default order</option>
+          <select class="pl-sort-select" id="pl-sort-select" onchange="(function(sel){_currentPlSort=sel.value;localStorage.setItem('yt_mpl_sort',sel.value);var c=document.getElementById('pl-rows-container');if(c&&window._plBuildRows){c.innerHTML=window._plBuildRows(sel.value);if(sel.value==='manual'&&window._setupPlRowDrag){delete c._plDragReady;window._setupPlRowDrag();}}})(this)">
+            <option value="manual"${sortVal==='manual'?' selected':''}>Manual order</option>
             <option value="newest"${sortVal==='newest'?' selected':''}>Newest added</option>
             <option value="oldest"${sortVal==='oldest'?' selected':''}>Oldest added</option>
           </select>
@@ -3156,6 +3186,81 @@ function openMyPlaylist(plId,_skipPush){
   </div>`;
 
   window._plBuildRows=buildRows;
+
+  // Drag-to-reorder via event delegation on container — no stale listeners
+  function setupPlRowDrag(){
+    const container=document.getElementById('pl-rows-container');
+    if(!container||container._plDragReady)return;
+    container._plDragReady=true;
+    let dragSrcIdx=null;
+
+    container.addEventListener('dragstart',e=>{
+      const handle=e.target.closest('.pl-drag-handle');
+      if(!handle){e.preventDefault();return;}
+      const row=handle.closest('.pl-video-row');
+      if(!row){e.preventDefault();return;}
+      dragSrcIdx=parseInt(row.dataset.idx||'0');
+      row.classList.add('pl-dragging');
+      e.dataTransfer.effectAllowed='move';
+      e.dataTransfer.setData('text/plain',String(dragSrcIdx));
+      e.stopPropagation();
+    });
+
+    container.addEventListener('dragend',e=>{
+      dragSrcIdx=null;
+      container.querySelectorAll('.pl-video-row').forEach(r=>
+        r.classList.remove('pl-dragging','pl-drag-over-top','pl-drag-over-bot'));
+    });
+
+    container.addEventListener('dragover',e=>{
+      if(dragSrcIdx===null)return;
+      const row=e.target.closest('.pl-video-row');
+      if(!row)return;
+      if(parseInt(row.dataset.idx)===dragSrcIdx)return;
+      e.preventDefault();e.stopPropagation();
+      e.dataTransfer.dropEffect='move';
+      container.querySelectorAll('.pl-video-row').forEach(r=>
+        r.classList.remove('pl-drag-over-top','pl-drag-over-bot'));
+      const rect=row.getBoundingClientRect();
+      row.classList.toggle('pl-drag-over-top',e.clientY<rect.top+rect.height/2);
+      row.classList.toggle('pl-drag-over-bot',e.clientY>=rect.top+rect.height/2);
+    });
+
+    container.addEventListener('dragleave',e=>{
+      if(!container.contains(e.relatedTarget))
+        container.querySelectorAll('.pl-video-row').forEach(r=>
+          r.classList.remove('pl-drag-over-top','pl-drag-over-bot'));
+    });
+
+    container.addEventListener('drop',e=>{
+      e.preventDefault();e.stopPropagation();
+      if(dragSrcIdx===null)return;
+      const row=e.target.closest('.pl-video-row');
+      if(!row)return;
+      const toIdx=parseInt(row.dataset.idx||'0');
+      if(toIdx===dragSrcIdx)return;
+      const before=row.classList.contains('pl-drag-over-top');
+      container.querySelectorAll('.pl-video-row').forEach(r=>
+        r.classList.remove('pl-drag-over-top','pl-drag-over-bot'));
+      const pl2=myPlaylists.find(p=>p.id===plId);
+      if(!pl2)return;
+      const vids=[...pl2.videos];
+      const [moved]=vids.splice(dragSrcIdx,1);
+      let dest=before?toIdx:toIdx+1;
+      if(dest>dragSrcIdx)dest--;
+      vids.splice(dest,0,moved);
+      pl2.videos=vids;
+      dragSrcIdx=null;
+      saveMPL();
+      // Re-render in place — no full re-run of openMyPlaylist
+      const c=document.getElementById('pl-rows-container');
+      if(c&&window._plBuildRows)c.innerHTML=window._plBuildRows('manual');
+      // Don't call setupPlRowDrag again — delegation is already on container
+    });
+  }
+  window._setupPlRowDrag=setupPlRowDrag;
+  if(_currentPlSort==='manual')setupPlRowDrag();
+
   setupInnerPlaylistDropZone(plId,wrap);
 }
 
@@ -6032,7 +6137,7 @@ document.addEventListener('mousemove',e=>{
   _hoveredCard=card||null;
 },true);
 document.addEventListener('keydown',e=>{
-  if(e.key==='b'&&e.ctrlKey&&!e.shiftKey){
+  if(e.key.toLowerCase()==='b'&&e.ctrlKey&&!e.shiftKey){
     e.preventDefault();
     if(!_hoveredCard)return;
     const titleEl=_hoveredCard.querySelector('.search-title,.vid-title,.pl-title,.history-title,.mpl-title');
@@ -6043,7 +6148,7 @@ document.addEventListener('keydown',e=>{
     if(!desc&&!vid2){showToast('No description available');return;}
     openDescPanel(title,desc,vid2);
   }
-});
+},true);
 
 // ── KEYBOARD SHORTCUTS MODAL ──
 function openShortcuts(){
@@ -6055,13 +6160,13 @@ function closeShortcuts(){
   if(m){m.style.display='none';}
 }
 document.addEventListener('keydown',e=>{
-  if(e.key==='m'&&e.ctrlKey&&!e.shiftKey){
+  if(e.key.toLowerCase()==='m'&&e.ctrlKey&&!e.shiftKey){
     e.preventDefault();
     const m=document.getElementById('shortcuts-modal');
     if(m&&m.style.display==='flex')closeShortcuts();
     else openShortcuts();
   }
-});
+},true);
 // Close shortcuts on Esc
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){closeShortcuts();}
@@ -6081,22 +6186,23 @@ document.addEventListener('DOMContentLoaded',()=>{
   el.addEventListener('mouseleave',()=>_hoveringSettingsItem=false);
 });
 document.addEventListener('keydown',e=>{
-  if(e.key==='i'&&e.ctrlKey&&!e.shiftKey&&_hoveringSettingsItem){
+  if(e.key.toLowerCase()==='i'&&e.ctrlKey&&!e.shiftKey&&_hoveringSettingsItem){
     e.preventDefault();
     openSettings();
     closeProfileDropdown();
   }
-});
+},true);
 const _tickedVids=new Set();
 document.addEventListener('keydown',e=>{
-  if(e.key==='y'&&e.ctrlKey&&!e.shiftKey){
+  if(e.key.toLowerCase()==='y'&&e.ctrlKey&&!e.shiftKey){
     e.preventDefault();
     if(!_hoveredCard)return;
     const vid=_hoveredCard.dataset.vid||_hoveredCard.dataset.hv||'';
-    // Find the thumb wrap — vid-card, search-card, search-pl-card, pl-video-row
-    const thumbWrap=_hoveredCard.querySelector('.vid-thumb-wrap,.search-thumb,.search-pl-thumb,.pl-video-thumb');
-    if(!thumbWrap)return;
-    const existing=thumbWrap.querySelector('.vid-tick-overlay');
+    // For pl-video-row attach to the row itself (edge), otherwise to thumb
+    const isPlRow=_hoveredCard.classList.contains('pl-video-row');
+    const tickTarget=isPlRow?_hoveredCard:(_hoveredCard.querySelector('.vid-thumb-wrap,.search-thumb,.search-pl-thumb,.pl-video-thumb'));
+    if(!tickTarget)return;
+    const existing=tickTarget.querySelector('.vid-tick-overlay');
     if(existing){
       existing.remove();
       _tickedVids.delete(vid);
@@ -6104,11 +6210,11 @@ document.addEventListener('keydown',e=>{
       const tick=document.createElement('div');
       tick.className='vid-tick-overlay';
       tick.innerHTML=`<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-      thumbWrap.appendChild(tick);
+      tickTarget.appendChild(tick);
       if(vid)_tickedVids.add(vid);
     }
   }
-});
+},true);
 
 // ── DRAG & DROP → Watch Later + Playlist ──
 (function(){
@@ -6126,6 +6232,8 @@ document.addEventListener('keydown',e=>{
       // Support both vid-card (data-vid) and pl-video-row / search-card (data-hv)
       const vid=card.dataset.vid||card.dataset.hv;
       if(!vid){e.preventDefault();return;}
+      // Don't interfere with pl-rows-container reorder drag
+      if(card.classList.contains('pl-video-row')&&card.closest('#pl-rows-container')){e.preventDefault();return;}
       // For pl-video-row, read from data-h* attributes directly (more reliable than DOM query)
       const isPlRow=card.classList.contains('pl-video-row');
       dragData={
@@ -6441,11 +6549,11 @@ function _adminEsc(e){ if(e.key==='Escape') closeAdmin(); }
 
 // Ctrl+X opens admin
 document.addEventListener('keydown', e => {
-  if(e.key==='x' && e.ctrlKey && !e.shiftKey){
+  if(e.key.toLowerCase()==='x' && e.ctrlKey && !e.shiftKey){
     e.preventDefault();
     openAdmin();
   }
-});
+}, true);
 
 function admTab(name){
   document.querySelectorAll('.adm-tab').forEach((t,i)=>{
