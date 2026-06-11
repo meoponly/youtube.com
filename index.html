@@ -6056,7 +6056,26 @@ function navigateToQuery(){
     doSearch();
     return;
   }
-  if(channel){openChannel(decodeURIComponent(channel));return;}
+  if(channel){
+    const ch=decodeURIComponent(channel);
+    // Extension passes @handle or UCxxx ID — try subscribed match first
+    if(ch.startsWith('@')||ch.startsWith('UC')){
+      const handleClean=ch.replace(/^@/,'');
+      const byHandle=channels.find(c=>(channelMeta[c]?.handle||'').replace(/^@/,'')===handleClean);
+      const byId=channels.find(c=>channelIds[c]===ch);
+      if(byHandle){openChannel(byHandle);}
+      else if(byId){openChannel(byId);}
+      else{openChannelByTitle(ch);}
+    } else {
+      openChannel(ch);
+    }
+    return;
+  }
+  if(pl&&!page){
+    // Direct playlist ID passed from extension (youtube.com/playlist?list=PLxxx)
+    openYtPlaylist(pl,'Playlist',()=>showSection('home'));
+    return;
+  }
   if(page==='history'){showSection('history');return;}
   if(page==='playlists'){
     showSection('myplaylists');
