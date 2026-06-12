@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>YouTube</title>
+<title>Ewtube</title>
 <link rel="icon" type="image/png" href="youtube.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -3109,6 +3109,7 @@ let _currentPlSort=localStorage.getItem('yt_mpl_sort')||'newest';
 function openMyPlaylist(plId,_skipPush){
   const pl=myPlaylists.find(p=>p.id===plId);
   if(!pl)return;
+  setPageTitle(pl.name||'Playlist');
   if(!_skipPush)history.pushState(null,'',location.pathname+'?page=playlists&pl='+encodeURIComponent(plId));
   const wrap=document.getElementById('mpl-grid-wrap');
   const thumb=pl.videos[0]?.thumb||'';
@@ -3483,9 +3484,16 @@ function renderSidebarChannels(){
 }
 
 // ── NAV ──
+function setPageTitle(t){document.title=t?t+' - Ewtube':'Ewtube';}
 function showSection(s){
   const displaySection=s==='home'?'search':s;
   currentSection=displaySection;
+  // Update tab title
+  if(s==='home')setPageTitle('');
+  else if(s==='history')setPageTitle('Watch History');
+  else if(s==='myplaylists')setPageTitle('My Playlists');
+  else if(s==='watchlater')setPageTitle('Watch Later');
+  else setPageTitle('');
   // Update URL (query-param routing like YouTube)
   const pageMap={search:'',history:'history',myplaylists:'playlists',watchlater:'watchlater'};
   if(s==='home')history.replaceState(null,'',location.pathname);
@@ -3541,7 +3549,7 @@ async function renderHome(){
     feedTitle.style.display='none';
     feed.innerHTML=`<div style="text-align:center;padding:80px 0;color:var(--text3)">
       <span class="ms" style="font-size:64px;display:block;margin-bottom:16px">search</span>
-      <div style="font-size:16px;font-weight:500;color:var(--text2);margin-bottom:8px">Search anything on YouTube</div>
+      <div style="font-size:16px;font-weight:500;color:var(--text2);margin-bottom:8px">Search anything on Ewtube</div>
       <div style="font-size:14px">Use the search bar above — all results are shown except blocked channels</div>
     </div>`;
     document.getElementById('home-load-more').style.display='none';
@@ -3790,7 +3798,7 @@ async function openYtPlaylist(plId,plName,backFn){
   document.getElementById('ch-page-subs').textContent='';
   document.getElementById('ch-page-vidcount').textContent='';
   document.getElementById('ch-page-name').textContent=plName||'Playlist';
-  document.getElementById('ch-tabs').style.display='none';
+  setPageTitle(plName||'Playlist');
   document.getElementById('ch-home-panel').style.display='none';
   document.getElementById('ch-playlists-panel').style.display='none';
   const panel=document.getElementById('ch-videos-panel');
@@ -3807,6 +3815,7 @@ async function openYtPlaylist(plId,plName,backFn){
     const chTitle=plInfo?.snippet?.channelTitle||'';
     const resolvedName=plName||plInfo?.snippet?.title||'Playlist';
     document.getElementById('ch-page-name').textContent=resolvedName;
+    setPageTitle(resolvedName);
     panel.innerHTML=`
     <div class="pl-detail-wrap">
       <div class="pl-detail-sidebar">
@@ -3986,7 +3995,9 @@ async function openChannel(name){
   const pfpImg=document.getElementById('ch-page-pfp-img');const initEl=document.getElementById('ch-page-initials');
   if(meta.thumb){pfpImg.src=meta.thumb;pfpImg.style.display='block';initEl.style.display='none'}
   else{pfpImg.style.display='none';initEl.style.display='';initEl.textContent=(meta.title||name).slice(0,2).toUpperCase()}
-  document.getElementById('ch-page-name').textContent=meta.title||name;
+  const chDisplayName=meta.title||name;
+  document.getElementById('ch-page-name').textContent=chDisplayName;
+  setPageTitle(chDisplayName);
   document.getElementById('ch-page-handle').textContent=meta.handle?`@${meta.handle.replace('@','')}`:''
   document.getElementById('ch-page-subs').textContent=meta.subs?fmtSubs(meta.subs):'';
   document.getElementById('ch-page-vidcount').textContent='';
@@ -4421,7 +4432,7 @@ async function loadChAbout(){
       <div class="ch-about-section">
         <div class="ch-about-label">Links</div>
         <a href="https://www.youtube.com/channel/${esc(currentChannelId)}" target="_blank" rel="noopener" class="ch-about-link">
-          <span class="ms sz16">open_in_new</span>View on YouTube
+          <span class="ms sz16">open_in_new</span>View on YouTube (original)
         </a>
       </div>
     </div>`;
@@ -4476,6 +4487,7 @@ async function loadPlaylists(append){
 }
 
 async function openChPlaylist(plId,plName){
+  setPageTitle(plName||'Playlist');
   const panel=document.getElementById('ch-playlists-panel');
   panel.innerHTML=`<button class="load-more-btn" style="margin-bottom:18px;display:inline-flex;align-items:center;gap:6px" onclick="loadPlaylists(false)"><span class="ms" style="font-size:18px">arrow_back</span> All Playlists</button>
     <div id="ch-pl-detail-wrap"><div style="color:var(--text3);text-align:center;padding:40px">Loading playlist…</div></div>`;
@@ -5029,7 +5041,8 @@ async function fetchSearchPage(isMore){
 
 function renderSearchResults(){
   const el=document.getElementById('search-results');
-
+  // Update tab title with search query
+  if(searchQuery)setPageTitle(searchQuery);
   // ── Always update channel filter chips ──
   renderChFilterChips();
 
@@ -5060,7 +5073,7 @@ function renderSearchResults(){
           ${desc?`<div class="ch-search-meta" style="font-size:13px;color:var(--text3);margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${esc(desc)}</div>`:''}
           ${isSub
             ?`<button class="ch-search-sub-btn subscribed" onclick="event.stopPropagation();toggleSearchChSub('${esc(matchName||'')}',this)">Subscribed</button>`
-            :`<a href="https://www.youtube.com/channel/${esc(chId)}" target="_blank" rel="noopener" class="ch-search-sub-btn" style="text-decoration:none">View on YouTube</a>`}
+            :`<a href="https://www.youtube.com/channel/${esc(chId)}" target="_blank" rel="noopener" class="ch-search-sub-btn" style="text-decoration:none">View on YouTube (original)</a>`}
         </div>
       </div>`;
     }).join('');
