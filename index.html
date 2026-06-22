@@ -366,9 +366,10 @@ body.light-mode .profile-dd-divider{background:var(--border)}
 /* ── SIDEBAR ── */
 #sidebar{
   position:fixed;top:var(--header-h);left:0;bottom:0;width:var(--sidebar-w);
-  background:var(--bg);border-right:1px solid var(--border);overflow-y:auto;overflow-x:hidden;padding:12px 0 24px;z-index:100;transition-property:width,opacity,transform;
+  background:var(--bg);border-right:1px solid var(--border);overflow-y:auto;overflow-x:hidden;padding:12px 0 0;z-index:100;transition-property:width,opacity,transform;
   transition:width .35s cubic-bezier(.4,0,.2,1),opacity .28s cubic-bezier(.4,0,.2,1),transform .35s cubic-bezier(.4,0,.2,1);
   will-change:width,opacity,transform;
+  display:flex;flex-direction:column;
 }
 #sidebar.sb-hidden{display:none!important;}
 #hamburger-btn.hbr-hidden{display:none!important;}
@@ -1996,19 +1997,28 @@ body.light-mode #adm-block-input{background:var(--surface2);}
 }
 
 /* ── FOOTER ── */
-.app-footer{
-  margin-top:40px;padding:28px 4px 40px;
-  border-top:1px solid var(--border);
+.sb-footer{
+  margin-top:auto;padding:16px 12px 20px;border-top:1px solid var(--border);
 }
-.app-footer-links{
-  display:flex;flex-wrap:wrap;gap:4px 16px;margin-bottom:14px;
+.sb-footer-links{
+  display:flex;flex-wrap:wrap;gap:2px 10px;margin-bottom:6px;
 }
-.app-footer-links a{
-  font-size:13px;color:var(--text3);cursor:pointer;text-decoration:none;
-  transition:color .15s;
+.sb-footer-links a{
+  font-size:12px;color:var(--text3);cursor:pointer;text-decoration:none;
+  transition:color .12s;
 }
-.app-footer-links a:hover{color:var(--text2)}
-.app-footer-copyright{font-size:12.5px;color:var(--text3);margin-top:4px}
+.sb-footer-links a:hover{color:var(--text2)}
+.sb-footer-copyright{font-size:11px;color:var(--text3);margin-top:6px;opacity:.7}
+
+/* ── KEYBOARD SHORTCUTS MODAL ── */
+.sc-section-label{font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px}
+.sc-row{display:flex;align-items:center;gap:12px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+body.light-mode .sc-row{border-bottom:1px solid rgba(0,0,0,.05)}
+.sc-row:last-child{border-bottom:none}
+.sc-keys{display:flex;align-items:center;gap:3px;flex-shrink:0;min-width:110px}
+.sc-key{background:var(--surface2);border:1px solid var(--border);border-bottom:2px solid var(--border);border-radius:5px;padding:2px 8px;font-size:12px;font-family:monospace;color:var(--text);white-space:nowrap}
+.sc-plus{font-size:13px;color:var(--text3)}
+.sc-desc{font-size:13px;color:var(--text2);flex:1}
 
 /* ── ABOUT MODAL ── */
 #about-overlay{
@@ -2289,6 +2299,10 @@ body.auth-pending #app-shell{visibility:hidden;}
     <span>Focus Mode</span>
     <span class="profile-dd-row-right" id="dd-focus-status">Off</span>
   </div>
+  <div class="profile-dd-item" onclick="closeProfileDropdown();openShortcutsModal()">
+    <span class="ms">keyboard</span>
+    <span>Keyboard shortcuts</span>
+  </div>
   <div class="profile-dd-divider"></div>
   <div class="profile-dd-item" onclick="closeProfileDropdown();openSettings()">
     <span class="ms">settings</span>
@@ -2342,6 +2356,22 @@ body.auth-pending #app-shell{visibility:hidden;}
         <span class="ms">video_library</span><span>Playlists</span>
       </div>
     </div>
+  </div>
+
+  <!-- Sidebar Footer (YouTube-style) -->
+  <div class="sb-footer">
+    <div class="sb-footer-links">
+      <a onclick="openAboutModal()">About</a>
+      <a onclick="openAboutModal()">Press</a>
+      <a onclick="openAboutModal()">Copyright</a>
+      <a onclick="openAboutModal()">Contact</a>
+    </div>
+    <div class="sb-footer-links">
+      <a onclick="openAboutModal()">Terms</a>
+      <a onclick="openAboutModal()">Privacy</a>
+      <a onclick="openAboutModal()">Policy</a>
+    </div>
+    <div class="sb-footer-copyright">© 2026 meoponly</div>
   </div>
 </nav>
 
@@ -2423,25 +2453,6 @@ body.auth-pending #app-shell{visibility:hidden;}
       <div class="load-more-wrap" id="home-load-more" style="display:none">
         <button class="load-more-btn" onclick="loadMoreHome()">Load more</button>
       </div>
-      <footer class="app-footer">
-        <div class="app-footer-links">
-          <a onclick="openAboutModal()">About</a>
-          <a onclick="openAboutModal()">Press</a>
-          <a onclick="openAboutModal()">Copyright</a>
-          <a onclick="openAboutModal()">Contact us</a>
-          <a onclick="openAboutModal()">Creators</a>
-          <a onclick="openAboutModal()">Advertise</a>
-          <a onclick="openAboutModal()">Developers</a>
-        </div>
-        <div class="app-footer-links app-footer-links-2">
-          <a onclick="openAboutModal()">Terms</a>
-          <a onclick="openAboutModal()">Privacy</a>
-          <a onclick="openAboutModal()">Policy &amp; Safety</a>
-          <a onclick="openAboutModal()">How Ewtube works</a>
-          <a onclick="openAboutModal()">Test new features</a>
-        </div>
-        <div class="app-footer-copyright">© 2026 meoponly</div>
-      </footer>
     </div>
     <!-- SEARCH RESULTS (shown when searching) -->
     <div id="search-results-wrap" style="display:none">
@@ -2979,6 +2990,14 @@ function openAboutModal(){
 function closeAboutModal(){
   document.getElementById('about-overlay').classList.remove('open');
 }
+function openShortcutsModal(){
+  const m=document.getElementById('shortcuts-modal');
+  if(m) m.style.display='flex';
+}
+function closeShortcutsModal(){
+  const m=document.getElementById('shortcuts-modal');
+  if(m) m.style.display='none';
+}
 
 function renderBlockedKeywordsList(){
   const el=document.getElementById('blocked-keywords-list');
@@ -3142,7 +3161,6 @@ function settingsResetLocalCache(){
   Object.keys(localStorage).forEach(k=>{
     if(/^(yt_|bhram_)/.test(k))localStorage.removeItem(k);
   });
-  window.sessionStorage.removeItem('ewtube_session_reloaded');
   window.location.reload();
 }
 
@@ -6345,11 +6363,33 @@ window.openDescPanel=async function(title,desc,vid){
       if(fd)fullDesc=fd;
     }catch(e){}
   }
-  const linked=esc(fullDesc||'No description available.').replace(
-    /https?:\/\/[^\s&lt;&quot;]*/g,
-    u=>`<a href="${u.replace(/&amp;/g,'&')}" target="_blank" rel="noopener noreferrer" style="color:var(--accent);word-break:break-all">${u}</a>`
-  );
-  body.innerHTML=linked;
+  function linkifyDesc(raw){
+    const parts=[];
+    const re=/\[([^\]]+)\]\((https?:\/\/[^)]+)\)|(https?:\/\/[^\s]+)/g;
+    let last=0,m;
+    while((m=re.exec(raw))!==null){
+      if(m.index>last) parts.push({type:'text',val:raw.slice(last,m.index)});
+      if(m[1]&&m[2]){
+        parts.push({type:'link',label:m[1],url:m[2]});
+      } else {
+        let url=m[3].replace(/[.,;:!?)]+$/,'');
+        parts.push({type:'link',label:url,url:url});
+      }
+      last=m.index+m[0].length;
+    }
+    if(last<raw.length) parts.push({type:'text',val:raw.slice(last)});
+    return parts.map(p=>{
+      if(p.type==='link'){
+        const safeUrl=p.url.replace(/"/g,'%22');
+        const safeLabel=p.label.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        return `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer" style="color:var(--accent);word-break:break-all;text-decoration:none" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">${safeLabel}</a>`;
+      }
+      let t=p.val.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      t=t.replace(/\b(\d{1,2}:\d{2}(?::\d{2})?)\b/g,'<span style="color:var(--accent);font-weight:500;cursor:default">$1</span>');
+      return t;
+    }).join('').replace(/\n/g,'<br>');
+  }
+  body.innerHTML=linkifyDesc(fullDesc||'No description available.');
 };
 function closeDescPanel(){
   document.getElementById('desc-panel-overlay').classList.remove('open');
@@ -6733,7 +6773,7 @@ function toggleChNotif(e,chName){
 }
 
 // ── INIT ──
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeCtx();hideNewPlaylistModal();closeSettings();closeAboutModal()}})
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeCtx();hideNewPlaylistModal();closeSettings();closeAboutModal();closeShortcutsModal()}})
 // ── URL QUERY-PARAM ROUTER (YouTube-style) ──
 function navigateToQuery(){
   const p=new URLSearchParams(location.search);
@@ -7564,6 +7604,26 @@ console.log('%c[ewtube] type ewtube.help() for localStorage utils','color:#00c85
 <!-- ══════════════════════════════════════════
      AUTH + PER-USER CLOUD SYNC
      ══════════════════════════════════════════ -->
+<!-- KEYBOARD SHORTCUTS MODAL -->
+<div id="shortcuts-modal" onclick="if(event.target===this)closeShortcutsModal()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:700;align-items:center;justify-content:center">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;width:min(480px,92vw);padding:28px 28px 24px;position:relative;box-shadow:0 24px 60px rgba(0,0,0,.5)">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:22px">
+      <span class="ms" style="font-size:22px;color:var(--accent)">keyboard</span>
+      <span style="font-size:17px;font-weight:600;color:var(--text)">Keyboard Shortcuts</span>
+      <button onclick="closeShortcutsModal()" style="margin-left:auto;background:none;border:none;cursor:pointer;color:var(--text2);padding:4px"><span class="ms sz20">close</span></button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:0">
+      <div class="sc-section-label">Navigation</div>
+      <div class="sc-row"><span class="sc-key">Esc</span><span class="sc-desc">Close any open modal or menu</span></div>
+      <div class="sc-section-label" style="margin-top:12px">Video Cards <span style="font-weight:400;font-size:10px;opacity:.6">(hover a card first)</span></div>
+      <div class="sc-row"><span class="sc-keys"><span class="sc-key">Ctrl</span><span class="sc-plus">+</span><span class="sc-key">B</span></span><span class="sc-desc">Open full description panel</span></div>
+      <div class="sc-row"><span class="sc-keys"><span class="sc-key">Ctrl</span><span class="sc-plus">+</span><span class="sc-key">Y</span></span><span class="sc-desc">Toggle ✓ tick mark on thumbnail</span></div>
+      <div class="sc-section-label" style="margin-top:12px">App</div>
+      <div class="sc-row"><span class="sc-keys"><span class="sc-key">Ctrl</span><span class="sc-plus">+</span><span class="sc-key">X</span></span><span class="sc-desc">Open Studio Dashboard (admin)</span></div>
+    </div>
+  </div>
+</div>
+
 </div><!-- /#app-shell -->
 </body>
 <script type="module">
@@ -7665,7 +7725,6 @@ console.log('%c[ewtube] type ewtube.help() for localStorage utils','color:#00c85
   // app's normal boot sequence (all those `let x = JSON.parse(localStorage...)`
   // lines scattered through 4000+ lines of existing code) sees correct,
   // already-synced data, with zero changes needed to that code.
-  const SESSION_FLAG = 'ewtube_session_reloaded';
   async function pullUserDataAndRevealApp(uid){
     try{
       const snap = await get(ref(db, `users/${uid}/data`));
@@ -7685,13 +7744,33 @@ console.log('%c[ewtube] type ewtube.help() for localStorage utils','color:#00c85
       console.warn('[ewtube-auth] pull failed, starting with empty local state', e);
     }
 
-    // Reload once per tab session so the app's existing init code (which ran
-    // before cloud data arrived) re-runs cleanly with the right data already
-    // in localStorage. sessionStorage flag prevents a reload loop.
-    if(!window.sessionStorage.getItem(SESSION_FLAG)){
-      window.sessionStorage.setItem(SESSION_FLAG, '1');
-      window.location.reload();
-      return;
+    // Re-initialize all live data variables from localStorage (now synced with cloud)
+    // and re-render the UI. No page reload needed — instant boot.
+    try{
+      if(typeof channels !== 'undefined'){
+        channels        = JSON.parse(localStorage.getItem('yt_channels_v4')||'[]');
+        channelIds      = JSON.parse(localStorage.getItem('yt_channel_ids_v4')||'{}');
+        channelMeta     = JSON.parse(localStorage.getItem('yt_channel_meta_v4')||'{}');
+        chAvatarCache   = JSON.parse(localStorage.getItem('yt_ch_avatars_v1')||'{}');
+        chNotifs        = JSON.parse(localStorage.getItem('yt_ch_notif_v1')||'{}');
+        affinity        = JSON.parse(localStorage.getItem('yt_affinity_v1')||'{}');
+        history_        = JSON.parse(localStorage.getItem('yt_history_v1')||'[]');
+        searchHistory_  = JSON.parse(localStorage.getItem('yt_search_history_v1')||'[]');
+        pinnedPls       = JSON.parse(localStorage.getItem('yt_pinned_pl_v1')||'[]');
+        uploadCache     = JSON.parse(localStorage.getItem('yt_upload_pl_v1')||'{}');
+        myPlaylists     = JSON.parse(localStorage.getItem('yt_myplaylists_v1')||'[]');
+        watchLater      = JSON.parse(localStorage.getItem('yt_watchlater_v1')||'[]');
+        blockedKeywords = JSON.parse(localStorage.getItem('yt_block_keywords_v1')||'[]');
+        notifItems      = JSON.parse(localStorage.getItem('yt_notif_items_v1')||'[]');
+        notifSeenUpload = JSON.parse(localStorage.getItem('yt_notif_seen_upload_v1')||'{}');
+      }
+      if(typeof ApiKeyManager !== 'undefined') ApiKeyManager.load();
+      if(typeof renderSidebarChannels === 'function') renderSidebarChannels();
+      if(typeof renderHomePage === 'function') renderHomePage();
+      const tog = document.getElementById('focus-mode-toggle');
+      if(tog && typeof isFocusModeActive === 'function') tog.checked = isFocusModeActive();
+    }catch(err){
+      console.warn('[ewtube-auth] live re-init error', err);
     }
 
     document.body.classList.remove('auth-pending');
@@ -7823,7 +7902,6 @@ console.log('%c[ewtube] type ewtube.help() for localStorage utils','color:#00c85
     Object.keys(window.localStorage).forEach(k=>{
       if(isSyncedKey(k)) window.localStorage.removeItem(k);
     });
-    window.sessionStorage.removeItem(SESSION_FLAG);
     window.location.reload();
   };
 </script>
