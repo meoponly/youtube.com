@@ -258,8 +258,7 @@ body.light-mode .pl-picker-divider{background:#e0e0e0}
 .pl-picker-new{color:var(--accent)!important}
 .pl-picker-new .ms{color:var(--accent)!important}
 
-body.body-locked{overflow:hidden!important;pointer-events:none!important}
-body.body-locked #lock-overlay{pointer-events:all!important}
+
 html{scroll-behavior:smooth}
 body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;font-size:14px;line-height:1.5}
 a{color:inherit;text-decoration:none}
@@ -346,20 +345,31 @@ body.light-mode .profile-dropdown{background:var(--bg);border-color:var(--border
   transition:background .1s;color:var(--text);
 }
 .profile-dd-item:hover{background:rgba(255,255,255,.06)}
-#settings-dd-item{cursor:default;opacity:.8}
-#settings-dd-item:hover{background:rgba(255,255,255,.04)!important}
 body.light-mode .profile-dd-item:hover{background:rgba(0,0,0,.06)}
-body.light-mode #settings-dd-item:hover{background:rgba(0,0,0,.03)!important}
 .profile-dd-item .ms{font-size:18px;color:var(--text2);font-variation-settings:'FILL' 0,'wght' 300,'GRAD' -25,'opsz' 18}
 .profile-dd-divider{height:1px;background:var(--border);margin:4px 0}
 body.light-mode .profile-dd-divider{background:var(--border)}
+.profile-dd-header{
+  display:flex;align-items:center;gap:12px;padding:14px 16px;
+}
+.profile-dd-header-avatar{
+  width:40px;height:40px;border-radius:50%;overflow:hidden;flex-shrink:0;
+  background:var(--accent);display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:15px;font-weight:600;
+}
+.profile-dd-header-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.profile-dd-header-name{font-size:14px;font-weight:600;color:var(--text);line-height:1.3}
+.profile-dd-header-email{font-size:12px;color:var(--text3);line-height:1.3;margin-top:1px;word-break:break-all}
+.profile-dd-row-right{margin-left:auto;color:var(--text3);font-size:14px}
+.profile-dropdown{max-height:80vh;overflow-y:auto}
 
 /* ── SIDEBAR ── */
 #sidebar{
   position:fixed;top:var(--header-h);left:0;bottom:0;width:var(--sidebar-w);
-  background:var(--bg);border-right:1px solid var(--border);overflow-y:auto;overflow-x:hidden;padding:12px 0 24px;z-index:100;transition-property:width,opacity,transform;
+  background:var(--bg);border-right:1px solid var(--border);overflow-y:auto;overflow-x:hidden;padding:12px 0 0;z-index:100;transition-property:width,opacity,transform;
   transition:width .35s cubic-bezier(.4,0,.2,1),opacity .28s cubic-bezier(.4,0,.2,1),transform .35s cubic-bezier(.4,0,.2,1);
   will-change:width,opacity,transform;
+  display:flex;flex-direction:column;
 }
 #sidebar.sb-hidden{display:none!important;}
 #hamburger-btn.hbr-hidden{display:none!important;}
@@ -1085,10 +1095,10 @@ body.light-mode .ch-search-sub-btn.subscribed{background:#f0f0f0;color:#666}
 
 /* History list items — YouTube style */
 .history-item{
-  display:flex;align-items:flex-start;gap:16px;
+  display:flex;align-items:flex-start;gap:4px;
   padding:10px 8px;border-radius:10px;
-  cursor:pointer;transition:background .12s;
-  text-decoration:none;color:inherit;position:relative;
+  transition:background .12s;
+  position:relative;
 }
 .history-item:hover{background:rgba(255,255,255,.04)}
 .history-thumb{
@@ -1358,13 +1368,34 @@ body.light-mode .tr-notif-item.tr-info{background:#fff8f4;color:#1a1a18;border-c
 
 /* ── SETTINGS MODAL ── */
 #settings-modal{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:600;display:flex;align-items:center;justify-content:center}
-.settings-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;width:500px;max-width:94vw;max-height:88vh;display:flex;flex-direction:column;overflow:hidden}
+.settings-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;width:860px;max-width:96vw;height:640px;max-height:90vh;display:flex;flex-direction:column;overflow:hidden}
 .settings-header{display:flex;align-items:center;justify-content:space-between;padding:16px 18px 13px;border-bottom:1px solid var(--border);flex-shrink:0}
 .settings-header h3{font-size:15px;font-weight:500;display:flex;align-items:center;gap:8px}
 .settings-close{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text2);transition:background .15s;background:none;border:none;cursor:pointer}
 .settings-close:hover{background:rgba(255,255,255,.1);color:var(--text)}
-.settings-body{overflow-y:auto;padding:18px;flex:1}
+.settings-main{display:flex;flex:1;min-height:0}
+.settings-nav{width:200px;flex-shrink:0;border-right:1px solid var(--border);padding:12px 8px;overflow-y:auto}
+.settings-nav-item{
+  display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:8px;
+  font-size:13.5px;color:var(--text2);cursor:pointer;transition:background .12s,color .12s;
+  margin-bottom:2px;
+}
+.settings-nav-item .ms{font-size:18px;font-variation-settings:'FILL' 0,'wght' 300,'GRAD' -25,'opsz' 18}
+.settings-nav-item:hover{background:rgba(255,255,255,.05);color:var(--text)}
+.settings-nav-item.active{background:var(--surface2);color:var(--text);font-weight:500}
+.settings-nav-item.active .ms{color:var(--accent)}
+.settings-body{overflow-y:auto;padding:22px 26px;flex:1;min-width:0}
+.settings-page{display:none}
+.settings-page.active{display:block}
+.settings-page-title{font-size:18px;font-weight:600;color:var(--text);margin-bottom:4px}
+.settings-page-desc{font-size:13px;color:var(--text3);margin-bottom:22px;line-height:1.6}
 .settings-section-label{font-size:11px;font-weight:600;letter-spacing:.05em;color:var(--text3);text-transform:uppercase;margin-bottom:10px}
+@media (max-width:680px){
+  .settings-box{width:100%;height:100%;max-height:100%;border-radius:0}
+  .settings-main{flex-direction:column}
+  .settings-nav{width:100%;border-right:none;border-bottom:1px solid var(--border);display:flex;flex-direction:row;overflow-x:auto;padding:8px}
+  .settings-nav-item{flex-shrink:0;white-space:nowrap}
+}
 .apikey-add-row{display:flex;gap:8px;margin-bottom:14px}
 .apikey-add-row input{flex:1;padding:9px 13px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;outline:none;transition:border-color .2s;font-family:monospace}
 .apikey-add-row input:focus{border-color:var(--accent)}
@@ -1411,6 +1442,55 @@ body.focus-mode #focus-mode-banner{display:flex}
 /* Hide channel filter chip in focus mode */
 body.focus-mode .filter-chip[data-filter="channels"]{display:none!important}
 body.focus-mode #search-filter-channels-chip{display:none!important}
+
+/* ── GENERIC SETTINGS ROW (used across Account/Notifications/Playback/Privacy/Advanced) ── */
+.set-row{
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:13px 0;border-bottom:1px solid rgba(255,255,255,.04);
+}
+body.light-mode .set-row{border-bottom:1px solid rgba(0,0,0,.05)}
+.set-row:last-child{border-bottom:none}
+.set-row-info{display:flex;flex-direction:column;gap:3px;min-width:0}
+.set-row-title{font-size:13.5px;font-weight:500;color:var(--text);display:flex;align-items:center;gap:7px}
+.set-row-desc{font-size:12px;color:var(--text3);line-height:1.5}
+.set-select{
+  background:var(--bg);border:1px solid var(--border);color:var(--text);
+  font-size:13px;padding:8px 12px;border-radius:8px;outline:none;cursor:pointer;
+  font-family:inherit;flex-shrink:0;
+}
+.set-select:focus{border-color:var(--accent)}
+.set-card{
+  background:var(--surface2);border:1px solid var(--border);border-radius:10px;
+  padding:14px 16px;margin-bottom:14px;
+}
+.set-btn-secondary{
+  background:var(--surface2);border:1px solid var(--border);color:var(--text);
+  font-size:13px;font-weight:600;padding:9px 16px;border-radius:8px;cursor:pointer;
+  transition:background .15s;white-space:nowrap;
+}
+.set-btn-secondary:hover{background:var(--surface3)}
+.set-btn-danger{
+  background:transparent;border:1px solid rgba(229,57,53,.4);color:#e57373;
+  font-size:13px;font-weight:600;padding:9px 16px;border-radius:8px;cursor:pointer;
+  transition:background .15s;white-space:nowrap;
+}
+.set-btn-danger:hover{background:rgba(229,57,53,.1)}
+.set-account-row{display:flex;align-items:center;gap:14px;margin-bottom:6px}
+.set-account-avatar{width:56px;height:56px;border-radius:50%;overflow:hidden;background:var(--accent);display:flex;align-items:center;justify-content:center;color:#fff;font-size:22px;font-weight:600;flex-shrink:0}
+.set-account-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.set-account-name{font-size:15px;font-weight:600;color:var(--text)}
+.set-account-email{font-size:13px;color:var(--text3);margin-top:1px}
+.set-notif-permission-card{
+  display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:10px;
+  margin-bottom:18px;font-size:13px;line-height:1.5;
+}
+.set-notif-permission-card.state-default{background:rgba(212,112,74,.1);border:1px solid rgba(212,112,74,.25)}
+.set-notif-permission-card.state-granted{background:rgba(76,175,80,.1);border:1px solid rgba(76,175,80,.25)}
+.set-notif-permission-card.state-denied{background:rgba(229,57,53,.1);border:1px solid rgba(229,57,53,.25)}
+.set-notif-permission-card .ms{font-size:22px;flex-shrink:0}
+.set-notif-permission-card.state-default .ms{color:var(--accent)}
+.set-notif-permission-card.state-granted .ms{color:#4caf50}
+.set-notif-permission-card.state-denied .ms{color:#e57373}
 
 /* Keyword drop zone */
 .kw-drop-zone{border:2px dashed #3a3a3a;border-radius:10px;padding:14px;display:flex;align-items:center;justify-content:center;gap:10px;transition:border-color .15s,background .15s;cursor:default}
@@ -1827,7 +1907,7 @@ body.light-mode .sb-ch-bell:hover{background:rgba(0,0,0,.07)}
 .sb-ch-bell .ms{font-size:17px}
 
 /* ═══════════════════════════════════════════
-   ADMIN PANEL
+   ADMIN PANEL — YouTube Studio style
 ═══════════════════════════════════════════ */
 #admin-overlay{
   position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:2000;
@@ -1836,14 +1916,14 @@ body.light-mode .sb-ch-bell:hover{background:rgba(0,0,0,.07)}
 }
 #admin-overlay.open{opacity:1;pointer-events:all;}
 #admin-panel{
-  width:min(96vw,960px);max-height:90vh;background:var(--surface);
-  border:1px solid var(--border);border-radius:16px;display:flex;flex-direction:column;
+  width:min(96vw,1080px);height:min(88vh,720px);background:var(--surface);
+  border:1px solid var(--border);border-radius:12px;display:flex;flex-direction:column;
   transform:scale(.95) translateY(12px);transition:transform .2s;overflow:hidden;
   box-shadow:0 24px 64px rgba(0,0,0,.6);
 }
 body.light-mode #admin-panel{background:#ffffff;border-color:var(--border);box-shadow:0 24px 64px rgba(0,0,0,.18);}
-body.light-mode .adm-tab:hover{background:rgba(0,0,0,.05);}
-body.light-mode .adm-tab.active{background:rgba(0,0,0,.05);}
+body.light-mode .adm-nav-item:hover{background:rgba(0,0,0,.05);}
+body.light-mode .adm-nav-item.active{background:rgba(229,57,53,.08);}
 body.light-mode .adm-hist-item:hover,.light-mode .adm-search-item:hover,.light-mode .adm-ch-row:hover{background:rgba(0,0,0,.04);}
 body.light-mode .adm-card{background:var(--surface2);}
 body.light-mode .adm-stat{background:var(--surface2);}
@@ -1852,24 +1932,34 @@ body.light-mode .adm-toggle-btn:hover{background:var(--surface3);}
 body.light-mode #adm-block-input{background:var(--surface2);}
 #admin-overlay.open #admin-panel{transform:scale(1) translateY(0);}
 .adm-header{
-  display:flex;align-items:center;gap:12px;padding:16px 20px;
+  display:flex;align-items:center;gap:12px;padding:14px 20px;
   border-bottom:1px solid var(--border);flex-shrink:0;
 }
-.adm-header-title{font-size:16px;font-weight:700;flex:1;display:flex;align-items:center;gap:8px;color:var(--text);}
-.adm-badge{font-size:10px;font-weight:700;background:#e53935;color:#fff;padding:2px 7px;border-radius:20px;letter-spacing:.05em;}
-.adm-close{width:32px;height:32px;border-radius:50%;background:none;border:none;color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s;}
+.adm-header-title{font-size:15px;font-weight:600;flex:1;display:flex;align-items:center;gap:9px;color:var(--text);}
+.adm-header-title .ms{font-size:20px}
+.adm-badge{font-size:10px;font-weight:700;background:#e53935;color:#fff;padding:2px 8px;border-radius:20px;letter-spacing:.06em;}
+.adm-close{width:34px;height:34px;border-radius:50%;background:none;border:none;color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s;}
 .adm-close:hover{background:rgba(255,255,255,.1);}
-.adm-tabs{display:flex;gap:4px;padding:12px 16px 0;border-bottom:1px solid var(--border);flex-shrink:0;overflow-x:auto;}
-.adm-tab{padding:8px 16px;font-size:13px;font-weight:500;border-radius:8px 8px 0 0;cursor:pointer;color:var(--text3);border:none;background:none;transition:color .15s,background .15s;white-space:nowrap;}
-.adm-tab:hover{color:var(--text);background:rgba(255,255,255,.05);}
-.adm-tab.active{color:var(--accent);background:rgba(255,255,255,.07);border-bottom:2px solid var(--accent);}
-.adm-body{flex:1;overflow-y:auto;padding:20px;}
+.adm-main{display:flex;flex:1;min-height:0;}
+.adm-nav{width:220px;flex-shrink:0;border-right:1px solid var(--border);padding:14px 10px;overflow-y:auto;}
+.adm-nav-section-label{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);padding:8px 10px 6px;}
+.adm-nav-item{
+  display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:8px;
+  font-size:13px;color:var(--text2);cursor:pointer;transition:background .12s,color .12s;
+  margin-bottom:2px;border:none;background:none;width:100%;text-align:left;font-family:inherit;
+}
+.adm-nav-item .ms{font-size:19px;font-variation-settings:'FILL' 0,'wght' 300,'GRAD' -25,'opsz' 20}
+.adm-nav-item:hover{background:rgba(255,255,255,.05);color:var(--text);}
+.adm-nav-item.active{background:rgba(229,57,53,.12);color:#e53935;font-weight:600;}
+.adm-nav-item.active .ms{color:#e53935;}
+.adm-body{flex:1;overflow-y:auto;padding:22px 26px;min-width:0;}
+.adm-page-title{font-size:18px;font-weight:600;color:var(--text);margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
 .adm-section-title{font-size:11px;font-weight:700;letter-spacing:.07em;color:var(--text3);text-transform:uppercase;margin:0 0 12px;}
 .adm-card{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px;}
-.adm-stat-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-bottom:16px;}
-.adm-stat{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;text-align:center;}
-.adm-stat-val{font-size:24px;font-weight:700;color:var(--text);}
-.adm-stat-lbl{font-size:11px;color:var(--text3);margin-top:2px;}
+.adm-stat-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:20px;}
+.adm-stat{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;}
+.adm-stat-val{font-size:26px;font-weight:700;color:var(--text);}
+.adm-stat-lbl{font-size:11.5px;color:var(--text3);margin-top:4px;}
 .adm-hist-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;transition:background .12s;font-size:13px;}
 .adm-hist-item:hover{background:rgba(255,255,255,.05);}
 .adm-hist-thumb{width:56px;height:32px;object-fit:cover;border-radius:4px;flex-shrink:0;background:var(--surface3);}
@@ -1878,8 +1968,8 @@ body.light-mode #adm-block-input{background:var(--surface2);}
 .adm-hist-meta{font-size:11px;color:var(--text3);margin-top:1px;}
 .adm-search-item{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:8px;font-size:13px;color:var(--text2);}
 .adm-search-item:hover{background:rgba(255,255,255,.05);}
-.adm-clear-btn{padding:7px 16px;border-radius:20px;font-size:13px;font-weight:600;background:#e53935;color:#fff;border:none;cursor:pointer;transition:opacity .15s;}
-.adm-clear-btn:hover{opacity:.8;}
+.adm-clear-btn{padding:8px 18px;border-radius:20px;font-size:13px;font-weight:600;background:#e53935;color:#fff;border:none;cursor:pointer;transition:opacity .15s;}
+.adm-clear-btn:hover{opacity:.85;}
 .adm-key-row{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:8px;background:var(--surface3);margin-bottom:8px;font-size:13px;}
 .adm-key-name{flex:1;font-family:monospace;color:var(--text2);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .adm-key-bar-wrap{height:6px;background:var(--surface3);border-radius:3px;overflow:hidden;margin-top:6px;}
@@ -1898,33 +1988,232 @@ body.light-mode #adm-block-input{background:var(--surface2);}
 .adm-toggle-btn:hover{background:var(--surface3);}
 .adm-tab-content{display:none;}
 .adm-tab-content.active{display:block;}
+@media (max-width:680px){
+  #admin-panel{width:100%;height:100%;border-radius:0;}
+  .adm-main{flex-direction:column;}
+  .adm-nav{width:100%;border-right:none;border-bottom:1px solid var(--border);display:flex;flex-direction:row;overflow-x:auto;padding:8px;}
+  .adm-nav-section-label{display:none;}
+  .adm-nav-item{flex-shrink:0;white-space:nowrap;}
+}
+
+/* ── FOOTER ── */
+.sb-footer{
+  margin-top:auto;padding:16px 12px 20px;border-top:1px solid var(--border);
+}
+.sb-footer-links{
+  display:flex;flex-wrap:wrap;gap:2px 10px;margin-bottom:6px;
+}
+.sb-footer-links a{
+  font-size:12px;color:var(--text3);cursor:pointer;text-decoration:none;
+  transition:color .12s;
+}
+.sb-footer-links a:hover{color:var(--text2)}
+.sb-footer-copyright{font-size:11px;color:var(--text3);margin-top:6px;opacity:.7}
+
+/* ── KEYBOARD SHORTCUTS MODAL ── */
+.sc-section-label{font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px}
+.sc-row{display:flex;align-items:center;gap:12px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+body.light-mode .sc-row{border-bottom:1px solid rgba(0,0,0,.05)}
+.sc-row:last-child{border-bottom:none}
+.sc-keys{display:flex;align-items:center;gap:3px;flex-shrink:0;min-width:110px}
+.sc-key{background:var(--surface2);border:1px solid var(--border);border-bottom:2px solid var(--border);border-radius:5px;padding:2px 8px;font-size:12px;font-family:monospace;color:var(--text);white-space:nowrap}
+.sc-plus{font-size:13px;color:var(--text3)}
+.sc-desc{font-size:13px;color:var(--text2);flex:1}
+
+/* ── ABOUT MODAL ── */
+#about-overlay{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:2000;
+  align-items:center;justify-content:center;padding:20px;
+}
+#about-overlay.open{display:flex}
+.about-box{
+  width:100%;max-width:460px;max-height:80vh;overflow-y:auto;
+  background:var(--surface);border:1px solid var(--border);border-radius:16px;
+  padding:28px;position:relative;box-shadow:0 24px 60px rgba(0,0,0,.5);
+}
+.about-close-btn{
+  position:absolute;top:18px;right:18px;background:none;border:none;
+  color:var(--text2);cursor:pointer;padding:4px;
+}
+.about-logo-row{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.about-logo-row .ms{font-size:24px;color:var(--accent)}
+.about-title{font-size:18px;font-weight:700;color:var(--text)}
+.about-section{margin-bottom:18px}
+.about-section-label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.about-section p{font-size:13.5px;color:var(--text2);line-height:1.65}
+.about-meta-row{display:flex;justify-content:space-between;font-size:13px;color:var(--text2);padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+body.light-mode .about-meta-row{border-bottom:1px solid rgba(0,0,0,.05)}
+.about-meta-row:last-child{border-bottom:none}
+
+/* ── AUTH / LOGIN SCREEN ── */
+#auth-overlay{
+  position:fixed;inset:0;z-index:10000;
+  background:var(--bg);
+  display:flex;align-items:center;justify-content:center;
+  flex-direction:column;
+  padding:20px;
+}
+#auth-overlay.auth-hidden{display:none;}
+.auth-box{
+  width:100%;max-width:360px;
+  display:flex;flex-direction:column;align-items:stretch;
+}
+.auth-logo{
+  font-family:'DM Sans',sans-serif;font-weight:700;font-size:28px;
+  color:var(--text);text-align:center;margin-bottom:6px;
+  letter-spacing:-.5px;
+}
+.auth-tagline{
+  text-align:center;color:var(--text3);font-size:13px;margin-bottom:32px;
+}
+.auth-google-btn{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  background:var(--surface2);border:1px solid var(--border);
+  color:var(--text);font-size:14px;font-weight:500;
+  padding:12px;border-radius:var(--radius);cursor:pointer;
+  transition:background .15s;margin-bottom:18px;
+}
+.auth-google-btn:hover{background:var(--surface3);}
+.auth-google-btn svg{width:18px;height:18px;flex-shrink:0;}
+.auth-divider{
+  display:flex;align-items:center;gap:12px;color:var(--text3);
+  font-size:12px;margin:4px 0 18px;
+}
+.auth-divider::before,.auth-divider::after{
+  content:'';flex:1;height:1px;background:var(--border);
+}
+.auth-field{
+  display:flex;flex-direction:column;gap:6px;margin-bottom:14px;
+}
+.auth-field label{font-size:12px;color:var(--text2);font-weight:500;}
+.auth-field input{
+  background:var(--surface2);border:1px solid var(--border);
+  color:var(--text);font-size:14px;padding:11px 13px;
+  border-radius:var(--radius);outline:none;font-family:inherit;
+  transition:border-color .15s;
+}
+.auth-field input:focus{border-color:var(--accent);}
+.auth-submit-btn{
+  background:var(--accent);color:#fff;border:none;
+  padding:12px;border-radius:var(--radius);font-size:14px;font-weight:600;
+  cursor:pointer;margin-top:4px;transition:background .15s;
+}
+.auth-submit-btn:hover{background:var(--accent-hover);}
+.auth-submit-btn:disabled{opacity:.6;cursor:default;}
+.auth-switch{
+  text-align:center;font-size:13px;color:var(--text3);margin-top:20px;
+}
+.auth-switch a{color:var(--accent);cursor:pointer;text-decoration:none;font-weight:500;}
+.auth-switch a:hover{text-decoration:underline;}
+.auth-error{
+  font-size:12.5px;color:#e57373;min-height:16px;margin-top:-4px;margin-bottom:10px;
+  line-height:1.5;
+}
+.auth-forgot{
+  text-align:right;margin-top:-8px;margin-bottom:16px;
+}
+.auth-forgot a{font-size:12px;color:var(--text3);cursor:pointer;text-decoration:none;}
+.auth-forgot a:hover{color:var(--accent);text-decoration:underline;}
+.auth-loading{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  color:var(--text3);font-size:13px;
+}
+.auth-spinner{
+  width:16px;height:16px;border-radius:50%;
+  border:2px solid var(--border);border-top-color:var(--accent);
+  animation:auth-spin .7s linear infinite;
+}
+@keyframes auth-spin{to{transform:rotate(360deg);}}
+body.auth-pending #app-shell{visibility:hidden;}
 
 </style>
 </head>
-<body>
+<!-- Inline pre-render script: immediately hides auth overlay for returning
+     users so there is zero login flash. Firebase confirms async; if it
+     says not logged in, the auth module shows the overlay again. -->
+<script>
+if(localStorage.getItem('ewtube_was_authed')==='1'){
+  window._ewtubePreHid=true;
+  document.addEventListener('DOMContentLoaded',function(){
+    document.body.classList.remove('auth-pending');
+    var ov=document.getElementById('auth-overlay');
+    if(ov)ov.style.display='none';
+  });
+}
+</script>
+<body class="auth-pending">
+
 
 <!-- ══════════════════════════════════════════
-     LOCK SCREEN OVERLAY
+     AUTH / LOGIN OVERLAY
      ══════════════════════════════════════════ -->
-<div id="lock-overlay">
-  <div class="lock-title">Welcome back</div>
-  <div class="lock-subtitle">Enter your password to continue</div>
-  <div class="lock-input-wrap">
-    <input type="password" id="lock-pw-input" placeholder="Password"
-      autocomplete="current-password"
-      onkeydown="if(event.key==='Enter')lockSubmit()"
-    />
-    <button class="lock-eye-btn" id="lock-eye-btn" onclick="lockToggleEye()" title="Show/hide password" type="button">
-      <span class="ms" id="lock-eye-icon">visibility</span>
-    </button>
-  </div>
-  <button class="lock-enter-btn" onclick="lockSubmit()">Unlock</button>
-  <div class="lock-error-msg" id="lock-error-msg"></div>
+<div id="auth-overlay">
+  <div class="auth-box">
+    <div class="auth-logo">Ewtube</div>
+    <div class="auth-tagline" id="auth-tagline">Sign in to continue</div>
 
+    <div id="auth-loading-state" class="auth-loading" style="display:none">
+      <div class="auth-spinner"></div>
+      <span>Loading…</span>
+    </div>
+
+    <div id="auth-form-state">
+      <button class="auth-google-btn" id="auth-google-btn" type="button">
+        <svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.5 6.1 29.5 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 16 18.9 13 24 13c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.5 6.1 29.5 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 10-2 13.5-5.2l-6.2-5.2C29.3 35.4 26.8 36 24 36c-5.3 0-9.7-3.3-11.3-8l-6.5 5C9.6 39.6 16.3 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.2 5.6l6.2 5.2C39.9 36.7 44 31 44 24c0-1.3-.1-2.7-.4-3.5z"/></svg>
+        <span>Continue with Google</span>
+      </button>
+
+      <div class="auth-divider">or</div>
+
+      <div class="auth-field">
+        <label>Email</label>
+        <input type="email" id="auth-email" autocomplete="email" placeholder="you@example.com"/>
+      </div>
+      <div class="auth-field" style="margin-bottom:6px">
+        <label>Password</label>
+        <input type="password" id="auth-password" autocomplete="current-password" placeholder="••••••••"
+          onkeydown="if(event.key==='Enter')window._authSubmit()"/>
+      </div>
+      <div class="auth-forgot"><a onclick="window._authForgotPassword()">Forgot password?</a></div>
+      <div class="auth-error" id="auth-error"></div>
+      <button class="auth-submit-btn" id="auth-submit-btn" onclick="window._authSubmit()">Sign In</button>
+      <div class="auth-switch" id="auth-switch">
+        New here? <a onclick="window._authToggleMode()">Create an account</a>
+      </div>
+    </div>
+  </div>
 </div>
+
+<div id="app-shell">
 
 <!-- YT LOADING BAR -->
 <div id="yt-loading-bar"></div>
+
+<!-- About Modal -->
+<div id="about-overlay" onclick="if(event.target===this)closeAboutModal()">
+  <div class="about-box">
+    <button class="about-close-btn" onclick="closeAboutModal()"><span class="ms">close</span></button>
+    <div class="about-logo-row">
+      <span class="ms">play_circle</span>
+      <span class="about-title">About Ewtube</span>
+    </div>
+    <div class="about-section">
+      <p>Ewtube is a personal YouTube frontend built and maintained by meoponly. It brings a focused, distraction-light way to browse subscriptions, search, and manage playlists.</p>
+    </div>
+    <div class="about-section">
+      <div class="about-section-label">Details</div>
+      <div class="about-meta-row"><span>Built by</span><span>meoponly</span></div>
+      <div class="about-meta-row"><span>Version</span><span>2026.1</span></div>
+      <div class="about-meta-row"><span>Powered by</span><span>YouTube Data API</span></div>
+    </div>
+    <div class="about-section">
+      <div class="about-section-label">Privacy</div>
+      <p>Your data — subscriptions, history, and playlists — is stored under your account and never shared with third parties beyond what's required to call the YouTube API.</p>
+    </div>
+    <div class="app-footer-copyright" style="margin-top:8px">© 2026 meoponly</div>
+  </div>
+</div>
+
 
 <!-- HEADER -->
 <header id="top-header">
@@ -1971,7 +2260,8 @@ body.light-mode #adm-block-input{background:var(--surface2);}
     </button>
     <div class="hdr-divider"></div>
     <button class="profile-btn" id="profile-btn" onclick="toggleProfileDropdown()" title="Account">
-      <img src="channels4_profile.jpg" alt="Profile" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block"/>
+      <img id="profile-btn-img" src="" alt="Profile" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:none"/>
+      <div id="profile-btn-fallback" style="width:100%;height:100%;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--accent);color:#fff;font-size:14px;font-weight:600"></div>
     </button>
   </div>
 </header>
@@ -1980,7 +2270,7 @@ body.light-mode #adm-block-input{background:var(--surface2);}
 <div id="notif-panel" class="notif-panel">
   <div class="notif-panel-header">
     <span class="notif-panel-title">Notifications</span>
-    <button class="notif-settings-btn" title="Notification settings" onclick="showToast('Manage per-channel bells in the sidebar')">
+    <button class="notif-settings-btn" title="Notification settings" onclick="closeNotifPanel();openSettings();setSettingsPage('notifications')">
       <svg height="20" viewBox="0 0 24 24" width="20" focusable="false" style="display:block;fill:var(--text2)">
         <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
       </svg>
@@ -2000,15 +2290,40 @@ body.light-mode #adm-block-input{background:var(--surface2);}
 
 <!-- Profile dropdown (outside header so it overlays correctly) -->
 <div id="profile-dropdown" class="profile-dropdown">
+  <div class="profile-dd-header">
+    <div class="profile-dd-header-avatar" id="dd-header-avatar"></div>
+    <div style="min-width:0">
+      <div class="profile-dd-header-name" id="dd-header-name">—</div>
+      <div class="profile-dd-header-email" id="dd-header-email">—</div>
+    </div>
+  </div>
+  <div class="profile-dd-divider"></div>
+  <div class="profile-dd-item" onclick="window._authLogout()">
+    <span class="ms">logout</span>
+    <span>Sign out</span>
+  </div>
+  <div class="profile-dd-divider"></div>
   <div class="profile-dd-item" onclick="toggleTheme();closeProfileDropdown()">
     <span class="ms" id="theme-icon">light_mode</span>
     <span id="theme-label">Switch to Light mode</span>
   </div>
+  <div class="profile-dd-item" onclick="closeProfileDropdown();toggleFocusModeFromMenu()">
+    <span class="ms">timer</span>
+    <span>Focus Mode</span>
+    <span class="profile-dd-row-right" id="dd-focus-status">Off</span>
+  </div>
+  <div class="profile-dd-item" onclick="closeProfileDropdown();openShortcutsModal()">
+    <span class="ms">keyboard</span>
+    <span>Keyboard shortcuts</span>
+  </div>
   <div class="profile-dd-divider"></div>
-  <div id="settings-dd-item" class="profile-dd-item" style="cursor:default">
+  <div class="profile-dd-item" onclick="closeProfileDropdown();openSettings()">
     <span class="ms">settings</span>
     <span>Settings</span>
-    <span style="font-size:10px;color:var(--text3);margin-left:auto;letter-spacing:.02em;font-family:monospace">Meoponly</span>
+  </div>
+  <div class="profile-dd-item" onclick="closeProfileDropdown();openAboutModal()">
+    <span class="ms">info</span>
+    <span>About</span>
   </div>
 </div>
 
@@ -2054,6 +2369,22 @@ body.light-mode #adm-block-input{background:var(--surface2);}
         <span class="ms">video_library</span><span>Playlists</span>
       </div>
     </div>
+  </div>
+
+  <!-- Sidebar Footer (YouTube-style) -->
+  <div class="sb-footer">
+    <div class="sb-footer-links">
+      <a onclick="openAboutModal()">About</a>
+      <a onclick="openAboutModal()">Press</a>
+      <a onclick="openAboutModal()">Copyright</a>
+      <a onclick="openAboutModal()">Contact</a>
+    </div>
+    <div class="sb-footer-links">
+      <a onclick="openAboutModal()">Terms</a>
+      <a onclick="openAboutModal()">Privacy</a>
+      <a onclick="openAboutModal()">Policy</a>
+    </div>
+    <div class="sb-footer-copyright">© 2026 meoponly</div>
   </div>
 </nav>
 
@@ -2255,80 +2586,246 @@ body.light-mode #adm-block-input{background:var(--surface2);}
       <h3><span class="ms sz20">settings</span>Settings</h3>
       <button class="settings-close" onclick="closeSettings()"><span class="ms sz20">close</span></button>
     </div>
-    <div class="settings-body">
-
-      <!-- FOCUS MODE -->
-      <div class="settings-section-label">Focus Mode</div>
-      <div id="focus-mode-banner"><span class="ms">lock</span><span>Focus Mode active — <span id="focus-mode-timer"></span></span></div>
-      <div id="focus-mode-row" class="focus-mode-row">
-        <div class="focus-mode-row-info">
-          <div class="focus-mode-row-title"><span class="ms sz18">visibility_off</span>Focus Mode (24h)</div>
-          <div class="focus-mode-row-desc">Lock YouTube to subscribed channels only. No outside videos, no channel search, no new subscriptions.</div>
+    <div class="settings-main">
+      <nav class="settings-nav" id="settings-nav">
+        <div class="settings-nav-item active" data-page="account" onclick="setSettingsPage('account')">
+          <span class="ms">person</span><span>Account</span>
         </div>
-        <label class="focus-toggle-switch">
-          <input type="checkbox" id="focus-mode-toggle" onchange="if(this.checked)enableFocusMode();else{this.checked=true;showToast('🔒 Focus Mode stays on until the 24h timer expires');}"/>
-          <span class="focus-toggle-slider"></span>
-        </label>
+        <div class="settings-nav-item" data-page="notifications" onclick="setSettingsPage('notifications')">
+          <span class="ms">notifications</span><span>Notifications</span>
+        </div>
+        <div class="settings-nav-item" data-page="playback" onclick="setSettingsPage('playback')">
+          <span class="ms">play_circle</span><span>Playback</span>
+        </div>
+        <div class="settings-nav-item" data-page="privacy" onclick="setSettingsPage('privacy')">
+          <span class="ms">shield</span><span>Privacy</span>
+        </div>
+        <div class="settings-nav-item" data-page="apikeys" onclick="setSettingsPage('apikeys')">
+          <span class="ms">vpn_key</span><span>API Keys</span>
+        </div>
+      </nav>
+
+      <div class="settings-body">
+
+        <!-- ══ ACCOUNT PAGE ══ -->
+        <div class="settings-page active" id="set-page-account">
+          <div class="settings-page-title">Account</div>
+          <div class="settings-page-desc">Manage how you're signed in to Ewtube.</div>
+
+          <div class="set-card">
+            <div class="set-account-row">
+              <div class="set-account-avatar" id="set-account-avatar"></div>
+              <div>
+                <div class="set-account-name" id="set-account-name">—</div>
+                <div class="set-account-email" id="set-account-email">—</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="set-row">
+            <div class="set-row-info">
+              <div class="set-row-title">Sign out</div>
+              <div class="set-row-desc">You'll need to sign in again to access your data.</div>
+            </div>
+            <button class="set-btn-secondary" onclick="window._authLogout()">Sign out</button>
+          </div>
+
+          <hr class="settings-divider"/>
+
+          <div class="settings-section-label">Focus Mode</div>
+          <div id="focus-mode-banner"><span class="ms">lock</span><span>Focus Mode active — <span id="focus-mode-timer"></span></span></div>
+          <div id="focus-mode-row" class="focus-mode-row">
+            <div class="focus-mode-row-info">
+              <div class="focus-mode-row-title"><span class="ms sz18">timer</span>Focus Mode (24h)</div>
+              <div class="focus-mode-row-desc">Lock Ewtube to subscribed channels only. No outside videos, no channel search, no new subscriptions.</div>
+            </div>
+            <label class="focus-toggle-switch">
+              <input type="checkbox" id="focus-mode-toggle" onchange="if(this.checked)enableFocusMode();else{this.checked=true;showToast('Focus Mode stays on until the 24-hour timer expires');}"/>
+              <span class="focus-toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- ══ NOTIFICATIONS PAGE ══ -->
+        <div class="settings-page" id="set-page-notifications">
+          <div class="settings-page-title">Notifications</div>
+          <div class="settings-page-desc">Get notified on this device when channels you've turned the bell on for upload something new.</div>
+
+          <div id="set-notif-permission-card" class="set-notif-permission-card state-default">
+            <span class="ms" id="set-notif-permission-icon">notifications_off</span>
+            <div style="flex:1">
+              <div style="font-weight:600;color:var(--text)" id="set-notif-permission-title">Browser notifications are off</div>
+              <div style="color:var(--text3)" id="set-notif-permission-desc">Turn these on to get notified about new uploads, even when this tab isn't open.</div>
+            </div>
+            <button class="set-btn-secondary" id="set-notif-permission-btn" onclick="requestEwtubeNotifPermission()">Turn on</button>
+          </div>
+
+          <div class="set-row">
+            <div class="set-row-info">
+              <div class="set-row-title">New uploads</div>
+              <div class="set-row-desc">Checks bell-enabled channels every 30 minutes for new videos.</div>
+            </div>
+            <label class="focus-toggle-switch">
+              <input type="checkbox" id="set-notif-uploads-toggle" onchange="setNotifPrefUploads(this.checked)"/>
+              <span class="focus-toggle-slider"></span>
+            </label>
+          </div>
+
+          <hr class="settings-divider"/>
+
+          <div class="settings-section-label">Channel bells</div>
+          <div class="set-row-desc" style="margin-bottom:10px">Toggle the bell on a channel page to get notified about that channel specifically.</div>
+          <div id="set-notif-channel-list"></div>
+        </div>
+
+        <!-- ══ PLAYBACK PAGE ══ -->
+        <div class="settings-page" id="set-page-playback">
+          <div class="settings-page-title">Playback and performance</div>
+          <div class="settings-page-desc">Control how videos look and play when opened from Ewtube.</div>
+
+          <div class="set-row">
+            <div class="set-row-info">
+              <div class="set-row-title">Appearance</div>
+              <div class="set-row-desc">Switch between light and dark interface.</div>
+            </div>
+            <button class="set-btn-secondary" onclick="toggleTheme()" id="set-theme-btn">Switch to Light mode</button>
+          </div>
+
+          <div class="set-row">
+            <div class="set-row-info">
+              <div class="set-row-title">Default playback speed</div>
+              <div class="set-row-desc">Applied as a suggestion when a video opens in a new tab.</div>
+            </div>
+            <select class="set-select" id="set-playback-speed" onchange="savePlaybackPref('speed',this.value)">
+              <option value="0.5">0.5×</option>
+              <option value="0.75">0.75×</option>
+              <option value="1" selected>Normal</option>
+              <option value="1.25">1.25×</option>
+              <option value="1.5">1.5×</option>
+              <option value="2">2×</option>
+            </select>
+          </div>
+
+          <div class="set-row">
+            <div class="set-row-info">
+              <div class="set-row-title">Preferred quality</div>
+              <div class="set-row-desc">YouTube remembers this on your account; this is just your local preference note.</div>
+            </div>
+            <select class="set-select" id="set-playback-quality" onchange="savePlaybackPref('quality',this.value)">
+              <option value="auto" selected>Auto</option>
+              <option value="2160p">2160p 4K</option>
+              <option value="1440p">1440p</option>
+              <option value="1080p">1080p</option>
+              <option value="720p">720p</option>
+              <option value="480p">480p</option>
+            </select>
+          </div>
+
+          <div class="set-row">
+            <div class="set-row-info">
+              <div class="set-row-title">Data saver</div>
+              <div class="set-row-desc">Load lower-resolution thumbnails to reduce data usage.</div>
+            </div>
+            <label class="focus-toggle-switch">
+              <input type="checkbox" id="set-data-saver-toggle" onchange="savePlaybackPref('dataSaver',this.checked)"/>
+              <span class="focus-toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="set-row">
+            <div class="set-row-info">
+              <div class="set-row-title">Always show captions</div>
+              <div class="set-row-desc">Suggests captions on when a video opens in a new tab, if available.</div>
+            </div>
+            <label class="focus-toggle-switch">
+              <input type="checkbox" id="set-captions-toggle" onchange="savePlaybackPref('captions',this.checked)"/>
+              <span class="focus-toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- ══ PRIVACY PAGE ══ -->
+        <div class="settings-page" id="set-page-privacy">
+          <div class="settings-page-title">Privacy</div>
+          <div class="settings-page-desc">Manage what Ewtube remembers and hides on your behalf.</div>
+
+          <div class="settings-section-label">Blocked Keywords</div>
+          <div class="set-row-desc" style="margin-bottom:10px">
+            Keywords are <strong style="color:var(--accent)">permanent and cannot be removed</strong>. Any video, channel, or search containing these words is hidden completely. Minimum 3 characters.
+          </div>
+          <div class="apikey-add-row" style="margin-top:10px">
+            <input type="text" id="new-keyword-input" placeholder="e.g. gaming, music, prank…" autocomplete="off" onkeydown="if(event.key==='Enter')addKeywordFromSettings()"/>
+            <button onclick="addKeywordFromSettings()">Block</button>
+          </div>
+          <div id="keyword-add-error" style="font-size:12px;color:var(--accent);min-height:16px;margin-top:-8px;margin-bottom:10px"></div>
+          <div id="blocked-keywords-list"></div>
+
+          <hr class="settings-divider"/>
+
+          <div class="settings-section-label">Watch &amp; search history</div>
+          <div class="set-row">
+            <div class="set-row-info">
+              <div class="set-row-title">Clear watch history</div>
+              <div class="set-row-desc">Removes all videos from your History page on this account.</div>
+            </div>
+            <button class="set-btn-danger" onclick="settingsClearWatchHistory()">Clear</button>
+          </div>
+          <div class="set-row">
+            <div class="set-row-info">
+              <div class="set-row-title">Clear search history</div>
+              <div class="set-row-desc">Removes saved search suggestions.</div>
+            </div>
+            <button class="set-btn-danger" onclick="settingsClearSearchHistory()">Clear</button>
+          </div>
+        </div>
+
+        <!-- ══ API KEYS PAGE ══ -->
+        <div class="settings-page" id="set-page-apikeys">
+          <div class="settings-page-title">YouTube Data API Keys</div>
+          <div class="settings-page-desc">Keys are stored under your account and never sent anywhere except YouTube's API. When a key hits its daily quota, Ewtube automatically switches to the next one and retries.</div>
+
+          <div class="apikey-add-row">
+            <input type="password" id="new-apikey-input" placeholder="Paste API key here…" autocomplete="off" onkeydown="if(event.key==='Enter')addApiKey()"/>
+            <button onclick="addApiKey()">Add Key</button>
+          </div>
+          <div class="apikey-list" id="apikey-list"></div>
+          <div id="apikey-status-bar" class="apikey-status" style="display:none"></div>
+
+          <hr class="settings-divider"/>
+
+          <div class="settings-section-label">Channel Resolution</div>
+          <div id="resolve-status" style="font-size:12px;color:var(--text3);line-height:1.8;margin-bottom:10px"></div>
+          <button id="re-resolve-btn" class="set-btn-secondary" onclick="reResolveChannels()">Re-resolve unresolved channels</button>
+          <div style="font-size:11px;color:var(--text3);margin-top:8px">Tip: paste a raw Channel ID (starts with UC…) to skip the quota-heavy search call.</div>
+        </div>
+
+        <!-- ══ ADVANCED PAGE ══ -->
+        <div class="settings-page" id="set-page-advanced">
+          <div class="settings-page-title">Advanced settings</div>
+          <div class="settings-page-desc">Technical details and account-level actions.</div>
+
+          <div class="settings-section-label">How sync works</div>
+          <p style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:18px">
+            Your subscriptions, history, playlists, and API keys are saved to your account and kept in sync across browser sessions automatically. Nothing is shared with other Ewtube accounts.
+          </p>
+
+          <hr class="settings-divider"/>
+
+          <div class="settings-section-label">Danger zone</div>
+          <div class="set-row">
+            <div class="set-row-info">
+              <div class="set-row-title">Reset local cache</div>
+              <div class="set-row-desc">Clears this browser's local copy of your data and reloads it fresh from your account.</div>
+            </div>
+            <button class="set-btn-danger" onclick="settingsResetLocalCache()">Reset</button>
+          </div>
+        </div>
+
       </div>
-
-      <hr class="settings-divider"/>
-
-      <!-- API KEYS -->
-      <div class="settings-section-label">YouTube Data API Keys</div>
-      <div class="apikey-add-row">
-        <input type="password" id="new-apikey-input" placeholder="Paste API key here…" autocomplete="off" onkeydown="if(event.key==='Enter')addApiKey()"/>
-        <button onclick="addApiKey()">Add Key</button>
-      </div>
-      <div class="apikey-list" id="apikey-list"></div>
-      <div id="apikey-status-bar" class="apikey-status" style="display:none"></div>
-
-      <hr class="settings-divider"/>
-
-      <!-- CHANNEL RESOLUTION -->
-      <div class="settings-section-label">Channel Resolution</div>
-      <div id="resolve-status" style="font-size:12px;color:var(--text3);line-height:1.8;margin-bottom:10px"></div>
-      <button id="re-resolve-btn" onclick="reResolveChannels()" style="padding:8px 16px;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;transition:background .15s" onmouseover="this.style.background='var(--surface3)'" onmouseout="this.style.background='var(--surface2)'">&#x1F504; Re-resolve unresolved channels</button>
-      <div style="font-size:11px;color:var(--text3);margin-top:6px">Tip: paste a raw Channel ID (starts with UC…) to skip the quota-heavy search call.</div>
-
-      <hr class="settings-divider"/>
-
-      <!-- BLOCKED KEYWORDS -->
-      <div class="settings-section-label">Blocked Keywords</div>
-      <div style="font-size:12px;color:var(--text3);margin-bottom:10px;line-height:1.6">
-        Keywords are <strong style="color:var(--accent)">permanent and cannot be removed</strong>. Any video, channel, or search containing these words will be completely hidden. Min 3 characters.
-      </div>
-      <div class="apikey-add-row" style="margin-top:10px">
-        <input type="text" id="new-keyword-input" placeholder="e.g. gaming, music, prank…" autocomplete="off" onkeydown="if(event.key==='Enter')addKeywordFromSettings()"/>
-        <button onclick="addKeywordFromSettings()">Block</button>
-      </div>
-      <div id="keyword-add-error" style="font-size:12px;color:var(--accent);min-height:16px;margin-top:-8px;margin-bottom:10px"></div>
-      <div id="blocked-keywords-list"></div>
-
-      <hr class="settings-divider"/>
-
-      <!-- HOW IT WORKS -->
-      <div class="settings-section-label">How it works</div>
-      <div style="font-size:12px;color:var(--text3);line-height:1.8">
-        Keys are saved in <strong style="color:var(--text2)">localStorage</strong> and never sent anywhere except YouTube's API.<br>
-        When a key hits its daily quota, the app <strong style="color:var(--text2)">automatically switches</strong> to the next key and retries.
-      </div>
-
-      <hr class="settings-divider"/>
-
-      <!-- LOCK PASSWORD -->
-      <div class="settings-section-label">Lock Screen Password</div>
-      <div style="font-size:12px;color:var(--text3);margin-bottom:10px;line-height:1.6">
-        Change the password used to unlock this site. Press <strong style="color:var(--text2)">Ctrl+Shift+L</strong> anytime to lock the screen.
-      </div>
-      <div class="lock-pw-row">
-        <input type="password" id="lock-new-pw" placeholder="New password…" autocomplete="new-password"
-          onkeydown="if(event.key==='Enter')lockChangePw()"/>
-        <button onclick="lockChangePw()">Update</button>
-      </div>
-      <div id="lock-pw-msg"></div>
     </div>
   </div>
 </div>
+
 
 <!-- New Playlist Modal -->
 <div id="modal-overlay" class="modal-overlay" style="display:none" onclick="if(event.target===this)hideNewPlaylistModal()">
@@ -2441,9 +2938,35 @@ function openSettings() {
   const banner=document.getElementById('focus-mode-banner');
   if(banner)banner.style.display=isFocusModeActive()?'flex':'none';
   if(isFocusModeActive()){const lbl=document.getElementById('focus-mode-timer');if(lbl)lbl.textContent=formatFocusRemaining()+' remaining';}
+  populateAccountPage();
+  populateNotificationsPage();
+  populatePlaybackPage();
+  setSettingsPage('account');
   document.getElementById('settings-modal').style.display = 'flex';
   if(new URLSearchParams(location.search).get('modal')!=='settings') history.pushState(null,'',location.pathname+'?modal=settings');
-  setTimeout(()=>document.getElementById('new-apikey-input').focus(), 80);
+}
+function setSettingsPage(page){
+  document.querySelectorAll('.settings-nav-item').forEach(el=>{
+    el.classList.toggle('active', el.dataset.page===page);
+  });
+  document.querySelectorAll('.settings-page').forEach(el=>{
+    el.classList.toggle('active', el.id==='set-page-'+page);
+  });
+  document.querySelector('.settings-body').scrollTop=0;
+}
+function populateAccountPage(){
+  const u=window._ewtubeUser;
+  const nameEl=document.getElementById('set-account-name');
+  const emailEl=document.getElementById('set-account-email');
+  const avEl=document.getElementById('set-account-avatar');
+  if(!u||!nameEl)return;
+  nameEl.textContent=u.displayName||u.email||'Account';
+  emailEl.textContent=u.email||'';
+  if(u.photoURL){
+    avEl.innerHTML=`<img src="${esc(u.photoURL)}" alt=""/>`;
+  }else{
+    avEl.textContent=(u.displayName||u.email||'?').charAt(0).toUpperCase();
+  }
 }
 function renderResolveStatus(){
   const el=document.getElementById('resolve-status');
@@ -2471,6 +2994,20 @@ function closeSettings() {
   document.getElementById('settings-modal').style.display = 'none';
   if(new URLSearchParams(location.search).get('modal')==='settings') history.back();
 }
+function openAboutModal(){
+  document.getElementById('about-overlay').classList.add('open');
+}
+function closeAboutModal(){
+  document.getElementById('about-overlay').classList.remove('open');
+}
+function openShortcutsModal(){
+  const m=document.getElementById('shortcuts-modal');
+  if(m) m.style.display='flex';
+}
+function closeShortcutsModal(){
+  const m=document.getElementById('shortcuts-modal');
+  if(m) m.style.display='none';
+}
 
 function renderBlockedKeywordsList(){
   const el=document.getElementById('blocked-keywords-list');
@@ -2493,6 +3030,148 @@ function addKeywordFromSettings(){
   errEl.textContent='';
   renderBlockedKeywordsList();
   showToast('🚫 Keyword blocked permanently');
+}
+
+// ══════════════════════════════════════════
+// NOTIFICATIONS PAGE
+// ══════════════════════════════════════════
+const LS_NOTIF_PREF='yt_notif_pref_v1';
+function getNotifPref(){
+  try{return JSON.parse(localStorage.getItem(LS_NOTIF_PREF)||'{"uploads":true}');}
+  catch{return {uploads:true};}
+}
+function setNotifPrefUploads(on){
+  const p=getNotifPref();p.uploads=on;
+  localStorage.setItem(LS_NOTIF_PREF,JSON.stringify(p));
+}
+function populateNotificationsPage(){
+  const card=document.getElementById('set-notif-permission-card');
+  const icon=document.getElementById('set-notif-permission-icon');
+  const title=document.getElementById('set-notif-permission-title');
+  const desc=document.getElementById('set-notif-permission-desc');
+  const btn=document.getElementById('set-notif-permission-btn');
+  if(card){
+    const perm=('Notification' in window)?Notification.permission:'unsupported';
+    card.className='set-notif-permission-card state-'+(perm==='granted'?'granted':perm==='denied'?'denied':'default');
+    if(perm==='granted'){
+      icon.textContent='notifications_active';
+      title.textContent='Browser notifications are on';
+      desc.textContent="You'll be notified here when a bell-enabled channel uploads.";
+      btn.style.display='none';
+    }else if(perm==='denied'){
+      icon.textContent='notifications_off';
+      title.textContent='Browser notifications are blocked';
+      desc.textContent='Enable notifications for this site in your browser settings to turn this back on.';
+      btn.style.display='none';
+    }else{
+      icon.textContent='notifications_off';
+      title.textContent='Browser notifications are off';
+      desc.textContent="Turn these on to get notified about new uploads, even when this tab isn't open.";
+      btn.style.display='inline-block';
+    }
+  }
+  const upTog=document.getElementById('set-notif-uploads-toggle');
+  if(upTog)upTog.checked=getNotifPref().uploads!==false;
+
+  const listEl=document.getElementById('set-notif-channel-list');
+  if(listEl){
+    const withBell=channels.filter(c=>chNotifs[c]);
+    if(!channels.length){
+      listEl.innerHTML='<div style="color:var(--text3);font-size:13px;padding:10px 0;opacity:.7">Subscribe to channels to manage their bells here.</div>';
+    }else{
+      listEl.innerHTML=channels.map(c=>{
+        const id=channelIds[c];
+        const av=id&&chAvatarCache[id]?chAvatarCache[id]:'';
+        const on=!!chNotifs[c];
+        const initial=(c||'?').charAt(0).toUpperCase();
+        return `<div class="set-row">
+          <div class="set-row-info" style="flex-direction:row;align-items:center;gap:10px">
+            <div style="width:28px;height:28px;border-radius:50%;overflow:hidden;flex-shrink:0;background:var(--surface3);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--text2)">
+              ${av?`<img src="${esc(av)}" style="width:100%;height:100%;object-fit:cover" alt=""/>`:esc(initial)}
+            </div>
+            <div class="set-row-title" style="font-weight:400">${esc(c)}</div>
+          </div>
+          <label class="focus-toggle-switch">
+            <input type="checkbox" ${on?'checked':''} onchange="settingsToggleChannelBell('${esc(c).replace(/'/g,"\\'")}')"/>
+            <span class="focus-toggle-slider"></span>
+          </label>
+        </div>`;
+      }).join('');
+    }
+  }
+}
+function settingsToggleChannelBell(name){
+  chNotifs[name]=!chNotifs[name];
+  localStorage.setItem(LS_NOTIF,JSON.stringify(chNotifs));
+  showToast(chNotifs[name]?'🔔 Notifications on for '+name:'🔕 Notifications off for '+name);
+  renderSidebarChannels();
+}
+function requestEwtubeNotifPermission(){
+  if(!('Notification' in window)){showToast('Notifications are not supported in this browser');return;}
+  Notification.requestPermission().then(perm=>{
+    populateNotificationsPage();
+    if(perm==='granted'){
+      showToast('🔔 Browser notifications enabled');
+      new Notification('Ewtube notifications are on',{body:"You'll be notified here about new uploads from bell-enabled channels.",icon:'channels4_profile.jpg'});
+      startUploadNotificationPoller();
+    }else if(perm==='denied'){
+      showToast('Notifications were blocked — you can re-enable them in your browser site settings');
+    }
+  });
+}
+
+// ══════════════════════════════════════════
+// PLAYBACK PAGE
+// ══════════════════════════════════════════
+const LS_PLAYBACK_PREF='yt_playback_pref_v1';
+function getPlaybackPref(){
+  try{return JSON.parse(localStorage.getItem(LS_PLAYBACK_PREF)||'{}');}
+  catch{return {};}
+}
+function savePlaybackPref(key,val){
+  const p=getPlaybackPref();p[key]=val;
+  localStorage.setItem(LS_PLAYBACK_PREF,JSON.stringify(p));
+}
+function populatePlaybackPage(){
+  const p=getPlaybackPref();
+  const speedEl=document.getElementById('set-playback-speed');
+  if(speedEl)speedEl.value=p.speed||'1';
+  const qualEl=document.getElementById('set-playback-quality');
+  if(qualEl)qualEl.value=p.quality||'auto';
+  const saverEl=document.getElementById('set-data-saver-toggle');
+  if(saverEl)saverEl.checked=!!p.dataSaver;
+  const capEl=document.getElementById('set-captions-toggle');
+  if(capEl)capEl.checked=!!p.captions;
+}
+
+// ══════════════════════════════════════════
+// PRIVACY PAGE ACTIONS
+// ══════════════════════════════════════════
+function settingsClearWatchHistory(){
+  if(!confirm('Clear your entire watch history? This cannot be undone.'))return;
+  history_=[];
+  localStorage.setItem(LS_HISTORY,JSON.stringify(history_));
+  showToast('🗑 Watch history cleared');
+  if(typeof renderHistory==='function' && document.getElementById('history-section')?.style.display!=='none'){
+    try{renderHistory();}catch(e){}
+  }
+}
+function settingsClearSearchHistory(){
+  if(!confirm('Clear your search history?'))return;
+  searchHistory_=[];
+  localStorage.setItem(LS_SEARCH_HIST,JSON.stringify(searchHistory_));
+  showToast('🗑 Search history cleared');
+}
+
+// ══════════════════════════════════════════
+// ADVANCED PAGE ACTIONS
+// ══════════════════════════════════════════
+function settingsResetLocalCache(){
+  if(!confirm("This clears this browser's local cache and reloads your data from your account. Continue?"))return;
+  Object.keys(localStorage).forEach(k=>{
+    if(/^(yt_|bhram_)/.test(k))localStorage.removeItem(k);
+  });
+  window.location.reload();
 }
 
 function addApiKey() {
@@ -5419,27 +6098,37 @@ function historyCardHtml(h){
   const timeAgo=fmtDate(new Date(h.ts).toISOString());
   const viewStr=h.views?fmtViews(h.views)+' views':'';
   const meta=[viewStr,timeAgo].filter(Boolean).join(' · ');
-  const initials=(h.channel||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
-  const vd=JSON.stringify(h.vid);const vt=JSON.stringify(h.title||'');const vc=JSON.stringify(h.channel||'');
+  // Use proper resolved channel name from channelMeta if available
+  const chKey=channels.find(c=>(channelMeta[c]?.title||'').toLowerCase()===(h.channel||'').toLowerCase());
+  const displayChannel=chKey?channelMeta[chKey].title:h.channel||'';
+  const initials=(displayChannel||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  const chId=channelIds[chKey||'']||'';
+  const chAvatar=chId&&chAvatarCache[chId]?chAvatarCache[chId]:'';
+  const vd=JSON.stringify(h.vid);const vt=JSON.stringify(h.title||'');const vc=JSON.stringify(displayChannel);
   const vth=JSON.stringify(h.thumb||'');const vdr=JSON.stringify(h.dur||'');
-  return`<a class="history-item" href="${ytLink(h.vid)}" target="_blank" rel="noopener"
-    data-vid="${esc(h.vid)}" data-hv="${esc(h.vid)}" data-ht="${esc(h.title||'')}" data-hc="${esc(h.channel||'')}" data-hi=""
-    style="position:relative">
-    <div class="history-thumb">
-      ${h.thumb?`<img src="${esc(maxresThumbnail(h.thumb))}" alt="" loading="lazy" onerror="if(this.src.includes('maxresdefault')){this.src=this.src.replace('maxresdefault','hqdefault')}else{this.src=''}"/>`:''}
-    </div>
-    <div class="history-info">
-      <div class="history-title">${esc(h.title||'')}</div>
-      <div class="history-meta">${esc(meta)}</div>
-      <div class="history-ch-row">
-        <div class="history-ch-avatar"><span>${esc(initials)}</span></div>
-        <span class="history-ch">${esc(h.channel||'')}</span>
+  const chClickable=chKey?`onclick="event.preventDefault();event.stopPropagation();openChannel('${esc(chKey).replace(/'/g,"\\'")}')"`:'';
+  return`<div class="history-item" data-vid="${esc(h.vid)}">
+    <a href="${ytLink(h.vid)}" target="_blank" rel="noopener"
+      data-hv="${esc(h.vid)}" data-ht="${esc(h.title||'')}" data-hc="${esc(displayChannel)}" data-hi="${esc(chId)}"
+      style="display:flex;align-items:flex-start;gap:16px;flex:1;min-width:0;text-decoration:none;color:inherit">
+      <div class="history-thumb">
+        ${h.thumb?`<img src="${esc(maxresThumbnail(h.thumb))}" alt="" loading="lazy" onerror="if(this.src.includes('maxresdefault')){this.src=this.src.replace('maxresdefault','hqdefault')}else{this.src=''}"/>`:''}
       </div>
-    </div>
-    <button class="history-menu-btn" onclick="event.preventDefault();event.stopPropagation();openVideoCtx(event,${vd},${vt},${vc},${vth},${vdr})" title="More options">
+      <div class="history-info">
+        <div class="history-title">${esc(h.title||'')}</div>
+        <div class="history-meta">${esc(meta)}</div>
+        <div class="history-ch-row" ${chClickable} style="${chKey?'cursor:pointer;':''}">
+          <div class="history-ch-avatar">
+            ${chAvatar?`<img src="${esc(chAvatar)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`:`<span>${esc(initials)}</span>`}
+          </div>
+          <span class="history-ch" style="${chKey?'text-decoration:underline;text-underline-offset:2px;':''}">${esc(displayChannel)}</span>
+        </div>
+      </div>
+    </a>
+    <button class="history-menu-btn" onclick="openVideoCtx(event,${vd},${vt},${vc},${vth},${vdr})" title="More options">
       <span class="ms">more_vert</span>
     </button>
-  </a>`;
+  </div>`;
 }
 function renderHistory(items){
   const list=document.getElementById('history-list');
@@ -5692,11 +6381,33 @@ window.openDescPanel=async function(title,desc,vid){
       if(fd)fullDesc=fd;
     }catch(e){}
   }
-  const linked=esc(fullDesc||'No description available.').replace(
-    /https?:\/\/[^\s&lt;&quot;]*/g,
-    u=>`<a href="${u.replace(/&amp;/g,'&')}" target="_blank" rel="noopener noreferrer" style="color:var(--accent);word-break:break-all">${u}</a>`
-  );
-  body.innerHTML=linked;
+  function linkifyDesc(raw){
+    const parts=[];
+    const re=/\[([^\]]+)\]\((https?:\/\/[^)]+)\)|(https?:\/\/[^\s]+)/g;
+    let last=0,m;
+    while((m=re.exec(raw))!==null){
+      if(m.index>last) parts.push({type:'text',val:raw.slice(last,m.index)});
+      if(m[1]&&m[2]){
+        parts.push({type:'link',label:m[1],url:m[2]});
+      } else {
+        let url=m[3].replace(/[.,;:!?)]+$/,'');
+        parts.push({type:'link',label:url,url:url});
+      }
+      last=m.index+m[0].length;
+    }
+    if(last<raw.length) parts.push({type:'text',val:raw.slice(last)});
+    return parts.map(p=>{
+      if(p.type==='link'){
+        const safeUrl=p.url.replace(/"/g,'%22');
+        const safeLabel=p.label.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        return `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer" style="color:var(--accent);word-break:break-all;text-decoration:none" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">${safeLabel}</a>`;
+      }
+      let t=p.val.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      t=t.replace(/\b(\d{1,2}:\d{2}(?::\d{2})?)\b/g,'<span style="color:var(--accent);font-weight:500;cursor:default">$1</span>');
+      return t;
+    }).join('').replace(/\n/g,'<br>');
+  }
+  body.innerHTML=linkifyDesc(fullDesc||'No description available.');
 };
 function closeDescPanel(){
   document.getElementById('desc-panel-overlay').classList.remove('open');
@@ -5828,6 +6539,8 @@ function skelChPlaylistGrid(n){
     if(icon)icon.textContent=light?'dark_mode':'light_mode';
     const lbl=document.getElementById('theme-label');
     if(lbl)lbl.textContent=light?'Switch to Dark mode':'Switch to Light mode';
+    const setBtn=document.getElementById('set-theme-btn');
+    if(setBtn)setBtn.textContent=light?'Switch to Dark mode':'Switch to Light mode';
   }
   const saved=localStorage.getItem(LS_THEME);
   if(saved==='light')applyTheme(true);
@@ -5922,8 +6635,34 @@ function toggleProfileDropdown(){
   const dd=document.getElementById('profile-dropdown');
   dd.classList.toggle('open');
   if(dd.classList.contains('open')){
+    populateProfileDropdown();
     // Close when clicking outside
     setTimeout(()=>document.addEventListener('click',_closePDDOutside),0);
+  }
+}
+function populateProfileDropdown(){
+  const u=window._ewtubeUser;
+  const nameEl=document.getElementById('dd-header-name');
+  const emailEl=document.getElementById('dd-header-email');
+  const avEl=document.getElementById('dd-header-avatar');
+  if(u){
+    nameEl.textContent=u.displayName||u.email||'Account';
+    emailEl.textContent=u.email||'';
+    if(u.photoURL){
+      avEl.innerHTML=`<img src="${esc(u.photoURL)}" alt=""/>`;
+    }else{
+      avEl.textContent=(u.displayName||u.email||'?').charAt(0).toUpperCase();
+    }
+  }
+  const focusEl=document.getElementById('dd-focus-status');
+  if(focusEl)focusEl.textContent=isFocusModeActive()?'On':'Off';
+}
+function toggleFocusModeFromMenu(){
+  if(isFocusModeActive()){
+    showToast('Focus Mode stays on until the 24h timer expires');
+  }else{
+    enableFocusMode();
+    showToast('🎯 Focus Mode enabled for 24 hours');
   }
 }
 function closeProfileDropdown(){
@@ -6052,7 +6791,7 @@ function toggleChNotif(e,chName){
 }
 
 // ── INIT ──
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeCtx();hideNewPlaylistModal();closeSettings();closeShortcuts()}})
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeCtx();hideNewPlaylistModal();closeSettings();closeAboutModal();closeShortcutsModal()}})
 // ── URL QUERY-PARAM ROUTER (YouTube-style) ──
 function navigateToQuery(){
   const p=new URLSearchParams(location.search);
@@ -6106,74 +6845,34 @@ initSetup();;
 // Ctrl+B → open description panel for the card under the pointer
 let _hoveredCard=null;
 document.addEventListener('mousemove',e=>{
-  const card=e.target.closest('.search-card,.vid-card,.search-pl-card,.history-item,.mpl-card,.ch-search-card,.pl-video-row');
+  const card=e.target.closest('.search-card,.vid-card,.search-pl-card,.history-item,.mpl-card,.ch-search-card,.pl-video-row,.notif-item');
   _hoveredCard=card||null;
 },true);
 document.addEventListener('keydown',e=>{
   if(e.key.toLowerCase()==='b'&&e.ctrlKey&&!e.shiftKey){
     e.preventDefault();
     if(!_hoveredCard)return;
-    const titleEl=_hoveredCard.querySelector('.search-title,.vid-title,.pl-title,.history-title,.mpl-title');
+    const titleEl=_hoveredCard.querySelector('.search-title,.vid-title,.pl-title,.history-title,.mpl-title,.wl-title');
     const title=titleEl?titleEl.textContent.trim():'';
     const descEl=_hoveredCard.querySelector('.search-desc');
     const desc=_hoveredCard.dataset.fulldesc||(descEl?descEl.textContent.trim():'');
-    const vid2=_hoveredCard.dataset.vid||'';
+    const vid2=_hoveredCard.dataset.vid||_hoveredCard.dataset.hv||_hoveredCard.querySelector('a[data-hv]')?.dataset.hv||'';
     if(!desc&&!vid2){showToast('No description available');return;}
     openDescPanel(title,desc,vid2);
   }
 },true);
 
-// ── KEYBOARD SHORTCUTS MODAL ──
-function openShortcuts(){
-  const m=document.getElementById('shortcuts-modal');
-  if(m){m.style.display='flex';}
-}
-function closeShortcuts(){
-  const m=document.getElementById('shortcuts-modal');
-  if(m){m.style.display='none';}
-}
-document.addEventListener('keydown',e=>{
-  if(e.key.toLowerCase()==='m'&&e.ctrlKey&&!e.shiftKey){
-    e.preventDefault();
-    const m=document.getElementById('shortcuts-modal');
-    if(m&&m.style.display==='flex')closeShortcuts();
-    else openShortcuts();
-  }
-},true);
-// Close shortcuts on Esc
-document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){closeShortcuts();}
-});
-// Close on backdrop click
-document.addEventListener('click',e=>{
-  const m=document.getElementById('shortcuts-modal');
-  if(m&&e.target===m)closeShortcuts();
-});
-
-// Ctrl+I → open Settings only when pointer is on the settings item
-let _hoveringSettingsItem=false;
-document.addEventListener('DOMContentLoaded',()=>{
-  const el=document.getElementById('settings-dd-item');
-  if(!el)return;
-  el.addEventListener('mouseenter',()=>_hoveringSettingsItem=true);
-  el.addEventListener('mouseleave',()=>_hoveringSettingsItem=false);
-});
-document.addEventListener('keydown',e=>{
-  if(e.key.toLowerCase()==='i'&&e.ctrlKey&&!e.shiftKey&&_hoveringSettingsItem){
-    e.preventDefault();
-    openSettings();
-    closeProfileDropdown();
-  }
-},true);
 const _tickedVids=new Set();
 document.addEventListener('keydown',e=>{
   if(e.key.toLowerCase()==='y'&&e.ctrlKey&&!e.shiftKey){
     e.preventDefault();
     if(!_hoveredCard)return;
-    const vid=_hoveredCard.dataset.vid||_hoveredCard.dataset.hv||'';
-    // For pl-video-row attach to the row itself (edge), otherwise to thumb
+    const vid=_hoveredCard.dataset.vid||_hoveredCard.dataset.hv||_hoveredCard.querySelector('a[data-hv]')?.dataset.hv||'';
     const isPlRow=_hoveredCard.classList.contains('pl-video-row');
-    const tickTarget=isPlRow?_hoveredCard:(_hoveredCard.querySelector('.vid-thumb-wrap,.search-thumb,.search-pl-thumb,.pl-video-thumb'));
+    // Cover all card thumb types across every section
+    const tickTarget=isPlRow?_hoveredCard:(_hoveredCard.querySelector(
+      '.vid-thumb-wrap,.search-thumb,.search-pl-thumb,.pl-video-thumb,.history-thumb,.mpl-thumb'
+    ));
     if(!tickTarget)return;
     const existing=tickTarget.querySelector('.vid-tick-overlay');
     if(existing){
@@ -6390,6 +7089,73 @@ window.pickPlaylistNew=function(){
   document.getElementById('nav-myplaylists').classList.add('pl-drop-saved');
   setTimeout(()=>document.getElementById('nav-myplaylists').classList.remove('pl-drop-saved'),600);
 };
+
+// ══════════════════════════════════════════
+// BACKGROUND UPLOAD NOTIFICATION POLLER
+// Checks bell-enabled (chNotifs[name]===true) channels for new uploads
+// every 30 minutes and fires a real browser Notification, plus adds to
+// the in-app bell feed via the existing pushNotifFromFeed/notifItems system.
+// ══════════════════════════════════════════
+const LS_NOTIF_SEEN='yt_notif_seen_upload_v1';
+let notifSeenUpload=JSON.parse(localStorage.getItem(LS_NOTIF_SEEN)||'{}'); // {channelId: lastSeenVideoId}
+let _uploadPollerInterval=null;
+const UPLOAD_POLL_MS=30*60*1000; // 30 minutes
+
+async function checkBellChannelsForNewUploads(){
+  if(!('Notification' in window) || Notification.permission!=='granted')return;
+  if(getNotifPref().uploads===false)return;
+  const bellChannels=channels.filter(c=>chNotifs[c] && channelIds[c]);
+  for(const name of bellChannels){
+    const chId=channelIds[name];
+    try{
+      let uplId=uploadCache[chId];
+      if(!uplId){
+        const d=await api(`channels?part=contentDetails&id=${chId}`);
+        uplId=d.items?.[0]?.contentDetails?.relatedPlaylists?.uploads;
+        if(uplId){uploadCache[chId]=uplId;saveLS(LS_UPLOAD,uploadCache);}
+      }
+      if(!uplId)continue;
+      const pl=await api(`playlistItems?part=snippet&playlistId=${uplId}&maxResults=1`);
+      const item=pl.items?.[0];
+      if(!item)continue;
+      const vid=item.snippet.resourceId?.videoId;
+      if(!vid)continue;
+      const prevSeen=notifSeenUpload[chId];
+      if(prevSeen===vid)continue; // already notified about this one
+      const isFirstCheck=!prevSeen;
+      notifSeenUpload[chId]=vid;
+      if(isFirstCheck){
+        // First time tracking this channel — just record current latest, don't notify retroactively
+        continue;
+      }
+      const title=item.snippet.title||'New video';
+      const thumb=item.snippet.thumbnails?.medium?.url||item.snippet.thumbnails?.default?.url||'';
+      pushNotifFromFeed(vid,title,name,thumb,channelMeta[name]?.thumb||'',Date.now());
+      new Notification(name+' uploaded a new video',{
+        body:title,
+        icon:channelMeta[name]?.thumb||'channels4_profile.jpg',
+        tag:'ewtube-upload-'+vid
+      }).onclick=function(){
+        window.open(ytLink(vid),'_blank');
+      };
+    }catch(e){
+      console.warn('[notif-poller] check failed for',name,e);
+    }
+  }
+  localStorage.setItem(LS_NOTIF_SEEN,JSON.stringify(notifSeenUpload));
+}
+
+function startUploadNotificationPoller(){
+  if(_uploadPollerInterval)return; // already running
+  if(!('Notification' in window) || Notification.permission!=='granted')return;
+  checkBellChannelsForNewUploads(); // run once shortly after enabling
+  _uploadPollerInterval=setInterval(checkBellChannelsForNewUploads,UPLOAD_POLL_MS);
+}
+
+// Resume polling automatically on page load if permission was already granted
+if(('Notification' in window) && Notification.permission==='granted'){
+  setTimeout(startUploadNotificationPoller,5000);
+}
 </script>
 <!-- DESCRIPTION FLOATING PANEL -->
 <div id="desc-panel-overlay" onclick="if(event.target===this)closeDescPanel()">
@@ -6429,54 +7195,58 @@ window.pickPlaylistNew=function(){
     <div class="adm-header">
       <div class="adm-header-title">
         <span class="ms" style="color:#e53935">admin_panel_settings</span>
-        Admin Dashboard
+        Studio Dashboard
         <span class="adm-badge">SECRET</span>
       </div>
       <button class="adm-close" onclick="closeAdmin()"><span class="ms sz20">close</span></button>
     </div>
-    <div class="adm-tabs">
-      <button class="adm-tab active" onclick="admTab('history')"><span class="ms" style="font-size:15px;margin-right:5px">history</span>Watch History</button>
-      <button class="adm-tab" onclick="admTab('searches')"><span class="ms" style="font-size:15px;margin-right:5px">search</span>Search History</button>
-      <button class="adm-tab" onclick="admTab('api')"><span class="ms" style="font-size:15px;margin-right:5px">key</span>API Usage</button>
-      <button class="adm-tab" onclick="admTab('access')"><span class="ms" style="font-size:15px;margin-right:5px">lock</span>Channel Access</button>
-    </div>
-    <div class="adm-body">
-      <!-- HISTORY TAB -->
-      <div class="adm-tab-content active" id="adm-tab-history">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-          <div class="adm-section-title" style="margin:0">Full Watch History Archive</div>
-          <button class="adm-clear-btn" onclick="admClearHistory()">Clear Archive</button>
+    <div class="adm-main">
+      <nav class="adm-nav">
+        <div class="adm-nav-section-label">Dashboard</div>
+        <button class="adm-nav-item active" onclick="admTab('history')"><span class="ms">history</span>Watch History</button>
+        <button class="adm-nav-item" onclick="admTab('searches')"><span class="ms">search</span>Search History</button>
+        <button class="adm-nav-item" onclick="admTab('api')"><span class="ms">monitoring</span>API Usage</button>
+        <button class="adm-nav-item" onclick="admTab('access')"><span class="ms">block</span>Channel Access</button>
+      </nav>
+      <div class="adm-body">
+        <!-- HISTORY TAB -->
+        <div class="adm-tab-content active" id="adm-tab-history">
+          <div class="adm-page-title">
+            <span>Full Watch History Archive</span>
+            <button class="adm-clear-btn" onclick="admClearHistory()">Clear Archive</button>
+          </div>
+          <div id="adm-hist-list"></div>
         </div>
-        <div id="adm-hist-list"></div>
-      </div>
-      <!-- SEARCH HISTORY TAB -->
-      <div class="adm-tab-content" id="adm-tab-searches">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-          <div class="adm-section-title" style="margin:0">Full Search History Archive</div>
-          <button class="adm-clear-btn" onclick="admClearSearch()">Clear Archive</button>
+        <!-- SEARCH HISTORY TAB -->
+        <div class="adm-tab-content" id="adm-tab-searches">
+          <div class="adm-page-title">
+            <span>Full Search History Archive</span>
+            <button class="adm-clear-btn" onclick="admClearSearch()">Clear Archive</button>
+          </div>
+          <div id="adm-search-list"></div>
         </div>
-        <div id="adm-search-list"></div>
-      </div>
-      <!-- API USAGE TAB -->
-      <div class="adm-tab-content" id="adm-tab-api">
-        <div class="adm-section-title">Overview</div>
-        <div class="adm-stat-row" id="adm-api-stats"></div>
-        <div class="adm-section-title">Usage by Key</div>
-        <div id="adm-key-list"></div>
-        <div class="adm-section-title" style="margin-top:16px">Call Activity (last 50)</div>
-        <div class="adm-card" style="padding:12px 16px">
-          <div class="adm-chart-wrap"><svg id="adm-chart-svg" viewBox="0 0 500 80" preserveAspectRatio="none"></svg></div>
+        <!-- API USAGE TAB -->
+        <div class="adm-tab-content" id="adm-tab-api">
+          <div class="adm-page-title"><span>API Usage</span></div>
+          <div class="adm-section-title">Overview</div>
+          <div class="adm-stat-row" id="adm-api-stats"></div>
+          <div class="adm-section-title">Usage by Key</div>
+          <div id="adm-key-list"></div>
+          <div class="adm-section-title" style="margin-top:16px">Call Activity (last 50)</div>
+          <div class="adm-card" style="padding:12px 16px">
+            <div class="adm-chart-wrap"><svg id="adm-chart-svg" viewBox="0 0 500 80" preserveAspectRatio="none"></svg></div>
+          </div>
         </div>
-      </div>
-      <!-- CHANNEL ACCESS TAB -->
-      <div class="adm-tab-content" id="adm-tab-access">
-        <div class="adm-section-title">Channel Access Control</div>
-        <p style="font-size:13px;color:var(--text3);margin:0 0 14px">Block channels so they're hidden from the main UI. Toggle back to allow access. Blocked channels are invisible to normal users.</p>
-        <div style="display:flex;gap:8px;margin-bottom:14px">
-          <input id="adm-block-input" placeholder="Channel name to block…" style="flex:1;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:13px;outline:none" />
-          <button onclick="admBlockChannel()" style="padding:8px 16px;border-radius:8px;background:var(--accent);color:#fff;border:none;font-size:13px;font-weight:600;cursor:pointer">Block</button>
+        <!-- CHANNEL ACCESS TAB -->
+        <div class="adm-tab-content" id="adm-tab-access">
+          <div class="adm-page-title"><span>Channel Access Control</span></div>
+          <p style="font-size:13px;color:var(--text3);margin:0 0 14px">Block channels so they're hidden from the main UI. Toggle back to allow access. Blocked channels are invisible to normal users.</p>
+          <div style="display:flex;gap:8px;margin-bottom:14px">
+            <input id="adm-block-input" placeholder="Channel name to block…" style="flex:1;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:13px;outline:none" />
+            <button onclick="admBlockChannel()" style="padding:8px 16px;border-radius:8px;background:var(--accent);color:#fff;border:none;font-size:13px;font-weight:600;cursor:pointer">Block</button>
+          </div>
+          <div id="adm-ch-list"></div>
         </div>
-        <div id="adm-ch-list"></div>
       </div>
     </div>
   </div>
@@ -6529,7 +7299,7 @@ document.addEventListener('keydown', e => {
 }, true);
 
 function admTab(name){
-  document.querySelectorAll('.adm-tab').forEach((t,i)=>{
+  document.querySelectorAll('.adm-nav-item').forEach((t,i)=>{
     const names=['history','searches','api','access'];
     t.classList.toggle('active', names[i]===name);
   });
@@ -6701,17 +7471,57 @@ function admRenderAccess(){
     </div>`;
   }).join('');
 }
-function admBlockChannel(){
+async function admBlockChannel(){
   const input = document.getElementById('adm-block-input');
   const name  = input.value.trim();
   if(!name) return;
-  const blocked = admGetBlocked();
-  blocked.add(name);
-  admSaveBlocked(blocked);
-  input.value = '';
-  admRenderAccess();
-  applyAdminBlocks();
-  showToast(`"${name}" blocked`);
+  const btn = document.querySelector('#adm-tab-access button[onclick="admBlockChannel()"]');
+  if(btn){ btn.disabled=true; btn.textContent='Resolving…'; }
+  try{
+    let resolvedName = name;
+    let chId = null;
+    // Try to resolve via API to get the proper channel name and ID
+    if(/^UC[\w-]{20,}$/.test(name)){
+      chId = name;
+    } else {
+      const d = await api(`search?part=snippet&type=channel&q=${encodeURIComponent(name)}&maxResults=1`);
+      if(d.items?.[0]){
+        chId = d.items[0].snippet.channelId || d.items[0].id?.channelId;
+        resolvedName = d.items[0].snippet.channelTitle || name;
+      }
+    }
+    if(chId){
+      // If we already have this channel in our subscriptions, use that resolved name
+      const subName = Object.keys(channelIds).find(k => channelIds[k] === chId);
+      if(subName && channelMeta[subName]?.title){
+        resolvedName = channelMeta[subName].title;
+      }
+    }
+    const blocked = admGetBlocked();
+    blocked.add(resolvedName);
+    // Also store the channel ID if resolved, for more reliable matching
+    if(chId){
+      const blockedIds = JSON.parse(localStorage.getItem('yt_admin_blocked_ids_v1')||'{}');
+      blockedIds[resolvedName] = chId;
+      localStorage.setItem('yt_admin_blocked_ids_v1', JSON.stringify(blockedIds));
+    }
+    admSaveBlocked(blocked);
+    input.value = '';
+    admRenderAccess();
+    applyAdminBlocks();
+    showToast(`"${resolvedName}" blocked`);
+  }catch(e){
+    // Fallback: just block by the entered name
+    const blocked = admGetBlocked();
+    blocked.add(name);
+    admSaveBlocked(blocked);
+    input.value = '';
+    admRenderAccess();
+    applyAdminBlocks();
+    showToast(`"${name}" blocked (resolve failed)`);
+  }finally{
+    if(btn){ btn.disabled=false; btn.textContent='Block'; }
+  }
 }
 function admToggleChannel(name){
   const blocked = admGetBlocked();
@@ -6758,161 +7568,6 @@ else initAdmin();
 
 </script>
 
-<!-- KEYBOARD SHORTCUTS MODAL -->
-<div id="shortcuts-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:700;align-items:center;justify-content:center">
-  <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;width:min(480px,92vw);padding:28px 28px 24px;position:relative;box-shadow:0 24px 60px rgba(0,0,0,.5)">
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:22px">
-      <span class="ms" style="font-size:22px;color:var(--accent)">keyboard</span>
-      <span style="font-size:17px;font-weight:600;color:var(--text)">Keyboard Shortcuts</span>
-      <button onclick="closeShortcuts()" style="margin-left:auto;background:none;border:none;cursor:pointer;color:var(--text2);padding:4px"><span class="ms sz20">close</span></button>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:0">
-      <div style="font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border)">Navigation</div>
-      <div class="sc-row"><span class="sc-key">Esc</span><span class="sc-desc">Close any open modal, menu or panel</span></div>
-      <div style="font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin:14px 0 8px;padding-bottom:6px;border-bottom:1px solid var(--border)">Video Cards <span style="font-weight:400;font-size:10px;opacity:.6">(hover over a card first)</span></div>
-      <div class="sc-row"><span class="sc-keys"><span class="sc-key">Ctrl</span><span class="sc-plus">+</span><span class="sc-key">B</span></span><span class="sc-desc">Open description / info panel</span></div>
-      <div class="sc-row"><span class="sc-keys"><span class="sc-key">Ctrl</span><span class="sc-plus">+</span><span class="sc-key">Y</span></span><span class="sc-desc">Toggle ✓ tick mark on thumbnail</span></div>
-      <div style="font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin:14px 0 8px;padding-bottom:6px;border-bottom:1px solid var(--border)">App</div>
-      <div class="sc-row"><span class="sc-keys"><span class="sc-key">Ctrl</span><span class="sc-plus">+</span><span class="sc-key">I</span></span><span class="sc-desc">Open Settings <span style="opacity:.55;font-size:11px">(hover Settings item in profile menu)</span></span></div>
-      <div class="sc-row"><span class="sc-keys"><span class="sc-key">Ctrl</span><span class="sc-plus">+</span><span class="sc-key">M</span></span><span class="sc-desc">Show this shortcuts panel</span></div>
-      <div class="sc-row"><span class="sc-keys"><span class="sc-key">Ctrl</span><span class="sc-plus">+</span><span class="sc-key">X</span></span><span class="sc-desc">Open Admin panel</span></div>
-    </div>
-    <div style="margin-top:20px;padding-top:14px;border-top:1px solid var(--border);font-size:11px;color:var(--text3);text-align:center">
-      Press <kbd style="background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-size:11px">Esc</kbd> or <kbd style="background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-size:11px">Ctrl+M</kbd> to close
-    </div>
-  </div>
-</div>
-<style>
-.sc-row{display:flex;align-items:center;gap:12px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04)}
-body.light-mode .sc-row{border-bottom:1px solid rgba(0,0,0,.05)}
-.sc-row:last-child{border-bottom:none}
-.sc-keys{display:flex;align-items:center;gap:3px;flex-shrink:0;min-width:110px}
-.sc-key{background:var(--surface2);border:1px solid var(--border);border-bottom:2px solid var(--border);border-radius:5px;padding:2px 8px;font-size:12px;font-family:monospace;color:var(--text);white-space:nowrap}
-.sc-plus{font-size:13px;color:var(--text3)}
-.sc-desc{font-size:13px;color:var(--text2);flex:1}
-</style>
-
-<!-- ══════════════════════════════════════════
-     LOCK SCREEN STYLES
-     ══════════════════════════════════════════ -->
-<style>
-/* ── LOCK OVERLAY ── */
-#lock-overlay{
-  position:fixed;inset:0;z-index:99999;
-  background:rgba(15,12,10,.72);
-  backdrop-filter:blur(18px) saturate(1.4);
-  -webkit-backdrop-filter:blur(18px) saturate(1.4);
-  display:flex;align-items:center;justify-content:center;
-  flex-direction:column;
-  transition:opacity .35s cubic-bezier(.4,0,.2,1);
-  opacity:1;
-  /* block all interaction on content below */
-  overscroll-behavior:none;
-}
-#lock-overlay.lock-hiding{opacity:0;pointer-events:none}
-#lock-overlay.lock-hidden{display:none}
-
-/* hide big lock icon entirely */
-.lock-icon-wrap,.lock-icon-ring,.lock-icon-ring2,.lock-icon-inner{display:none!important}
-
-.lock-title{
-  font-size:20px;font-weight:600;color:var(--text);
-  letter-spacing:-.01em;margin-bottom:6px;text-align:center;
-}
-.lock-subtitle{
-  font-size:13px;color:var(--text3);margin-bottom:28px;text-align:center;
-}
-
-/* password input area */
-.lock-input-wrap{
-  position:relative;width:min(320px,84vw);
-}
-.lock-input-wrap input{
-  width:100%;height:48px;padding:0 48px 0 18px;
-  background:var(--surface);border:1.5px solid var(--border);
-  border-radius:12px;color:var(--text);font-size:15px;
-  font-family:'DM Sans',system-ui,sans-serif;
-  outline:none;transition:border-color .2s,box-shadow .2s;
-  letter-spacing:.08em;
-}
-.lock-input-wrap input:focus{
-  border-color:var(--accent);
-  box-shadow:0 0 0 3px rgba(212,112,74,.15);
-}
-.lock-input-wrap input.lock-error{
-  border-color:#e05050;
-  box-shadow:0 0 0 3px rgba(224,80,80,.15);
-  animation:lockShake .35s ease;
-}
-@keyframes lockShake{
-  0%,100%{transform:translateX(0)}
-  20%{transform:translateX(-8px)}
-  40%{transform:translateX(8px)}
-  60%{transform:translateX(-6px)}
-  80%{transform:translateX(6px)}
-}
-.lock-eye-btn{
-  position:absolute;right:14px;top:50%;transform:translateY(-50%);
-  background:none;border:none;cursor:pointer;
-  color:var(--text3);padding:4px;display:flex;align-items:center;
-  transition:color .15s;
-}
-.lock-eye-btn:hover{color:var(--text)}
-.lock-eye-btn .ms{font-size:20px}
-
-.lock-enter-btn{
-  margin-top:14px;
-  width:min(320px,84vw);height:48px;
-  background:var(--accent);border:none;border-radius:12px;
-  color:#fff;font-size:15px;font-weight:600;font-family:'DM Sans',system-ui,sans-serif;
-  cursor:pointer;letter-spacing:.01em;
-  transition:background .15s,transform .1s,box-shadow .15s;
-  box-shadow:0 4px 18px rgba(212,112,74,.35);
-}
-.lock-enter-btn:hover{
-  background:var(--accent-hover);
-  box-shadow:0 6px 24px rgba(212,112,74,.45);
-}
-.lock-enter-btn:active{transform:scale(.97)}
-
-.lock-error-msg{
-  font-size:12px;color:#e05050;margin-top:10px;
-  min-height:18px;text-align:center;letter-spacing:.01em;
-}
-
-
-/* light mode */
-body.light-mode #lock-overlay{
-  background:rgba(240,238,235,.75);
-  backdrop-filter:blur(18px) saturate(1.4);
-  -webkit-backdrop-filter:blur(18px) saturate(1.4);
-}
-
-/* ── CHANGE PASSWORD SECTION IN SETTINGS ── */
-.lock-pw-section{}
-.lock-pw-row{
-  display:flex;gap:8px;align-items:center;margin-top:10px;
-}
-.lock-pw-row input{
-  flex:1;height:38px;padding:0 14px;
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:8px;color:var(--text);font-size:14px;
-  font-family:'DM Sans',system-ui,sans-serif;outline:none;
-  transition:border-color .15s;
-}
-.lock-pw-row input:focus{border-color:var(--accent)}
-body.light-mode .lock-pw-row input{background:var(--surface);border-color:var(--border)}
-.lock-pw-row button{
-  height:38px;padding:0 16px;
-  background:var(--accent);border:none;border-radius:8px;
-  color:#fff;font-size:13px;font-weight:600;
-  font-family:'DM Sans',system-ui,sans-serif;cursor:pointer;
-  white-space:nowrap;transition:background .15s;
-}
-.lock-pw-row button:hover{background:var(--accent-hover)}
-#lock-pw-msg{font-size:12px;color:var(--accent);min-height:16px;margin-top:6px}
-</style>
-</body>
 <script>
 // ── PULL TO REFRESH ──
 (function(){
@@ -6967,44 +7622,9 @@ body.light-mode .lock-pw-row input{background:var(--surface);border-color:var(--
     }
     startY = 0; curY = 0;
   }, {passive:true});
-// ── BHRAM localStorage CONSOLE HELPER ──
-window.bhram={
-  keys(){
-    const all=Object.keys(localStorage).filter(k=>k.startsWith('yt_')||k.startsWith('LS_')||k.startsWith('bhram_'));
-    console.table(all.map(k=>({key:k,size:localStorage[k].length+' chars'})));
-    return all;
-  },
-  clear(key){
-    if(key){localStorage.removeItem(key);console.log('🗑 Removed:',key);}
-    else{
-      const all=this.keys();
-      all.forEach(k=>localStorage.removeItem(k));
-      console.log('🗑 Cleared',all.length,'bhram keys. Reload page.');
-    }
-  },
-  clearAll(){
-    const n=localStorage.length;
-    localStorage.clear();
-    console.log('🗑 Full localStorage cleared ('+n+' keys). Reload page.');
-  },
-  show(key){
-    try{console.log(key,JSON.parse(localStorage.getItem(key)));}
-    catch{console.log(key,localStorage.getItem(key));}
-  },
-  help(){
-    console.log(`%cbhram localStorage console
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-bhram.keys()         → list all bhram keys
-bhram.show('key')    → print value of key
-bhram.clear()        → clear all bhram keys
-bhram.clear('key')   → remove one key
-bhram.clearAll()     → wipe entire localStorage
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,'color:#00c853;font-family:monospace;font-size:13px');
-  }
-};
 })();
-// ── BHRAM localStorage CONSOLE HELPER ──
-window.bhram={
+// ── EWTUBE localStorage CONSOLE HELPER ──
+window.ewtube={
   keys(){
     const all=Object.keys(localStorage).filter(k=>k.startsWith('yt_')||k.startsWith('LS_')||k.startsWith('bhram_'));
     console.table(all.map(k=>({key:k,size:localStorage[k].length+' chars'})));
@@ -7015,7 +7635,7 @@ window.bhram={
     else{
       const all=this.keys();
       all.forEach(k=>localStorage.removeItem(k));
-      console.log('🗑 Cleared',all.length,'bhram keys. Reload page.');
+      console.log('🗑 Cleared',all.length,'ewtube keys. Reload page.');
     }
   },
   clearAll(){
@@ -7028,129 +7648,326 @@ window.bhram={
     catch{console.log(key,localStorage.getItem(key));}
   },
   help(){
-    console.log(`%cbhram localStorage console
+    console.log(`%cewtube localStorage console
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-bhram.keys()         → list all bhram keys
-bhram.show('key')    → print value of key
-bhram.clear()        → clear all bhram keys
-bhram.clear('key')   → remove one key
-bhram.clearAll()     → wipe entire localStorage
+ewtube.keys()         → list all ewtube keys
+ewtube.show('key')    → print value of key
+ewtube.clear()        → clear all ewtube keys
+ewtube.clear('key')   → remove one key
+ewtube.clearAll()     → wipe entire localStorage
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,'color:#00c853;font-family:monospace;font-size:13px');
   }
 };
-console.log('%c[bhram] type bhram.help() for localStorage utils','color:#00c853;font-size:11px;font-family:monospace');
+console.log('%c[ewtube] type ewtube.help() for localStorage utils','color:#00c853;font-size:11px;font-family:monospace');
 </script>
 
 <!-- ══════════════════════════════════════════
-     LOCK SCREEN LOGIC
+     AUTH + PER-USER CLOUD SYNC
      ══════════════════════════════════════════ -->
-<script>
-(function(){
-  'use strict';
+<!-- KEYBOARD SHORTCUTS MODAL -->
+<div id="shortcuts-modal" onclick="if(event.target===this)closeShortcutsModal()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:700;align-items:center;justify-content:center">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;width:min(480px,92vw);padding:28px 28px 24px;position:relative;box-shadow:0 24px 60px rgba(0,0,0,.5)">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:22px">
+      <span class="ms" style="font-size:22px;color:var(--accent)">keyboard</span>
+      <span style="font-size:17px;font-weight:600;color:var(--text)">Keyboard Shortcuts</span>
+      <button onclick="closeShortcutsModal()" style="margin-left:auto;background:none;border:none;cursor:pointer;color:var(--text2);padding:4px"><span class="ms sz20">close</span></button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:0">
+      <div class="sc-section-label">Navigation</div>
+      <div class="sc-row"><span class="sc-key">Esc</span><span class="sc-desc">Close any open modal or menu</span></div>
+      <div class="sc-section-label" style="margin-top:12px">Video Cards <span style="font-weight:400;font-size:10px;opacity:.6">(hover a card first)</span></div>
+      <div class="sc-row"><span class="sc-keys"><span class="sc-key">Ctrl</span><span class="sc-plus">+</span><span class="sc-key">B</span></span><span class="sc-desc">Open full description panel</span></div>
+      <div class="sc-row"><span class="sc-keys"><span class="sc-key">Ctrl</span><span class="sc-plus">+</span><span class="sc-key">Y</span></span><span class="sc-desc">Toggle ✓ tick mark on thumbnail</span></div>
+      <div class="sc-section-label" style="margin-top:12px">App</div>
+      <div class="sc-row"><span class="sc-keys"><span class="sc-key">Ctrl</span><span class="sc-plus">+</span><span class="sc-key">X</span></span><span class="sc-desc">Open Studio Dashboard (admin)</span></div>
+    </div>
+  </div>
+</div>
 
-  const LS_LOCK_PW = 'bhram_lock_pw_v1';
-  const DEFAULT_PW = 'iaminkota';
+</div><!-- /#app-shell -->
+</body>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+  import {
+    getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider,
+    createUserWithEmailAndPassword, signInWithEmailAndPassword,
+    sendPasswordResetEmail, signOut
+  } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+  import {
+    getDatabase, ref, get, update, onDisconnect
+  } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
 
-  /* ── helpers ── */
-  function getStoredPw(){
-    return localStorage.getItem(LS_LOCK_PW) || DEFAULT_PW;
-  }
-
-  /* ── lock / unlock ── */
-  function showLock(){
-    const ol = document.getElementById('lock-overlay');
-    const inp = document.getElementById('lock-pw-input');
-    ol.classList.remove('lock-hiding','lock-hidden');
-    ol.style.opacity = '1';
-    inp.value = '';
-    document.getElementById('lock-error-msg').textContent = '';
-    // ensure eye is in "hide" state
-    inp.type = 'password';
-    document.getElementById('lock-eye-icon').textContent = 'visibility';
-    // lock body scroll + interaction
-    document.body.classList.add('body-locked');
-    // focus after brief paint
-    setTimeout(()=>inp.focus(), 60);
-  }
-
-  function hideLock(){
-    const ol = document.getElementById('lock-overlay');
-    ol.classList.add('lock-hiding');
-    document.body.classList.remove('body-locked');
-    setTimeout(()=>{ ol.classList.add('lock-hidden'); ol.classList.remove('lock-hiding'); }, 380);
-  }
-
-  /* ── submit ── */
-  window.lockSubmit = function(){
-    const inp = document.getElementById('lock-pw-input');
-    const errEl = document.getElementById('lock-error-msg');
-    if(inp.value === getStoredPw()){
-      errEl.textContent = '';
-      hideLock();
-    } else {
-      errEl.textContent = 'Incorrect password. Try again.';
-      inp.classList.add('lock-error');
-      inp.value = '';
-      setTimeout(()=>inp.classList.remove('lock-error'), 400);
-      inp.focus();
-    }
+  const firebaseConfig = {
+    apiKey: "AIzaSyDvyIQNVjXPnVnYQWIcPrr5lrEAKbGr54k",
+    authDomain: "ewtube-b3413.firebaseapp.com",
+    databaseURL: "https://ewtube-b3413-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "ewtube-b3413",
+    storageBucket: "ewtube-b3413.firebasestorage.app",
+    messagingSenderId: "67454816410",
+    appId: "1:67454816410:web:27d326bf9668e5c64fcf23"
   };
 
-  /* ── eye toggle ── */
-  window.lockToggleEye = function(){
-    const inp = document.getElementById('lock-pw-input');
-    const icon = document.getElementById('lock-eye-icon');
-    if(inp.type === 'password'){
-      inp.type = 'text';
-      icon.textContent = 'visibility_off';
-    } else {
-      inp.type = 'password';
-      icon.textContent = 'visibility';
-    }
-    inp.focus();
-  };
+  const fbApp = initializeApp(firebaseConfig);
+  const auth  = getAuth(fbApp);
+  const db    = getDatabase(fbApp);
 
-  /* ── Ctrl+Z to lock / unlock ── */
-  document.addEventListener('keydown', function(e){
-    if(e.ctrlKey && e.key.toLowerCase() === 'z'){
-      e.preventDefault();
-      const ol = document.getElementById('lock-overlay');
-      const isLocked = !ol.classList.contains('lock-hidden') && !ol.classList.contains('lock-hiding');
-      if(isLocked){
-        hideLock();
-      } else {
-        showLock();
+  // Every key Ewtube stores in localStorage gets namespaced per-user and
+  // mirrored to Realtime Database. Add new prefixes here if needed later.
+  function isSyncedKey(k){
+    return /^(yt_|bhram_)/.test(k);
+  }
+
+  let currentUid = null;
+  let _pendingWrite = {};
+  let _writeTimer = null;
+
+  // ── Sanitize a localStorage key into a Firebase-safe path segment ──
+  // Firebase RTDB keys can't contain . $ # [ ] /
+  function pathSafe(k){ return k.replace(/[.$#\[\]\/]/g, '_'); }
+  const _keyMap = {}; // sanitized -> original, so we can restore exact keys on pull
+
+  function scheduleFlush(){
+    if(_writeTimer) clearTimeout(_writeTimer);
+    _writeTimer = setTimeout(flushToCloud, 800);
+  }
+  async function flushToCloud(){
+    if(!currentUid) { _pendingWrite = {}; return; }
+    const batch = _pendingWrite;
+    _pendingWrite = {};
+    _writeTimer = null;
+    if(!Object.keys(batch).length) return;
+    try{
+      const updates = {};
+      Object.keys(batch).forEach(k=>{
+        updates[`users/${currentUid}/data/${pathSafe(k)}`] = batch[k];
+        updates[`users/${currentUid}/keymap/${pathSafe(k)}`] = k;
+      });
+      await update(ref(db), updates);
+    }catch(e){
+      console.warn('[ewtube-auth] cloud push failed, retrying', e);
+      Object.assign(_pendingWrite, batch);
+      scheduleFlush();
+    }
+  }
+
+  // ── Patch localStorage once — every existing call site in the app
+  // (60+ places: history, playlists, admin panel, etc) keeps working
+  // unchanged, but now also mirrors to the logged-in user's cloud slice. ──
+  (function installPatch(){
+    const _setItem = Storage.prototype.setItem;
+    const _removeItem = Storage.prototype.removeItem;
+    Storage.prototype.setItem = function(key, value){
+      _setItem.call(this, key, value);
+      if(this === window.localStorage && isSyncedKey(key) && currentUid){
+        _pendingWrite[key] = value;
+        scheduleFlush();
       }
+    };
+    Storage.prototype.removeItem = function(key){
+      _removeItem.call(this, key);
+      if(this === window.localStorage && isSyncedKey(key) && currentUid){
+        _pendingWrite[key] = null; // null = delete this field in RTDB
+        scheduleFlush();
+      }
+    };
+  })();
+
+  document.addEventListener('visibilitychange', ()=>{
+    if(document.visibilityState === 'hidden' && Object.keys(_pendingWrite).length){
+      flushToCloud();
     }
   });
 
-  /* ── lock on page refresh / load ── */
-  // Always show the lock when the page first loads
-  // (the overlay starts visible via HTML; we just need to ensure init)
-  // focus the input once fonts/styles are ready
-  window.addEventListener('load', function(){
-    document.body.classList.add('body-locked');
-    const inp = document.getElementById('lock-pw-input');
-    if(inp) setTimeout(()=>inp.focus(), 120);
+  // ── Pull this user's data from the cloud into localStorage, then reveal app ──
+  // Since the app's own scripts (channels/history/playlists etc.) already ran
+  // once at page-load time — before we knew who was logged in — we do a single
+  // silent reload right after the first successful pull. This guarantees the
+  // app's normal boot sequence (all those `let x = JSON.parse(localStorage...)`
+  // lines scattered through 4000+ lines of existing code) sees correct,
+  // already-synced data, with zero changes needed to that code.
+  async function pullUserDataAndRevealApp(uid){
+    try{
+      const snap = await get(ref(db, `users/${uid}/data`));
+      if(snap.exists()){
+        const keymapSnap = await get(ref(db, `users/${uid}/keymap`));
+        const keymap = keymapSnap.exists() ? keymapSnap.val() : {};
+        const data = snap.val();
+        Object.keys(data).forEach(sanitizedKey=>{
+          const realKey = keymap[sanitizedKey] || sanitizedKey;
+          const val = data[sanitizedKey];
+          if(val === null || val === undefined) return;
+          try{ window.localStorage.setItem(realKey, val); }catch(e){}
+        });
+      }
+      // else: brand new user, nothing to pull — app starts fresh, which is fine
+    }catch(e){
+      console.warn('[ewtube-auth] pull failed, starting with empty local state', e);
+    }
+
+    // Re-initialize all live data variables from localStorage (now synced with cloud)
+    // and re-render the UI. No page reload needed — instant boot.
+    try{
+      if(typeof channels !== 'undefined'){
+        channels        = JSON.parse(localStorage.getItem('yt_channels_v4')||'[]');
+        channelIds      = JSON.parse(localStorage.getItem('yt_channel_ids_v4')||'{}');
+        channelMeta     = JSON.parse(localStorage.getItem('yt_channel_meta_v4')||'{}');
+        chAvatarCache   = JSON.parse(localStorage.getItem('yt_ch_avatars_v1')||'{}');
+        chNotifs        = JSON.parse(localStorage.getItem('yt_ch_notif_v1')||'{}');
+        affinity        = JSON.parse(localStorage.getItem('yt_affinity_v1')||'{}');
+        history_        = JSON.parse(localStorage.getItem('yt_history_v1')||'[]');
+        searchHistory_  = JSON.parse(localStorage.getItem('yt_search_history_v1')||'[]');
+        pinnedPls       = JSON.parse(localStorage.getItem('yt_pinned_pl_v1')||'[]');
+        uploadCache     = JSON.parse(localStorage.getItem('yt_upload_pl_v1')||'{}');
+        myPlaylists     = JSON.parse(localStorage.getItem('yt_myplaylists_v1')||'[]');
+        watchLater      = JSON.parse(localStorage.getItem('yt_watchlater_v1')||'[]');
+        blockedKeywords = JSON.parse(localStorage.getItem('yt_block_keywords_v1')||'[]');
+        notifItems      = JSON.parse(localStorage.getItem('yt_notif_items_v1')||'[]');
+        notifSeenUpload = JSON.parse(localStorage.getItem('yt_notif_seen_upload_v1')||'{}');
+      }
+      if(typeof ApiKeyManager !== 'undefined') ApiKeyManager.load();
+      if(typeof renderSidebarChannels === 'function') renderSidebarChannels();
+      if(typeof renderHomePage === 'function') renderHomePage();
+      const tog = document.getElementById('focus-mode-toggle');
+      if(tog && typeof isFocusModeActive === 'function') tog.checked = isFocusModeActive();
+    }catch(err){
+      console.warn('[ewtube-auth] live re-init error', err);
+    }
+
+    document.body.classList.remove('auth-pending');
+    document.getElementById('auth-overlay').classList.add('auth-hidden');
+  }
+
+  // ══════════════════════════════════════════
+  // AUTH STATE
+  // ══════════════════════════════════════════
+  onAuthStateChanged(auth, user=>{
+    if(user){
+      currentUid = user.uid;
+      window._ewtubeUser = { uid: user.uid, email: user.email, displayName: user.displayName, photoURL: user.photoURL };
+      setAuthLoading(false);
+      applyHeaderAvatar(window._ewtubeUser);
+      localStorage.setItem('ewtube_was_authed', '1');
+      pullUserDataAndRevealApp(user.uid);
+    } else {
+      currentUid = null;
+      window._ewtubeUser = null;
+      localStorage.removeItem('ewtube_was_authed');
+      const ov = document.getElementById('auth-overlay');
+      if(ov){ ov.style.display = ''; ov.classList.remove('auth-hidden'); }
+      document.body.classList.add('auth-pending');
+      setAuthLoading(false);
+    }
   });
 
-  /* ── Change password from settings ── */
-  window.lockChangePw = function(){
-    const inp = document.getElementById('lock-new-pw');
-    const msg = document.getElementById('lock-pw-msg');
-    const val = inp.value.trim();
-    if(!val || val.length < 3){
-      msg.style.color = '#e05050';
-      msg.textContent = 'Password must be at least 3 characters.';
-      return;
+  // Populate the header profile button — uses the real Google account photo
+  // when signed in with Google; falls back to an initial avatar for
+  // email/password accounts (which have no photoURL).
+  function applyHeaderAvatar(u){
+    const img = document.getElementById('profile-btn-img');
+    const fallback = document.getElementById('profile-btn-fallback');
+    if(!img || !fallback) return;
+    if(u && u.photoURL){
+      img.src = u.photoURL;
+      img.style.display = 'block';
+      fallback.style.display = 'none';
+    } else {
+      const initial = (u && (u.displayName || u.email) || '?').charAt(0).toUpperCase();
+      fallback.textContent = initial;
+      fallback.style.display = 'flex';
+      img.style.display = 'none';
     }
-    localStorage.setItem(LS_LOCK_PW, val);
-    inp.value = '';
-    msg.style.color = '#2eca6a';
-    msg.textContent = '✓ Password updated successfully.';
-    setTimeout(()=>{ msg.textContent = ''; }, 3000);
+  }
+
+  function setAuthLoading(isLoading){
+    document.getElementById('auth-loading-state').style.display = isLoading ? 'flex' : 'none';
+    document.getElementById('auth-form-state').style.display = isLoading ? 'none' : 'block';
+  }
+
+  function setAuthError(msg){
+    document.getElementById('auth-error').textContent = msg || '';
+  }
+
+  function friendlyAuthError(e){
+    const code = e && e.code || '';
+    if(code.includes('user-not-found') || code.includes('wrong-password') || code.includes('invalid-credential')) return 'Incorrect email or password.';
+    if(code.includes('email-already-in-use')) return 'An account with this email already exists.';
+    if(code.includes('weak-password')) return 'Password should be at least 6 characters.';
+    if(code.includes('invalid-email')) return 'That email address looks invalid.';
+    if(code.includes('popup-closed-by-user')) return '';
+    if(code.includes('network-request-failed')) return 'Network error — check your connection.';
+    return 'Something went wrong. Please try again.';
+  }
+
+  // ── Google sign-in ──
+  document.getElementById('auth-google-btn').addEventListener('click', async ()=>{
+    setAuthError('');
+    setAuthLoading(true);
+    try{
+      await signInWithPopup(auth, new GoogleAuthProvider());
+    }catch(e){
+      setAuthLoading(false);
+      setAuthError(friendlyAuthError(e));
+    }
+  });
+
+  // ── Email/password sign in or sign up (mode toggle) ──
+  let authMode = 'signin'; // 'signin' | 'signup'
+  window._authToggleMode = function(){
+    authMode = authMode === 'signin' ? 'signup' : 'signin';
+    document.getElementById('auth-submit-btn').textContent = authMode === 'signin' ? 'Sign In' : 'Create Account';
+    document.getElementById('auth-switch').innerHTML = authMode === 'signin'
+      ? `New here? <a onclick="window._authToggleMode()">Create an account</a>`
+      : `Already have an account? <a onclick="window._authToggleMode()">Sign in</a>`;
+    setAuthError('');
   };
 
-})();
+  window._authSubmit = async function(){
+    const email = document.getElementById('auth-email').value.trim();
+    const pw = document.getElementById('auth-password').value;
+    setAuthError('');
+    if(!email || !pw){ setAuthError('Please enter both email and password.'); return; }
+    const btn = document.getElementById('auth-submit-btn');
+    btn.disabled = true;
+    try{
+      if(authMode === 'signin'){
+        await signInWithEmailAndPassword(auth, email, pw);
+      } else {
+        await createUserWithEmailAndPassword(auth, email, pw);
+      }
+    }catch(e){
+      setAuthError(friendlyAuthError(e));
+    }finally{
+      btn.disabled = false;
+    }
+  };
+
+  window._authForgotPassword = async function(){
+    const email = document.getElementById('auth-email').value.trim();
+    if(!email){ setAuthError('Enter your email above first, then click "Forgot password?"'); return; }
+    setAuthError('');
+    try{
+      await sendPasswordResetEmail(auth, email);
+      setAuthError('');
+      const errEl = document.getElementById('auth-error');
+      errEl.style.color = '#2eca6a';
+      errEl.textContent = 'Password reset email sent — check your inbox.';
+      setTimeout(()=>{ errEl.style.color=''; }, 4000);
+    }catch(e){
+      setAuthError(friendlyAuthError(e));
+    }
+  };
+
+  // ── Logout (callable from settings panel) ──
+  window._authLogout = async function(){
+    if(Object.keys(_pendingWrite).length) await flushToCloud();
+    localStorage.removeItem('ewtube_was_authed');
+    await signOut(auth);
+    // Clear local app data so the next user (or re-login) doesn't see stale data
+    Object.keys(window.localStorage).forEach(k=>{
+      if(isSyncedKey(k)) window.localStorage.removeItem(k);
+    });
+    window.location.reload();
+  };
 </script>
 </html>
+
