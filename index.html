@@ -289,6 +289,7 @@ input{font-family:inherit}
 }
 .yt-logo{display:flex;align-items:center;cursor:pointer;flex-shrink:0;margin-right:16px;text-decoration:none}
 .yt-logo-svg{height:20px;width:auto;display:block}
+.yt-logo-img{height:42px;width:auto;display:block;object-fit:contain;image-rendering:auto;}
 #header-search{flex:1;display:flex;align-items:center;justify-content:center}
 .search-input-wrap{
   flex:1;display:flex;align-items:center;height:40px;
@@ -2076,42 +2077,35 @@ body.light-mode .about-meta-row{border-bottom:1px solid rgba(0,0,0,.05)}
 
 </style>
 
-<!-- ══ FIREBASE SYNC LAYER ══
-     Pulls saved data from Firestore before app scripts run (sync XHR),
-     then mirrors every localStorage write to Firestore in the background.
-     No login required — single fixed document keyed to this device.
-     Firebase project: ewtube-b3413
+<!-- ══ FIREBASE SYNC LAYER (Realtime Database) ══
+     Pulls saved data from RTDB before app scripts run (sync XHR),
+     then mirrors every localStorage write to RTDB in the background.
+     No login required — single fixed node for this device.
+     Firebase project: ewtube-b3413 (Realtime Database)
 ══════════════════════════════ -->
 <script>
-// ── PULL: synchronous XHR so data is in localStorage before app scripts read it ──
+// PULL: sync XHR to RTDB REST API — runs before app scripts read localStorage
 (function(){
-  var PROJECT = 'ewtube-b3413';
-  var API_KEY  = 'AIzaSyDvyIQNVjXPnVnYQWIcPrr5lrEAKbGr54k';
-  var DOC_PATH = 'ewtube_sync/main';
-  var URL = 'https://firestore.googleapis.com/v1/projects/'+PROJECT+
-            '/databases/(default)/documents/'+DOC_PATH+'?key='+API_KEY;
-  function toJs(fv){
-    if(!fv) return null;
-    if('stringValue' in fv) return fv.stringValue;
-    return null;
-  }
+  var DB_URL = 'https://ewtube-b3413-default-rtdb.asia-southeast1.firebasedatabase.app';
+  var PATH = '/ewtube_sync/main.json';
   try{
     var xhr = new XMLHttpRequest();
-    xhr.open('GET', URL, false); // synchronous
+    xhr.open('GET', DB_URL + PATH, false);
     xhr.send(null);
-    if(xhr.status===200){
-      var body = JSON.parse(xhr.responseText);
-      var fields = (body && body.fields) || {};
-      var n = 0;
-      Object.keys(fields).forEach(function(k){
-        if(!/^(yt_|bhram_)/.test(k)) return;
-        var val = toJs(fields[k]);
-        if(val===null || val==='') return;
-        try{ localStorage.setItem(k, val); n++; }catch(e){}
-      });
-      console.log('[ewtube-sync] pulled', n, 'keys from Firestore');
-    } else if(xhr.status===404){
-      console.log('[ewtube-sync] no cloud doc yet — first run');
+    if(xhr.status===200 && xhr.responseText!=='null'){
+      var data = JSON.parse(xhr.responseText);
+      if(data && typeof data==='object'){
+        var n=0;
+        Object.keys(data).forEach(function(k){
+          if(!/^(yt_|bhram_)/.test(k)) return;
+          var val = data[k];
+          if(val===null || val===undefined || val==='') return;
+          try{ localStorage.setItem(k, val); n++; }catch(e){}
+        });
+        console.log('[ewtube-sync] pulled', n, 'keys from RTDB');
+      }
+    } else {
+      console.log('[ewtube-sync] no cloud data yet - first run');
     }
   }catch(e){
     console.warn('[ewtube-sync] pull failed, using local data', e);
@@ -2120,22 +2114,22 @@ body.light-mode .about-meta-row{border-bottom:1px solid rgba(0,0,0,.05)}
 </script>
 
 <script type="module">
-// ── PUSH: async Firebase SDK mirrors every localStorage write to Firestore ──
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js';
-import { getFirestore, doc, setDoc } from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js';
+import { getDatabase, ref, update } from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js';
 
 const fbApp = initializeApp({
   apiKey: 'AIzaSyDvyIQNVjXPnVnYQWIcPrr5lrEAKbGr54k',
   authDomain: 'ewtube-b3413.firebaseapp.com',
+  databaseURL: 'https://ewtube-b3413-default-rtdb.asia-southeast1.firebasedatabase.app',
   projectId: 'ewtube-b3413',
   storageBucket: 'ewtube-b3413.firebasestorage.app',
   messagingSenderId: '67454816410',
   appId: '1:67454816410:web:27d326bf9668e5c64fcf23'
 });
-const db = getFirestore(fbApp);
-const DOC_REF = doc(db, 'ewtube_sync', 'main');
+const db = getDatabase(fbApp);
 
 function isSyncedKey(k){ return /^(yt_|bhram_)/.test(k); }
+function safeKey(k){ return k.replace(/[.$#\[\]\/]/g,'_'); }
 
 let _pending = {};
 let _timer = null;
@@ -2147,8 +2141,12 @@ function scheduleFlush(){
 async function flush(){
   const batch = _pending; _pending = {}; _timer = null;
   if(!Object.keys(batch).length) return;
+  const updates = {};
+  Object.keys(batch).forEach(k=>{
+    updates['ewtube_sync/main/'+safeKey(k)] = batch[k] || null;
+  });
   try{
-    await setDoc(DOC_REF, batch, { merge: true });
+    await update(ref(db), updates);
   }catch(e){
     console.warn('[ewtube-sync] push failed, retrying', e);
     Object.assign(_pending, batch);
@@ -2156,27 +2154,25 @@ async function flush(){
   }
 }
 
-// Patch localStorage so every existing write auto-mirrors to Firestore
 const _set = Storage.prototype.setItem;
 const _del = Storage.prototype.removeItem;
 Storage.prototype.setItem = function(k, v){
   _set.call(this, k, v);
   if(this === window.localStorage && isSyncedKey(k)){
-    _pending[k] = v; scheduleFlush();
+    _pending[safeKey(k)] = v; scheduleFlush();
   }
 };
 Storage.prototype.removeItem = function(k){
   _del.call(this, k);
   if(this === window.localStorage && isSyncedKey(k)){
-    _pending[k] = ''; scheduleFlush(); // empty string = tombstone
+    _pending[safeKey(k)] = null; scheduleFlush();
   }
 };
 
-// Flush on tab close so last few writes aren't lost
 document.addEventListener('visibilitychange', ()=>{
   if(document.visibilityState==='hidden' && Object.keys(_pending).length) flush();
 });
-console.log('[ewtube-sync] push layer active');
+console.log('[ewtube-sync] RTDB push layer active');
 </script>
 </head>
 <body>
@@ -2217,18 +2213,7 @@ console.log('[ewtube-sync] push layer active');
     <span class="ms">menu</span>
   </button>
   <a class="yt-logo" onclick="goHome()" style="cursor:pointer" title="Home">
-    <svg class="yt-logo-svg" viewBox="0 0 90 20" xmlns="http://www.w3.org/2000/svg">
-      <g><path d="M27.9727 3.12324C27.6435 1.89323 26.6768 0.926181 25.4468 0.596791C23.2197 0 14.285 0 14.285 0C14.285 0 5.35042 0 3.12323 0.596791C1.89323 0.926181 0.926181 1.89323 0.596791 3.12324C0 5.35042 0 10 0 10C0 10 0 14.6496 0.596791 16.8768C0.926181 18.1068 1.89323 19.0738 3.12323 19.4032C5.35042 20 14.285 20 14.285 20C14.285 20 23.2197 20 25.4468 19.4032C26.6768 19.0738 27.6435 18.1068 27.9727 16.8768C28.5695 14.6496 28.5695 10 28.5695 10C28.5695 10 28.5695 5.35042 27.9727 3.12324Z" fill="#FF0000"/><path d="M11.4253 14.2854L18.8477 10.0004L11.4253 5.71533V14.2854Z" fill="white"/></g>
-      <g fill="var(--text)">
-        <path d="M34.6024 13.0036L31.3945 1.41846H34.1932L35.3174 6.6701C35.6043 7.96361 35.8136 9.06662 35.9455 9.97913H36.0218C36.1218 9.32532 36.3364 8.22937 36.6651 6.68892L37.8269 1.41846H40.6256L37.3799 13.0036V18.561H34.6024V13.0036Z"/>
-        <path d="M41.4697 18.1937C40.9020 17.8127 40.4979 17.2186 40.2472 16.4113C39.9938 15.6040 39.8684 14.5497 39.8684 13.2424V11.3522C39.8684 10.0377 40.0097 9.06662 40.2925 8.25892C40.5799 7.44566 41.0181 6.84857 41.6010 6.46756C42.1838 6.08655 42.9489 5.89604 43.8907 5.89604C44.8262 5.89604 45.5839 6.09087 46.1699 6.47756C46.7530 6.86715 47.1789 7.46424 47.4474 8.27750C47.7158 9.09076 47.8508 10.0545 47.8508 11.3522V13.2424C47.8508 14.5497 47.7221 15.6108 47.4600 16.4211C47.1980 17.2344 46.7911 17.8316 46.2335 18.2126C45.6759 18.5937 44.9099 18.7842 43.9364 18.7842C42.9175 18.7842 42.1046 18.5873 41.4697 18.1937ZM44.6830 16.2846C44.8578 15.8592 44.9441 15.1697 44.9441 14.2186V10.3512C44.9441 9.43244 44.8578 8.75489 44.6830 8.31842C44.5083 7.88194 44.2079 7.66370 43.7764 7.66370C43.3576 7.66370 43.0635 7.88194 42.8950 8.31842C42.7265 8.75489 42.6402 9.43244 42.6402 10.3512V14.2186C42.6402 15.1697 42.7201 15.8592 42.8823 16.2846C43.0444 16.7101 43.3449 16.9220 43.7764 16.9220C44.2079 16.9220 44.5083 16.7101 44.6830 16.2846Z"/>
-        <path d="M56.8154 18.5634H54.6509L54.3996 17.0099H54.3552C53.7944 18.1871 52.9159 18.7809 51.7236 18.7809C50.8894 18.7809 50.2693 18.4968 49.8614 17.9286C49.4536 17.3605 49.2496 16.4909 49.2496 15.3200V6.08667H51.9933V15.1522C51.9933 15.6446 52.0640 16.0024 52.2007 16.2275C52.3375 16.4494 52.5546 16.5604 52.8487 16.5604C53.1014 16.5604 53.3477 16.4808 53.5880 16.3186C53.8283 16.1565 54.0050 15.9502 54.1145 15.6985V6.08667H56.8154V18.5634Z"/>
-        <path d="M64.4755 3.68758H61.6768V18.5629H58.9990V3.68758H56.2003V1.41846H64.4755V3.68758Z"/>
-        <path d="M71.2768 18.5634H69.1124L68.8611 17.0099H68.8167C68.2559 18.1871 67.3773 18.7809 66.1851 18.7809C65.3508 18.7809 64.7308 18.4968 64.3229 17.9286C63.9150 17.3605 63.7110 16.4909 63.7110 15.3200V6.08667H66.4548V15.1522C66.4548 15.6446 66.5255 16.0024 66.6622 16.2275C66.7989 16.4494 67.0161 16.5604 67.3102 16.5604C67.5628 16.5604 67.8092 16.4808 68.0495 16.3186C68.2898 16.1565 68.4664 15.9502 68.5760 15.6985V6.08667H71.2768V18.5634Z"/>
-        <path d="M80.609 8.0387C80.4053 7.26014 80.0639 6.68536 79.5999 6.31455C79.1279 5.94031 78.4978 5.75543 77.6951 5.75543C77.0777 5.75543 76.5117 5.93001 75.9978 6.28258C75.4897 6.63515 75.0924 7.09424 74.8164 7.65985H74.7944V0.778015H72.1887V18.5633H74.5088L74.8227 17.3067H74.8798C75.1374 17.7972 75.5256 18.1783 76.0396 18.4531C76.5519 18.7278 77.1105 18.8657 77.7217 18.8657C78.8814 18.8657 79.7272 18.3815 80.2538 17.4130C80.7803 16.4446 81.0441 14.9874 81.0441 13.0415V11.3583C81.0441 9.92318 80.8976 8.81726 80.609 8.0387ZM78.3103 12.9034C78.3103 13.8980 78.2600 14.6748 78.1578 15.2339C78.0556 15.7930 77.8958 16.1932 77.6730 16.4351C77.4542 16.6739 77.1676 16.7921 76.8085 16.7921C76.5092 16.7921 76.2346 16.7156 75.9978 16.5594C75.7571 16.4032 75.5671 16.1778 75.4205 15.8900V8.88955C75.5458 8.50540 75.7348 8.19712 75.9978 7.97074C76.2608 7.74435 76.5519 7.63116 76.8782 7.63116C77.2271 7.63116 77.5003 7.75749 77.6951 8.01015C77.8899 8.26280 78.0325 8.68282 78.1261 9.26448C78.2155 9.84614 78.2600 10.6656 78.2600 11.7125L78.3103 12.9034Z"/>
-        <path d="M84.8657 13.8454C84.8657 14.8177 84.9552 15.5445 85.1372 16.0338C85.3162 16.5229 85.6656 16.7652 86.1884 16.7652C86.6670 16.7652 87.0011 16.5570 87.1900 16.1375C87.3788 15.7210 87.4763 15.0248 87.4921 14.0557L89.8694 14.1950C89.8821 14.3091 89.8885 14.4647 89.8885 14.6617C89.8885 15.8485 89.5772 16.7652 88.9547 17.4130C88.3322 18.0608 87.4477 18.3846 86.2997 18.3846C84.9647 18.3846 84.0181 17.9001 83.4578 16.9344C82.8975 15.9686 82.6157 14.4553 82.6157 12.3948V10.2712C82.6157 8.17007 82.9101 6.63858 83.4987 5.67992C84.0876 4.72126 84.9931 4.24194 86.2218 4.24194C87.0619 4.24194 87.7245 4.44993 88.2158 4.86591C88.7068 5.28188 89.0587 5.90726 89.2686 6.74204C89.4784 7.57682 89.5837 8.66247 89.5837 9.99901V11.7776H84.8657V13.8454ZM85.1245 7.24491C84.9394 7.72736 84.8657 8.45636 84.8657 9.43565V10.5081H87.2970V9.43565C87.2970 8.47007 87.2202 7.74107 87.0668 7.24491C86.9133 6.74875 86.6321 6.50067 86.2218 6.50067C85.8021 6.50067 85.5133 6.74875 85.1245 7.24491Z"/>
-      </g>
-    </svg>
+    <img class="yt-logo-img" src="deadpool.png" alt="Ewtube" onerror="this.style.display='none'"/>
   </a>
   <div id="header-search">
     <div style="position:relative;flex:1;max-width:640px;display:flex;align-items:center">
